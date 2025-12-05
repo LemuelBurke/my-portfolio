@@ -55,6 +55,13 @@
     -webkit-animation: hintFade 2s ease-in-out 2s infinite;
 }
 
+.disclaimer{
+    margin-top: 4.5rem;
+    font-size: .7rem;
+    color: #ccc;
+    font-style: italic;
+}
+
 .morgan {
     color: #7B9BDB;
     font-weight: bold;

@@ -47,21 +47,21 @@ const WarningWelcome = ({ onDismiss }) => {
                     >
                         <h1 id="landing-title" className="warning-title">
                             <img src={warningImg} alt="Wii warning icon" className="warning-icon" />
-                            WARNING — ENTERING PORTFOLIO
+                            WARNING—ENTERING PORTFOLIO
                         </h1>
 
                         <div className="warning-body">
                             <p>
-                                I INVITE YOU TO VIEW THE CONTENTS OF THIS SITE
+                                HI THERE, WELCOME TO MY Wii-INSPIRED ONLINE PORTFOLIO.
                                 <br />
-                                FOR INFORMATION ABOUT ME - <span className="morgan">MORGAN BURKE</span>
+                                THIS SITE CONTAINS A BIT ABOUT ME - <span className="morgan">MORGAN BURKE</span>
                                 <br />
-                                - MY PORTFOLIO, HOBBIES AND BACKGROUND.
+                                - MY EXPERIENCES, PROJECTS AND HOBBIES.
                             </p>
                         </div>
 
                         <p className="warning-small">
-                            More info at <br />
+                            Get in touch <br />
                             <a href="https://www.linkedin.com/in/morgan--burke/" target="_blank" rel="noreferrer noopener">
                                 www.linkedin.com/morgan--burke
                             </a>
@@ -70,6 +70,8 @@ const WarningWelcome = ({ onDismiss }) => {
                         <p className="landing-hint">
                             Click <img src={normCursor} className="clickCursorImg" alt="cursor" /> to continue.
                         </p>
+
+                        <p className="disclaimer">This site is <b>not</b> affiliated with, endorsed by, or in partnership with Nintendo. All trademarks and copyrights related to Nintendo and the Wii™ system belong to their respective owners.</p>
                     </motion.div>
                 </motion.div>
             )}
