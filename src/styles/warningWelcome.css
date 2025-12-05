@@ -95,7 +95,8 @@ a {
     display: inline-block;
     vertical-align: middle;
     margin-right: 0.1rem;
-    margin-left: .9rem;;
+    margin-left: .9rem;
+    margin-bottom: 0.3rem;
 }
 
 /*==================*/

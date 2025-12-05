@@ -5,6 +5,8 @@ import HomePage from './pages/HomePage'
 
 import clickSound from './assets/audio/click-sound.mp3'
 import startUpSound from './assets/audio/wii-startup-sound.mp3'
+import wiimenu from './assets/audio/wiimenu.mp3'
+
 
 export const SoundContext = createContext({
     playSound: () => { },
@@ -15,6 +17,7 @@ function App() {
     const audioSources = useRef({
         click: clickSound,
         startup: startUpSound,
+        menu: wiimenu,
     })
 
     const audioCache = useRef({})
@@ -22,8 +25,15 @@ function App() {
     useEffect(() => {
         const startup = new Audio(audioSources.current.startup)
         startup.preload = 'auto'
-        startup.volume = 0.9
+        startup.volume = 0.3
         audioCache.current.startup = startup
+
+        const menu = new Audio(audioSources.current.menu)
+        menu.preload = 'auto'
+        menu.loop = true
+        menu.volume = 0.3
+        audioCache.current.menu = menu
+
     }, [])
 
     const playSound = (name, { allowOverlap = true, volume = 0.9 } = {}) => {
@@ -58,6 +68,21 @@ function App() {
         document.addEventListener('click', onDocClick)
         return () => document.removeEventListener('click', onDocClick)
     }, [])
+
+    useEffect(() => {
+        const menuEl = audioCache.current.menu
+        if (!menuEl) return
+
+        if (screen === "home") {
+            menuEl.play().catch(() => {})
+        } else {
+            try {
+                menuEl.pause()
+                menuEl.currentTime = 0
+            } catch (_) { }
+        }
+    }, [screen])
+
 
     const goToHome = () => {
         playSound('startup', { allowOverlap: false })
