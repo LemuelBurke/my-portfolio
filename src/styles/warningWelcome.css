@@ -1,27 +1,20 @@
-﻿
-
-/* Welcome warning screen styling */
+﻿/* Welcome warning screen styling */
 .landing-overlay {
     position: fixed;
     inset: 0;
+    z-index: 1000;
+    background: #000; 
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #000;
-    z-index: 1000;
-    color: #fff;
-    /*contents fade in on load*/
-    opacity: 0;
-    animation: overlayFade 600ms ease-out forwards;
+    will-change: opacity;
 }
 
 .landing-inner {
     width: min(1024px, 94%);
     text-align: center;
     padding: 2rem 1rem;
-    opacity: 0;
-    transform: translateY(8px);
-    animation: contentFade 600ms ease-out 200ms forwards;
+    will-change: opacity, transform;
 }
 
 .warning-title {
@@ -58,7 +51,7 @@
     color: #ccc;
     font-weight: bold;
     opacity: 0;
-    animation: hintFade 2s ease-in-out 2s infinite;/ keep audio instance
+    animation: hintFade 2s ease-in-out 2s infinite;
     -webkit-animation: hintFade 2s ease-in-out 2s infinite;
 }
 
