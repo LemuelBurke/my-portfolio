@@ -1,83 +1,346 @@
-﻿/*Styling*/
+﻿/* Styling */
 body {
     background-color: #f5f5f5;
     background-blend-mode: overlay;
-    /* Slight Wii-style vignette */
-
-    /* Removes browser default margin */
     margin: 0;
     padding: 0;
-    /* Smooth, clean look */
-    overflow-x: hidden;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
 }
+
     body::before {
         content: "";
-        position: absolute;
+        position: fixed;
         inset: 0;
         pointer-events: none;
-        background: repeating-linear-gradient( to bottom, rgba(0, 0, 0, 0.10) 0px, rgba(0, 0, 0, 0.10) 2px, rgba(0, 0, 0, 0.00) 2px, rgba(0, 0, 0, 0.00) 4px );
+        background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.10) 0px, rgba(0, 0, 0, 0.10) 2px, rgba(0, 0, 0, 0.00) 2px, rgba(0, 0, 0, 0.00) 4px);
         mix-blend-mode: multiply;
         opacity: 0.55;
+        z-index: 1;
     }
 
     body::after {
         content: "";
-        position: absolute;
+        position: fixed;
         inset: 0;
         pointer-events: none;
-        background: repeating-linear-gradient( to bottom, rgba(255, 255, 255, 0.25) 0px, rgba(255, 255, 255, 0.25) 2px, rgba(255, 255, 255, 0.00) 2px, rgba(255, 255, 255, 0.00) 4px );
+        background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.25) 0px, rgba(255, 255, 255, 0.25) 2px, rgba(255, 255, 255, 0.00) 2px, rgba(255, 255, 255, 0.00) 4px);
         mix-blend-mode: screen;
         opacity: 0.45;
+        z-index: 1;
     }
 
-
-
-
-
-
-/*Game cards*/
+/* Game cards */
 .menu-viewport {
-    padding-top: 3rem;
-    width: 100%;
+    position: relative;
+    width: 100vw;
+    height: calc(100vh - 120px);
     overflow: hidden;
-    display: flex;
-    justify-content: center;
-    padding-bottom: 3rem;
+    padding-top: 3rem;
 }
+
+.push-left {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
 .menu-grid {
     display: flex;
     overflow-x: hidden;
-    overflow-y: hidden;
     scroll-behavior: smooth;
-    padding-left: 13vw;
-    padding-right: 12vw;
-    gap: 6vw;
-    padding-bottom: 1rem;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    padding-left: 80px;
 }
+
 .menu-page {
+    min-width: calc(100vw - 200px);
+    max-width: calc(100vw - 200px);
+    flex-shrink: 0;
     display: grid;
-    grid-template-rows: repeat(3, 10rem);
-    grid-auto-flow: column;
-    grid-auto-columns: 18rem;
-    gap: 1rem;
-    width: max-content;
-    align-content: start; 
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    column-gap: 0.5rem;
+    row-gap: 1.2rem;
+    padding: 1.5rem 2rem;
+    box-sizing: border-box;
+    align-content: center;
+    margin-right: 20px;
 }
-.grid {
-    grid-template-columns: repeat(4, 18rem);
-    grid-template-rows: repeat(3, 10rem);
+
+/* Arrow positioning - PROPERLY FIXED */
+.prev-arrow-container,
+.next-arrow-container {
+    position: fixed;
+    top: 45%; /* Moved up from 50% */
+    z-index: 100;
+    pointer-events: all;
 }
-@media (max-width: 1200px) {
+
+.prev-arrow-container {
+    left: 20px;
+    transform: translateY(-50%);
+}
+
+.next-arrow-container {
+    right: 20px;
+    transform: translateY(-50%);
+}
+
+.next-arrow,
+.prev-arrow {
+    width: 65px; /* Increased from 50px */
+    height: 65px; /* Increased from 50px */
+    transition: opacity 0.3s, transform 0.2s;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    display: block;
+    opacity: 0.85;
+    cursor: url('../assets/imgs/user-cursor-med.png'), auto; /* Move cursor here */
+}
+
+/* Flip the prev arrow in CSS */
+.prev-arrow {
+    transform: scaleX(-1);
+}
+
+    .next-arrow:not(.disabled):hover,
+    .prev-arrow:not(.disabled):hover {
+        opacity: 1;
+        transform: scale(1.15);
+        cursor: url('../assets/imgs/user-cursor-med.png'), auto; /* Add cursor to hover state too */
+    }
+
+    /* Keep the flip on hover for prev arrow */
+    .prev-arrow:not(.disabled):hover {
+        transform: scaleX(-1) scale(1.15);
+        cursor: url('../assets/imgs/user-cursor-med.png'), auto; /* Add cursor here too */
+    }
+
+    .next-arrow.disabled,
+    .prev-arrow.disabled {
+        pointer-events: none;
+        opacity: 0.3;
+        cursor: url('../assets/imgs/user-cursor-med.png'), auto; /* Keep cursor on disabled state */
+    }
+
+/* Footer */
+.wii-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 110px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.25) 100%);
+    border-top: 2px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 3rem;
+    z-index: 50;
+    backdrop-filter: blur(10px);
+}
+
+.footer-left,
+.footer-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.footer-button {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: url('../assets/imgs/user-cursor-med.png'), auto;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+    .footer-button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .footer-button img {
+        width: 36px;
+        height: 36px;
+    }
+
+.footer-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.footer-time {
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: #888;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    letter-spacing: 0.05em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.footer-date {
+    font-size: 1rem;
+    color: #999;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Channel Overlay */
+.channel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+}
+
+.channel-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 90%;
+    max-height: 90%;
+    overflow: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+.channel-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    cursor: url('../assets/imgs/user-cursor-med.png'), auto;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: background 0.2s;
+    z-index: 10;
+}
+
+    .channel-close:hover {
+        background: #cc0000;
+    }
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
     .menu-page {
-        grid-template-columns: repeat(3, 18rem);
-        grid-template-rows: repeat(3, 10rem); 
+        min-width: calc(100vw - 180px);
+        max-width: calc(100vw - 180px);
+        column-gap: 0.4rem;
+        row-gap: 1rem;
+    }
+
+    .menu-grid {
+        padding-left: 60px;
     }
 }
+
+@media (max-width: 1024px) {
+    .menu-page {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        min-width: calc(100vw - 140px);
+        max-width: calc(100vw - 140px);
+        padding: 2rem 1.5rem;
+        column-gap: 0.5rem;
+        row-gap: 1rem;
+    }
+
+    .menu-grid {
+        padding-left: 40px;
+    }
+
+    .prev-arrow-container {
+        left: 15px;
+    }
+
+    .next-arrow-container {
+        right: 15px;
+    }
+}
+
 @media (max-width: 768px) {
+    .menu-viewport {
+        height: calc(100vh - 90px);
+        padding-top: 2rem;
+    }
+
     .menu-page {
-        grid-template-columns: repeat(2, 18rem);
-        grid-template-rows: repeat(3, 10rem);
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(6, 1fr);
+        min-width: calc(100vw - 100px);
+        max-width: calc(100vw - 100px);
+        padding: 1.5rem 1rem;
+        column-gap: 0.5rem;
+        row-gap: 0.75rem;
+    }
+
+    .menu-grid {
+        padding-left: 30px;
+    }
+
+    .wii-footer {
+        height: 90px;
+        padding: 0 1.5rem;
+    }
+
+    .footer-button {
+        width: 50px;
+        height: 50px;
+    }
+
+    .footer-time {
+        font-size: 2rem;
+    }
+
+    .footer-date {
+        font-size: 0.9rem;
+    }
+
+    .prev-arrow-container,
+    .next-arrow-container {
+        top: 43%; /* Adjusted for mobile */
+    }
+
+    .prev-arrow-container {
+        left: 10px;
+    }
+
+    .next-arrow-container {
+        right: 10px;
+    }
+
+    .next-arrow,
+    .prev-arrow {
+        width: 50px; /* Still smaller on mobile */
+        height: 50px;
     }
 }
 
-
+@media (max-width: 480px) {
+    .menu-page {
+        padding: 1rem;
+        column-gap: 0.4rem;
+        row-gap: 0.5rem;
+    }
+}

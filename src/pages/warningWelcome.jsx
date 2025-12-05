@@ -23,7 +23,7 @@ const WarningWelcome = ({ onDismiss }) => {
     }, [onDismiss])
 
     return (
-        <AnimatePresence>
+        <AnimatePresence onExitComplete={handleExited}>  {/* ← Use this instead! */}
             {visible && (
                 <motion.div
                     className="landing-overlay"
@@ -34,15 +34,10 @@ const WarningWelcome = ({ onDismiss }) => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 3, ease: "easeOut" }}
-                    onAnimationComplete={(definition) => {
-                        if (definition && typeof definition === "object" && "opacity" in definition && !visible) {
-                            handleExited()
-                        }
-                    }}
                 >
                     <motion.div
                         className="landing-inner"
-                        exit={{ opacity: 0}}
+                        exit={{ opacity: 0 }}
                         transition={{ duration: 3, ease: "easeOut" }}
                     >
                         <h1 id="landing-title" className="warning-title">
