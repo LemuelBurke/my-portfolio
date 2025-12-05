@@ -10,12 +10,12 @@ const HomePage = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6 }}>
-
-            <div className="menu-grid">
-                <MenuCard title="News Channel" onClick={() => console.log("Clicked!")}>
-                    <img src={newsImg} style={{ width: "120%" }} />
-                </MenuCard>
-            </div>
+            Check back soon!
+            {/*<div className="menu-grid">*/}
+            {/*    <MenuCard title="News Channel" onClick={() => console.log("Clicked!")}>*/}
+            {/*        <img src={newsImg} style={{ width: "120%" }} />*/}
+            {/*    </MenuCard>*/}
+            {/*</div>*/}
         </motion.div>
     )
 }
