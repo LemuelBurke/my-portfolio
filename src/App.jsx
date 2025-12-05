@@ -112,7 +112,7 @@ function App() {
     return (
         <SoundContext.Provider value={{ playSound, startWelcomeAudio }}>
             <div className={showWelcome ? 'app-content hidden' : 'app-content'}>
-                <HomePage />
+                <HomePage isVisible={!showWelcome} />
             </div>
             <AnimatePresence mode="wait" initial={false}>
                 {showWelcome && (
