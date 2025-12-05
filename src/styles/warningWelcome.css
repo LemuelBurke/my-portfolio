@@ -1,0 +1,82 @@
+
+
+/* Welcome warning screen styling */
+.landing-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  z-index: 1000;
+  color: #fff;
+}
+
+.landing-inner {
+  width: min(1024px, 94%);
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.warning-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 2rem;
+  font-weight: 1200;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: .3rem 0 5.5rem 0;
+}
+
+.warning-icon {
+  font-size: 1.6rem;
+  color: #ffd400;
+}
+
+.warning-body p {
+  font-size: 1.25rem;
+  letter-spacing: 1px;
+  margin: 0.5rem 0;
+}
+
+.warning-small {
+  margin-top: 2.5rem;
+}
+
+.landing-hint {
+  margin-top: 2.5rem;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.morgan {
+    color: #7B9BDB;
+    font-weight: bold;
+}
+
+a {
+    color: #7B9BDB;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+
+/*Warning icon*/
+.warning-icon {
+    width: 36px;
+    height: auto;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.1rem;
+}
+@media (max-width: 420px) {
+    .warning-icon {
+        width: 28px;
+    }
+}
+
+/*==================*/
+
+
