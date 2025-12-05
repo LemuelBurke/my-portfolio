@@ -1,0 +1,126 @@
+﻿import { useRef, useEffect, useState, createContext } from 'react'
+import { AnimatePresence } from 'framer-motion'
+import WarningWelcome from './pages/WarningWelcome'
+import HomePage from './pages/HomePage'
+import clickSound from './assets/audio/click-sound.mp3'
+import startUpSound from './assets/audio/wii-startup-sound.mp3'
+import wiimenu from './assets/audio/wiimenu.mp3'
+
+export const SoundContext = createContext({
+    playSound: () => { },
+    startWelcomeAudio: () => { },
+})
+
+function App() {
+    const [showWelcome, setShowWelcome] = useState(true)
+    const [shouldPlayMenu, setShouldPlayMenu] = useState(false)
+    const audioSources = useRef({ click: clickSound, startup: startUpSound, menu: wiimenu })
+    const audioCache = useRef({})
+
+    useEffect(() => {
+        console.log(' Initializing audio cache...')
+        
+        const startup = new Audio(audioSources.current.startup)
+        startup.preload = 'auto'
+        startup.volume = 0.3
+        audioCache.current.startup = startup
+        console.log(' Startup audio created')
+
+        const menu = new Audio(audioSources.current.menu)
+        menu.preload = 'auto'
+        menu.loop = true
+        menu.volume = 0.3
+        audioCache.current.menu = menu
+        console.log(' Menu audio created')
+    }, [])
+
+    const playSound = (name, { allowOverlap = true, volume = 0.9 } = {}) => {
+        const src = audioSources.current[name]
+        if (!src) return
+
+        if (allowOverlap) {
+            const a = new Audio(src); a.volume = volume; a.preload = 'auto'
+            a.play().catch(() => { })
+            return
+        }
+
+        let el = audioCache.current[name]
+        if (!el) {
+            el = new Audio(src); el.volume = volume; el.preload = 'auto'
+            audioCache.current[name] = el
+        }
+        try { el.currentTime = 0 } catch (_) { }
+        el.play().catch(() => { })
+    }
+
+    const startWelcomeAudio = () => {
+        console.log(' Starting welcome audio sequence...')
+        
+        const startupAudio = audioCache.current.startup
+        if (startupAudio) {
+            const onStartupEnded = () => {
+                console.log(' Startup sound ended! Starting menu music...')
+                startupAudio.removeEventListener('ended', onStartupEnded)
+                setShouldPlayMenu(true)
+            }
+            
+            startupAudio.addEventListener('ended', onStartupEnded)
+            
+            startupAudio.play()
+                .then(() => {
+                    console.log(' Startup sound playing successfully')
+                })
+                .catch((error) => {
+                    console.error(' Failed to play startup sound:', error)
+                    startupAudio.removeEventListener('ended', onStartupEnded)
+                    setTimeout(() => setShouldPlayMenu(true), 2000)
+                })
+        } else {
+            console.error('No startup audio found, starting menu directly')
+            setShouldPlayMenu(true)
+        }
+    }
+
+    useEffect(() => {
+        const onDocClick = () => playSound('click', { allowOverlap: true })
+        document.addEventListener('click', onDocClick)
+        return () => document.removeEventListener('click', onDocClick)
+    }, [])
+
+    // Menu audio control
+    useEffect(() => {
+        console.log(' Menu should play:', shouldPlayMenu)
+        const menuEl = audioCache.current.menu
+        if (!menuEl) return
+
+        if (shouldPlayMenu) {
+            console.log(' Starting menu music...')
+            menuEl.play().catch((error) => console.error('Menu play failed:', error))
+        } else {
+            try {
+                menuEl.pause()
+                menuEl.currentTime = 0
+            } catch (_) { }
+        }
+    }, [shouldPlayMenu])
+
+    const dismissWelcome = () => {
+        console.log('Welcome dismissed after animation')
+        setShowWelcome(false)
+    }
+
+    return (
+        <SoundContext.Provider value={{ playSound, startWelcomeAudio }}>
+            <div className={showWelcome ? 'app-content hidden' : 'app-content'}>
+                <HomePage />
+            </div>
+            <AnimatePresence mode="wait" initial={false}>
+                {showWelcome && (
+                    <WarningWelcome key="welcome" onDismiss={dismissWelcome} />
+                )}
+            </AnimatePresence>
+        </SoundContext.Provider>
+    )
+}
+
+export default App
