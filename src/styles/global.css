@@ -9,4 +9,12 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    cursor: url('../assets/imgs/cursor-normal-med.png'), auto;
+}
+    :root:active {
+        cursor: url('../assets/imgs/user-cursor-med.png'), auto;
+    }
+
+a:hover {
+    cursor: url('../assets/imgs/user-cursor-med.png'), auto;
 }
