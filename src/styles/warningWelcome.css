@@ -1,21 +1,27 @@
-
+﻿
 
 /* Welcome warning screen styling */
 .landing-overlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #000;
-  z-index: 1000;
-  color: #fff;
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    z-index: 1000;
+    color: #fff;
+    /*contents fade in on load*/
+    opacity: 0;
+    animation: overlayFade 600ms ease-out forwards;
 }
 
 .landing-inner {
-  width: min(1024px, 94%);
-  text-align: center;
-  padding: 2rem 1rem;
+    width: min(1024px, 94%);
+    text-align: center;
+    padding: 2rem 1rem;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: contentFade 600ms ease-out 200ms forwards;
 }
 
 .warning-title {
@@ -46,9 +52,13 @@
 }
 
 .landing-hint {
-  margin-top: 2.5rem;
-  font-size: 0.9rem;
-  color: #ccc;
+    margin-top: 2.5rem;
+    font-size: 1.2rem;
+    color: #ccc;
+    font-weight: bold;
+    opacity: 0;
+    animation: hintFade 2s ease-in-out 2s infinite;
+    -webkit-animation: hintFade 2s ease-in-out 2s infinite;
 }
 
 .morgan {
@@ -77,6 +87,50 @@ a {
     }
 }
 
+/*click cursor image*/
+.clickCursorImg {
+    width: 36px;
+    height: 40px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.1rem;
+    margin-left: .9rem;;
+}
 /*==================*/
 
 
+
+/* Keyframes */
+@keyframes overlayFade {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes contentFade {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+/* Continuous fade in/out: 2s total -> 1s fade-in (0%→50%), 1s fade-out (50%→100%) */
+@keyframes hintFade {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
