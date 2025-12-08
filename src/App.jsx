@@ -5,6 +5,7 @@ import HomePage from './pages/homePage'
 import clickSound from './assets/audio/click-sound.mp3'
 import startUpSound from './assets/audio/wii-startup-sound.mp3'
 import wiimenu from './assets/audio/wiimenu.mp3'
+import IntermissionOverlay from './pages/components/intermissionOverlay'
 
 export const SoundContext = createContext({
     playSound: () => { },
@@ -15,9 +16,12 @@ function App() {
     const [showWelcome, setShowWelcome] = useState(true)
     const [shouldPlayMenu, setShouldPlayMenu] = useState(false)
     const [activeChannel, setActiveChannel] = useState(null) // NEW: Track active channel
+    const [isIntermission, setIsIntermission] = useState(false)
 
     const audioSources = useRef({ click: clickSound, startup: startUpSound, menu: wiimenu })
     const audioCache = useRef({})
+    const pendingChannelRef = useRef(null)
+    const intermissionTimerRef = useRef(null)
 
     useEffect(() => {
         console.log('Initializing audio cache...')
@@ -34,6 +38,12 @@ function App() {
         menu.volume = 0.3
         audioCache.current.menu = menu
         console.log('Menu audio created')
+
+        return () => {
+            if (intermissionTimerRef.current) {
+                clearTimeout(intermissionTimerRef.current)
+            }
+        }
     }, [])
 
     const playSound = (name, { allowOverlap = true, volume = 0.9 } = {}) => {
@@ -124,23 +134,42 @@ function App() {
     // NEW: Channel management functions
     const openChannel = (channelId) => {
         console.log('Opening channel:', channelId)
-        setActiveChannel(channelId)
+        // Only show intermission for specific "game" screens
+        if (channelId === 'About Me' || channelId === 'Resume and CV') {
+            // Start intermission and delay the channel activation
+            setIsIntermission(true)
+            pendingChannelRef.current = channelId
+            intermissionTimerRef.current = setTimeout(() => {
+                setActiveChannel(pendingChannelRef.current)
+                setIsIntermission(false)
+                pendingChannelRef.current = null
+            }, 3500) // ~3.5 seconds for readability
+        } else {
+            setActiveChannel(channelId)
+        }
     }
 
     const closeChannel = () => {
         console.log('Closing channel')
+        // Clear any pending intermission / channel switch
+        if (intermissionTimerRef.current) {
+            clearTimeout(intermissionTimerRef.current)
+            intermissionTimerRef.current = null
+        }
+        setIsIntermission(false)
+        pendingChannelRef.current = null
         setActiveChannel(null)
     }
 
-    // Pause menu music when a channel is open, resume when back to HomePage
+    // Pause menu music when a channel is open OR intermission is showing, resume when back to HomePage
     useEffect(() => {
-        if (activeChannel) {
+        if (activeChannel || isIntermission) {
             setShouldPlayMenu(false)
         } else {
             // Resume only after welcome finished at least once
             setShouldPlayMenu((prev) => prev || !showWelcome)
         }
-    }, [activeChannel, showWelcome])
+    }, [activeChannel, showWelcome, isIntermission])
 
     return (
         <SoundContext.Provider value={{ playSound, startWelcomeAudio }}>
@@ -153,6 +182,9 @@ function App() {
                     />
                 )}
             </AnimatePresence>
+
+            {/* Intermission overlay during channel transitions */}
+            <AnimatePresence>{isIntermission && <IntermissionOverlay />}</AnimatePresence>
 
             {/* Main Menu - Only visible after welcome is dismissed */}
             {!showWelcome && (

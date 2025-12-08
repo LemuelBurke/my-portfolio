@@ -3,11 +3,18 @@ import { useState, useRef, useEffect, useMemo } from "react"
 import "../styles/homepage/index.css"
 import MenuCard from "./components/menuCard"
 import AboutMeMii from "./aboutMeMii"
+import ResumeAndCV from "./resumeAndCV"
 
 // Thumnail Imports
 import Img from "../assets/imgs/thumbnails/placeholderCardImg.png"
 import miiMorgan from "../assets/imgs/thumbnails/2025-12-06 14-18-45.gif"
-
+import projectImg from "../assets/imgs/thumbnails/projects.png"
+import linkedImg from "../assets/imgs/thumbnails/linkedin.png"
+import githubImg from "../assets/imgs/thumbnails/github.png"
+import linkedFULLimg from "../assets/imgs/thumbnails/linkedinFULL.png"
+import githubFULLimg from "../assets/imgs/thumbnails/githubFULL.png"
+import projectFULLimg from "../assets/imgs/thumbnails/projectsFULL.png"
+import cvFULLimg from "../assets/imgs/thumbnails/cvFULL.png"
 
 import NextArrow from "./components/nextPage"
 import wiiArrowImg from "../assets/imgs/wiiArrow.svg"
@@ -15,6 +22,7 @@ import GameSelectScreen from "./components/gameSelectScreen"
 import ContactMe from "./components/contactMe"
 import userCursor from "../assets/imgs/user-cursor-med.png"
 import footerImg from "../assets/imgs/footer_img.png"
+import cvImg from "../assets/imgs/thumbnails/cv.png"
 
 const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
     const [currentPage, setCurrentPage] = useState(0)
@@ -38,10 +46,25 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
             },
             {
                 title: "Resume and CV",
-                thumbnail: miiMorgan,
-                fullImage: miiMorgan
+                thumbnail: cvImg,
+                fullImage: cvFULLimg
             },
-            ...Array.from({ length: 10 }, (_, i) => ({
+            {
+                title: "My Projects",
+                thumbnail: projectImg,
+                fullImage: projectFULLimg
+            },
+            {
+                title: "LinkedIn",
+                thumbnail: linkedImg,
+                fullImage: linkedFULLimg
+            },
+            {
+                title: "GitHub",
+                thumbnail: githubImg,
+                fullImage: githubFULLimg
+            },
+            ...Array.from({ length: 6 }, (_, i) => ({
                 title: ``,
                 thumbnail: Img,
                 fullImage: Img
@@ -184,6 +207,14 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
     if (activeChannel === "About Me") {
         return <AboutMeMii onExit={onChannelClose} />
     }
+
+    // If Resume and CV channel is active, show the ResumeAndCV page
+    if (activeChannel === "Resume and CV") {
+        return <ResumeAndCV onExit={onChannelClose} />
+    }
+
+    // Known channels that render dedicated pages
+    const knownChannels = new Set(["About Me", "Resume and CV"])
 
     return (
         <>
@@ -351,6 +382,23 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                         onClose={() => setSelectedGameIndex(null)}
                         onStart={() => {
                             console.log(`Starting ${selectedGame.title}`)
+                            // External redirects for LinkedIn and GitHub
+                            if (selectedGame.title === 'LinkedIn') {
+                                window.open('https://www.linkedin.com/in/morgan--burke/', '_blank', 'noopener,noreferrer')
+                                setSelectedGameIndex(null)
+                                return
+                            }
+                            if (selectedGame.title === 'GitHub') {
+                                window.open('https://github.com/LemuelBurke?tab=repositories', '_blank', 'noopener,noreferrer')
+                                setSelectedGameIndex(null)
+                                return
+                            }
+                            // Projects placeholder
+                            if (selectedGame.title === 'My Projects') {
+                                alert('Coming soon!')
+                                setSelectedGameIndex(null)
+                                return
+                            }
                             onChannelOpen(selectedGame.title)
                             setSelectedGameIndex(null)
                         }}
@@ -365,7 +413,7 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
 
             {/* Channel Overlay */}
             <AnimatePresence>
-                {activeChannel && (
+                {activeChannel && !knownChannels.has(activeChannel) && (
                     <ChannelOverlay
                         channelId={activeChannel}
                         onClose={onChannelClose}

@@ -67,7 +67,7 @@ const ContactMe = ({ isOpen, onClose }) => {
                             onClick={onClose}
                             aria-label="Close contact form"
                         >
-                            ×
+                            X
                         </button>
 
                         <div className="contact-header">

@@ -32,6 +32,9 @@ import team4 from "../assets/imgs/aboutMePage/team4.png"
 import team5 from "../assets/imgs/aboutMePage/team5.png"
 import CARPol from "../assets/imgs/aboutMePage/CARPol.png"
 import miiman from "../assets/imgs/aboutMePage/miiman.gif"
+import travel1 from "../assets/imgs/aboutMePage/travel1.png"
+import travel2 from "../assets/imgs/aboutMePage/travel2.png"
+import travel3 from "../assets/imgs/aboutMePage/travel3.png"
 
 const contentByKey = {
     abtme: (
@@ -71,6 +74,12 @@ const contentByKey = {
                 travelling, and building software along the way!)
                 Having already visited the United States, Czech Republic and Japan independantly, I can't wait to see more of the world!
             </p>
+
+            <div className="mii-polaroids">
+                <img src={travel1} alt="Polaroid 1" className="mii-polaroid tilt-left" draggable={false} />
+                <img src={travel2} alt="Polaroid 2" className="mii-polaroid tilt-right" draggable={false} />
+                <img src={travel3} alt="Polaroid 3" className="mii-polaroid tilt-left" draggable={false} />
+            </div>
 
             <p>
                 I highly encourage you to check out the rest of this Mii creator inspired section to learn more about me -
