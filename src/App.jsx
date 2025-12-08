@@ -1,7 +1,7 @@
 ﻿import { useRef, useEffect, useState, createContext } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import WarningWelcome from './pages/WarningWelcome'
-import HomePage from './pages/HomePage'
+import HomePage from './pages/homePage'
 import clickSound from './assets/audio/click-sound.mp3'
 import startUpSound from './assets/audio/wii-startup-sound.mp3'
 import wiimenu from './assets/audio/wiimenu.mp3'
@@ -20,20 +20,20 @@ function App() {
     const audioCache = useRef({})
 
     useEffect(() => {
-        console.log('🎵 Initializing audio cache...')
+        console.log('Initializing audio cache...')
 
         const startup = new Audio(audioSources.current.startup)
         startup.preload = 'auto'
         startup.volume = 0.3
         audioCache.current.startup = startup
-        console.log('✅ Startup audio created')
+        console.log('Startup audio created')
 
         const menu = new Audio(audioSources.current.menu)
         menu.preload = 'auto'
         menu.loop = true
         menu.volume = 0.3
         audioCache.current.menu = menu
-        console.log('✅ Menu audio created')
+        console.log('Menu audio created')
     }, [])
 
     const playSound = (name, { allowOverlap = true, volume = 0.9 } = {}) => {
@@ -56,12 +56,12 @@ function App() {
     }
 
     const startWelcomeAudio = () => {
-        console.log('🎵 Starting welcome audio sequence...')
+        console.log('Starting welcome audio sequence...')
 
         const startupAudio = audioCache.current.startup
         if (startupAudio) {
             const onStartupEnded = () => {
-                console.log('✅ Startup sound ended! Starting menu music...')
+                console.log('Startup sound ended! Starting menu music...')
                 startupAudio.removeEventListener('ended', onStartupEnded)
                 setShouldPlayMenu(true)
             }
@@ -70,15 +70,15 @@ function App() {
 
             startupAudio.play()
                 .then(() => {
-                    console.log('✅ Startup sound playing successfully')
+                    console.log('Startup sound playing successfully')
                 })
                 .catch((error) => {
-                    console.error('❌ Failed to play startup sound:', error)
+                    console.error('Failed to play startup sound:', error)
                     startupAudio.removeEventListener('ended', onStartupEnded)
                     setTimeout(() => setShouldPlayMenu(true), 2000)
                 })
         } else {
-            console.error('❌ No startup audio found, starting menu directly')
+            console.error('No startup audio found, starting menu directly')
             setShouldPlayMenu(true)
         }
     }
@@ -89,15 +89,25 @@ function App() {
         return () => document.removeEventListener('click', onDocClick)
     }, [])
 
+    // Disable right-click context menu
+    useEffect(() => {
+        const preventContextMenu = (e) => {
+            e.preventDefault()
+            return false
+        }
+        document.addEventListener('contextmenu', preventContextMenu)
+        return () => document.removeEventListener('contextmenu', preventContextMenu)
+    }, [])
+
     // Menu audio control
     useEffect(() => {
-        console.log('🎵 Menu should play:', shouldPlayMenu)
+        console.log('Menu should play:', shouldPlayMenu)
         const menuEl = audioCache.current.menu
         if (!menuEl) return
 
         if (shouldPlayMenu) {
-            console.log('🎵 Starting menu music...')
-            menuEl.play().catch((error) => console.error('❌ Menu play failed:', error))
+            console.log('Starting menu music...')
+            menuEl.play().catch((error) => console.error('Menu play failed:', error))
         } else {
             try {
                 menuEl.pause()
@@ -107,20 +117,30 @@ function App() {
     }, [shouldPlayMenu])
 
     const dismissWelcome = () => {
-        console.log('✅ Welcome dismissed after animation')
+        console.log('Welcome dismissed after animation')
         setShowWelcome(false)
     }
 
     // NEW: Channel management functions
     const openChannel = (channelId) => {
-        console.log('🎮 Opening channel:', channelId)
+        console.log('Opening channel:', channelId)
         setActiveChannel(channelId)
     }
 
     const closeChannel = () => {
-        console.log('🎮 Closing channel')
+        console.log('Closing channel')
         setActiveChannel(null)
     }
+
+    // Pause menu music when a channel is open, resume when back to HomePage
+    useEffect(() => {
+        if (activeChannel) {
+            setShouldPlayMenu(false)
+        } else {
+            // Resume only after welcome finished at least once
+            setShouldPlayMenu((prev) => prev || !showWelcome)
+        }
+    }, [activeChannel, showWelcome])
 
     return (
         <SoundContext.Provider value={{ playSound, startWelcomeAudio }}>

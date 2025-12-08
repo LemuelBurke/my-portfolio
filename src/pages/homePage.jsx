@@ -1,16 +1,59 @@
 ﻿import { motion, AnimatePresence } from "framer-motion"
-import { useState, useRef, useEffect } from "react"
-import "../styles/homePage.css"
+import { useState, useRef, useEffect, useMemo } from "react"
+import "../styles/homepage/index.css"
 import MenuCard from "./components/menuCard"
-import Img from "../assets/imgs/placeholderCardImg.png"
+import AboutMeMii from "./aboutMeMii"
+
+// Thumnail Imports
+import Img from "../assets/imgs/thumbnails/placeholderCardImg.png"
+import miiMorgan from "../assets/imgs/thumbnails/2025-12-06 14-18-45.gif"
+
+
 import NextArrow from "./components/nextPage"
 import wiiArrowImg from "../assets/imgs/wiiArrow.svg"
+import GameSelectScreen from "./components/gameSelectScreen"
+import ContactMe from "./components/contactMe"
+import userCursor from "../assets/imgs/user-cursor-med.png"
+import footerImg from "../assets/imgs/footer_img.png"
 
 const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
     const [currentPage, setCurrentPage] = useState(0)
     const [currentTime, setCurrentTime] = useState(new Date())
+    const [selectedGameIndex, setSelectedGameIndex] = useState(null)
+    const [isContactOpen, setIsContactOpen] = useState(false)
+    const [swipeDirection, setSwipeDirection] = useState(0) // -1 prev, 1 next
     const menuGridRef = useRef(null)
     const totalPages = 2
+
+    // Key to force re-mounting menu pages to replay animations
+    const [menuAnimKey, setMenuAnimKey] = useState(0)
+
+    // Create games array with all projects
+    const games = useMemo(() => {
+        const allGames = [
+            {
+                title: "About Me",
+                thumbnail: miiMorgan,
+                fullImage: miiMorgan
+            },
+            {
+                title: "Resume and CV",
+                thumbnail: miiMorgan,
+                fullImage: miiMorgan
+            },
+            ...Array.from({ length: 10 }, (_, i) => ({
+                title: ``,
+                thumbnail: Img,
+                fullImage: Img
+            })),
+            ...Array.from({ length: 12 }, (_, i) => ({
+                title: `Project ${i + 13}`,
+                thumbnail: Img,
+                fullImage: Img
+            }))
+        ];
+        return allGames;
+    }, []);
 
     // Update time every second
     useEffect(() => {
@@ -20,8 +63,16 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
         return () => clearInterval(timer)
     }, [])
 
+    // When closing selected game, force menu pages to re-mount to replay card animations
+    useEffect(() => {
+        if (selectedGameIndex === null) {
+            // small tick to change key and re-trigger animations
+            setMenuAnimKey(prev => prev + 1)
+        }
+    }, [selectedGameIndex])
+
     const handleNext = () => {
-        if (currentPage < totalPages - 1) {
+        if (currentPage < totalPages - 1 && window.innerWidth >= 1024) {
             const nextPage = currentPage + 1
             setCurrentPage(nextPage)
 
@@ -35,7 +86,7 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
     }
 
     const handlePrev = () => {
-        if (currentPage > 0) {
+        if (currentPage > 0 && window.innerWidth >= 1024) {
             const prevPage = currentPage - 1
             setCurrentPage(prevPage)
 
@@ -57,11 +108,41 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
     }
 
     const formatDate = (date) => {
-        return date.toLocaleDateString('en-US', {
+        return date.toLocaleDateString('en-GB', {
             weekday: 'short',
-            month: 'numeric',
-            day: 'numeric'
+            day: 'numeric',
+            month: 'numeric'
         })
+    }
+
+    // Open contact modal
+    const handleContactOpen = () => {
+        setIsContactOpen(true)
+    }
+
+    // Close contact modal
+    const handleContactClose = () => {
+        setIsContactOpen(false)
+    }
+
+    // Game navigation
+    const handleGameSelect = (index) => {
+        setSelectedGameIndex(index)
+        setSwipeDirection(0)
+    }
+
+    const handleNextGame = () => {
+        if (selectedGameIndex < games.length - 1) {
+            setSwipeDirection(1)
+            setSelectedGameIndex(selectedGameIndex + 1)
+        }
+    }
+
+    const handlePrevGame = () => {
+        if (selectedGameIndex > 0) {
+            setSwipeDirection(-1)
+            setSelectedGameIndex(selectedGameIndex - 1)
+        }
     }
 
     const containerVariants = {
@@ -97,6 +178,13 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
         }
     }
 
+    const selectedGame = selectedGameIndex !== null ? games[selectedGameIndex] : null
+
+    // If About Me channel is active, show the dedicated page instead of the menu/overlay
+    if (activeChannel === "About Me") {
+        return <AboutMeMii onExit={onChannelClose} />
+    }
+
     return (
         <>
             <motion.div
@@ -124,8 +212,9 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                                 alt="Previous page"
                                 style={{
                                     opacity: currentPage === 0 ? 0.3 : 1,
-                                    cursor: currentPage === 0 ? 'default' : 'pointer'
+                                    cursor: currentPage === 0 ? 'default' : `url('${userCursor}'), auto`
                                 }}
+                                draggable={false}
                             />
                         </motion.div>
                     )}
@@ -155,11 +244,14 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                             <motion.div
                                 className="menu-page"
                                 id="page-1"
+                                key={`page1-${menuAnimKey}`}
                                 variants={containerVariants}
+                                initial="hidden"
+                                animate="visible"
                             >
-                                {[...Array(12)].map((_, i) => (
+                                {games.slice(0, 12).map((game, i) => (
                                     <motion.div
-                                        key={i}
+                                        key={`page1-${i}-${menuAnimKey}`}
                                         variants={cardVariants}
                                         whileHover={{
                                             scale: 1.05,
@@ -167,11 +259,10 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                                         }}
                                     >
                                         <MenuCard
-                                            title=""
-                                            onClick={() => onChannelOpen(`channel-${i}`)}
-                                        >
-                                            <img src={Img} style={{ width: "120%" }} alt="" />
-                                        </MenuCard>
+                                            title={game.title}
+                                            thumbnail={game.thumbnail}
+                                            onClick={() => handleGameSelect(i)}
+                                        />
                                     </motion.div>
                                 ))}
                             </motion.div>
@@ -180,11 +271,14 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                             <motion.div
                                 className="menu-page"
                                 id="page-2"
+                                key={`page2-${menuAnimKey}`}
                                 variants={containerVariants}
+                                initial="hidden"
+                                animate="visible"
                             >
-                                {[...Array(12)].map((_, i) => (
+                                {games.slice(12, 24).map((game, i) => (
                                     <motion.div
-                                        key={`page2-${i}`}
+                                        key={`page2-${i}-${menuAnimKey}`}
                                         variants={cardVariants}
                                         whileHover={{
                                             scale: 1.05,
@@ -192,11 +286,10 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                                         }}
                                     >
                                         <MenuCard
-                                            title=""
-                                            onClick={() => onChannelOpen(`channel-page2-${i}`)}
-                                        >
-                                            <img src={Img} style={{ width: "120%" }} alt="" />
-                                        </MenuCard>
+                                            title={game.title}
+                                            thumbnail={game.thumbnail}
+                                            onClick={() => handleGameSelect(i + 12)}
+                                        />
                                     </motion.div>
                                 ))}
                             </motion.div>
@@ -205,35 +298,70 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                 </div>
 
                 {/* Wii Footer */}
-                {!activeChannel && (
+                {!activeChannel && !selectedGame && (
                     <motion.div
                         className="wii-footer"
                         initial={{ y: 100, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ duration: 0.6, delay: 0.5 }}
                     >
-                        <div className="footer-left">
-                            <div className="footer-button">
-                                <span style={{ fontSize: '24px' }}>Wii</span>
-                            </div>
-                            <div className="footer-button">
-                                <span style={{ fontSize: '20px' }}>💾</span>
-                            </div>
-                        </div>
-
-                        <div className="footer-center">
-                            <div className="footer-time">{formatTime(currentTime)}</div>
-                            <div className="footer-date">{formatDate(currentTime)}</div>
-                        </div>
-
-                        <div className="footer-right">
-                            <div className="footer-button">
-                                <span style={{ fontSize: '24px' }}>✉️</span>
-                            </div>
-                        </div>
+                        {/* Time above footer in the dip */}
+                        <div className="footer-time-above">{formatTime(currentTime)}</div>
+                        
+                        {/* Footer base image */}
+                        <img src={footerImg} alt="" className="footer-base-img" draggable={false} />
+                        
+                        {/* Wii button on the left */}
+                        <button 
+                            className="footer-wii-button"
+                            onClick={() => console.log('Wii button clicked')}
+                        >
+                            Wii
+                        </button>
+                        
+                        {/* Email button on the right */}
+                        <button 
+                            className="footer-email-button"
+                            onClick={handleContactOpen}
+                        >
+                            <svg className="footer-email-icon" viewBox="0 0 24 24">
+                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v 2z"/>
+                            </svg>
+                            <div className="footer-email-notification">1</div>
+                        </button>
+                        
+                        {/* Date centered in footer */}
+                        <div className="footer-date-center">{formatDate(currentTime)}</div>
                     </motion.div>
                 )}
             </motion.div>
+
+            {/* Contact Form Modal */}
+            <ContactMe 
+                isOpen={isContactOpen}
+                onClose={handleContactClose}
+            />
+
+            {/* Game Select Screen */}
+            <AnimatePresence>
+                {selectedGame && (
+                    <GameSelectScreen
+                        gameTitle={selectedGame.title}
+                        gameImage={selectedGame.fullImage}
+                        onClose={() => setSelectedGameIndex(null)}
+                        onStart={() => {
+                            console.log(`Starting ${selectedGame.title}`)
+                            onChannelOpen(selectedGame.title)
+                            setSelectedGameIndex(null)
+                        }}
+                        onNext={handleNextGame}
+                        onPrev={handlePrevGame}
+                        hasNext={selectedGameIndex < games.length - 1}
+                        hasPrev={selectedGameIndex > 0}
+                        direction={swipeDirection}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Channel Overlay */}
             <AnimatePresence>

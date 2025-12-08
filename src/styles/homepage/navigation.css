@@ -1,0 +1,54 @@
+/* Arrow positioning - PROPERLY FIXED */
+.prev-arrow-container,
+.next-arrow-container {
+    position: fixed;
+    top: 45%; /* Moved up from 50% */
+    z-index: 100;
+    pointer-events: all;
+}
+
+.prev-arrow-container {
+    left: clamp(10px, 2vw, 20px);
+    transform: translateY(-50%);
+}
+
+.next-arrow-container {
+    right: clamp(10px, 2vw, 20px);
+    transform: translateY(-50%);
+}
+
+.next-arrow,
+.prev-arrow {
+    width: clamp(50px, 5vw, 65px);
+    height: clamp(50px, 5vw, 65px);
+    transition: opacity 0.3s, transform 0.2s;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    display: block;
+    opacity: 0.85;
+    cursor: url('../../assets/imgs/user-cursor-med.png'), auto; /* Fixed path */
+}
+
+/* Flip the prev arrow in CSS */
+.prev-arrow {
+    transform: scaleX(-1);
+}
+
+    .next-arrow:not(.disabled):hover,
+    .prev-arrow:not(.disabled):hover {
+        opacity: 1;
+        transform: scale(1.15);
+        cursor: url('../../assets/imgs/user-cursor-med.png'), auto; /* Fixed path */
+    }
+
+    /* Keep the flip on hover for prev arrow */
+    .prev-arrow:not(.disabled):hover {
+        transform: scaleX(-1) scale(1.15);
+        cursor: url('../../assets/imgs/user-cursor-med.png'), auto; /* Fixed path */
+    }
+
+    .next-arrow.disabled,
+    .prev-arrow.disabled {
+        pointer-events: none;
+        opacity: 0.3;
+        cursor: url('../../assets/imgs/user-cursor-med.png'), auto; /* Fixed path */
+    }

@@ -1,0 +1,58 @@
+/* Game cards layout */
+.menu-viewport {
+    position: relative;
+    width: 100vw;
+    height: calc(100vh - clamp(220px, 24vh, 260px)); /* Increased margin for footer */
+    overflow-x: hidden;
+    overflow-y: visible; /* Changed to visible to allow tooltips to show */
+    padding-top: clamp(1rem, 2vh, 2rem);
+    padding-bottom: clamp(3rem, 6vh, 4rem); /* Increased bottom padding for tooltip space */
+    box-sizing: border-box;
+    z-index: 1;
+}
+
+.push-left {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: visible;
+}
+
+.menu-grid {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: visible; /* Changed to visible for tooltips */
+    scroll-behavior: smooth;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    padding-left: clamp(50px, 6vw, 80px);
+    padding-right: clamp(30px, 4vw, 40px);
+    box-sizing: border-box;
+    /* Hide scrollbar but allow scrolling */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.menu-grid::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.menu-page {
+    min-width: calc(100vw - clamp(120px, 12vw, 200px));
+    max-width: calc(100vw - clamp(120px, 12vw, 200px));
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: min-content;
+    column-gap: clamp(0.2rem, 0.5vw, 0.4rem);
+    row-gap: clamp(0.6rem, 1.5vh, 1.2rem); /* Reduced row gap slightly */
+    padding: clamp(1rem, 2vh, 1.5rem) clamp(1rem, 2vw, 2rem);
+    padding-bottom: clamp(1.5rem, 3vh, 2.5rem); /* Increased bottom padding */
+    box-sizing: border-box;
+    align-content: start;
+    margin-right: 0;
+    height: fit-content;
+    min-height: 100%;
+    overflow: visible; /* Changed to visible for tooltips */
+}
