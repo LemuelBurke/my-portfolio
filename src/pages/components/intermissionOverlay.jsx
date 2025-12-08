@@ -3,9 +3,17 @@ import { motion } from 'framer-motion'
 import '../../styles/intermission.css'
 import intermissionImg from '../../assets/imgs/intermission screen.png'
 
-const IntermissionOverlay = () => {
+const IntermissionOverlay = ({ onClose }) => {
   return (
-    <div className="intermission-overlay" aria-label="Intermission">
+    <div
+      className="intermission-overlay"
+      aria-label="Intermission"
+      onClick={onClose}
+      onContextMenu={(e) => {
+        e.preventDefault()
+        if (onClose) onClose()
+      }}
+    >
       <motion.img
         src={intermissionImg}
         alt="Wii safety strap warning"

@@ -7,6 +7,7 @@
   background: linear-gradient(to bottom, #FFFFFF 0%, #CDFFFF 100%);
   padding-top: 0;
   overflow-y: auto; /* allow vertical scrolling when content exceeds viewport */
+  -webkit-overflow-scrolling: touch; /* smooth iOS/embedded webview scrolling */
 }
 
 /* Top controls row housing name title */
@@ -157,17 +158,23 @@
 .mii-item:hover .mii-tooltip { opacity: 1; }
 
 /* Content layout */
-.mii-content { padding: clamp(12px, 2vw, 24px); }
+.mii-content { padding: clamp(12px, 2vw, 24px); -webkit-overflow-scrolling: touch; }
 
 .mii-content-layout {
   display: grid;
   grid-template-columns: clamp(260px, 30vw, 420px) 1fr;
   gap: clamp(16px, 2.2vw, 28px);
   align-items: stretch;
-  height: calc(100vh - clamp(140px, 18vw, 200px));
+  /* avoid height lock that may break scrolling in embedded webviews */
+  min-height: calc(100vh - clamp(140px, 18vw, 200px));
 }
 
-.mii-panel { height: 100%; overflow-y: auto; }
+/* Ensure desktop uses a fixed viewport-based height so the right panel can scroll */
+@media (min-width: 721px) {
+  .mii-content-layout { height: calc(100vh - clamp(140px, 18vw, 200px)); }
+}
+
+.mii-panel { height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; overflow-x: hidden; }
 
 .mii-panel-left {
   background: transparent;
@@ -185,13 +192,16 @@
   /* set a consistent height window for the gif area */
   height: clamp(200px, 32vh, 360px);
   color: #2a4b5e;
+  /* prevent horizontal scrolling */
+  overflow: hidden;
 }
 
 .mii-gif-placeholder img {
   display: block;
-  width: 100%;
+  /* fill the placeholder vertically for a larger appearance */
   height: 100%;
-  object-fit: cover;
+  width: auto;
+  object-fit: contain;
 }
 
 .mii-panel-right {
@@ -200,6 +210,7 @@
   border-radius: clamp(8px, 1vw, 14px);
   padding: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Ensure polaroid images sit above any decorative background lines/overlays */

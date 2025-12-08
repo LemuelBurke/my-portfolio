@@ -4,6 +4,8 @@ import "../styles/homepage/index.css"
 import MenuCard from "./components/menuCard"
 import AboutMeMii from "./aboutMeMii"
 import ResumeAndCV from "./resumeAndCV"
+import Projects from "./projects"
+import IntermissionOverlay from "./components/intermissionOverlay"
 
 // Thumnail Imports
 import Img from "../assets/imgs/thumbnails/placeholderCardImg.png"
@@ -15,6 +17,7 @@ import linkedFULLimg from "../assets/imgs/thumbnails/linkedinFULL.png"
 import githubFULLimg from "../assets/imgs/thumbnails/githubFULL.png"
 import projectFULLimg from "../assets/imgs/thumbnails/projectsFULL.png"
 import cvFULLimg from "../assets/imgs/thumbnails/cvFULL.png"
+import discImg from "../assets/imgs/disc.png"
 
 import NextArrow from "./components/nextPage"
 import wiiArrowImg from "../assets/imgs/wiiArrow.svg"
@@ -70,7 +73,7 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                 fullImage: Img
             })),
             ...Array.from({ length: 12 }, (_, i) => ({
-                title: `Project ${i + 13}`,
+                title: ``,
                 thumbnail: Img,
                 fullImage: Img
             }))
@@ -213,8 +216,13 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
         return <ResumeAndCV onExit={onChannelClose} />
     }
 
+    // If Projects channel is active, show Projects page
+    if (activeChannel === "My Projects") {
+        return <Projects onExit={onChannelClose} />
+    }
+
     // Known channels that render dedicated pages
-    const knownChannels = new Set(["About Me", "Resume and CV"])
+    const knownChannels = new Set(["About Me", "Resume and CV", "My Projects"])
 
     return (
         <>
@@ -288,7 +296,13 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                                             scale: 1.05,
                                             transition: { duration: 0.2 }
                                         }}
+                                        className="menu-card-wrapper"
                                     >
+                                        {i === 0 && (
+                                            <div className="spinning-disc" aria-hidden="true">
+                                                <img src={discImg} alt="" draggable={false} />
+                                            </div>
+                                        )}
                                         <MenuCard
                                             title={game.title}
                                             thumbnail={game.thumbnail}
@@ -370,8 +384,13 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
             {/* Contact Form Modal */}
             <ContactMe 
                 isOpen={isContactOpen}
-                onClose={handleContactClose}
+                onClose={() => setIsContactOpen(false)}
             />
+
+            {/* Intermission / Pause Overlay */}
+            <AnimatePresence>
+                { /* IntermissionOverlay is handled globally in App; keep local only for channel-specific intermissions */ }
+            </AnimatePresence>
 
             {/* Game Select Screen */}
             <AnimatePresence>
@@ -393,9 +412,9 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                                 setSelectedGameIndex(null)
                                 return
                             }
-                            // Projects placeholder
+                            // Open Projects channel
                             if (selectedGame.title === 'My Projects') {
-                                alert('Coming soon!')
+                                onChannelOpen('My Projects')
                                 setSelectedGameIndex(null)
                                 return
                             }

@@ -6,6 +6,7 @@ import clickSound from './assets/audio/click-sound.mp3'
 import startUpSound from './assets/audio/wii-startup-sound.mp3'
 import wiimenu from './assets/audio/wiimenu.mp3'
 import IntermissionOverlay from './pages/components/intermissionOverlay'
+import PauseOverlay from './pages/components/pauseOverlay'
 
 export const SoundContext = createContext({
     playSound: () => { },
@@ -17,6 +18,7 @@ function App() {
     const [shouldPlayMenu, setShouldPlayMenu] = useState(false)
     const [activeChannel, setActiveChannel] = useState(null) // NEW: Track active channel
     const [isIntermission, setIsIntermission] = useState(false)
+    const [isPauseOpen, setIsPauseOpen] = useState(false)
 
     const audioSources = useRef({ click: clickSound, startup: startUpSound, menu: wiimenu })
     const audioCache = useRef({})
@@ -99,14 +101,26 @@ function App() {
         return () => document.removeEventListener('click', onDocClick)
     }, [])
 
-    // Disable right-click context menu
+    // Right-click opens the pause overlay app-wide (sets open state — not toggle)
     useEffect(() => {
-        const preventContextMenu = (e) => {
+        const onContext = (e) => {
+            // if welcome or intermission showing, allow native context menu
+            if (showWelcome || isIntermission) return
+            // prevent native context menu and open the pause overlay
             e.preventDefault()
-            return false
+            setIsPauseOpen(true)
         }
-        document.addEventListener('contextmenu', preventContextMenu)
-        return () => document.removeEventListener('contextmenu', preventContextMenu)
+        document.addEventListener('contextmenu', onContext)
+        return () => document.removeEventListener('contextmenu', onContext)
+    }, [showWelcome, isIntermission])
+
+    // Close pause with Escape
+    useEffect(() => {
+        const onKey = (e) => {
+            if (e.key === 'Escape') setIsPauseOpen(false)
+        }
+        window.addEventListener('keydown', onKey)
+        return () => window.removeEventListener('keydown', onKey)
     }, [])
 
     // Menu audio control
@@ -131,27 +145,27 @@ function App() {
         setShowWelcome(false)
     }
 
-    // NEW: Channel management functions
+    // Channel management functions
     const openChannel = (channelId) => {
         console.log('Opening channel:', channelId)
-        // Only show intermission for specific "game" screens
-        if (channelId === 'About Me' || channelId === 'Resume and CV') {
-            // Start intermission and delay the channel activation
+        // Show intermission for specific "game" screens
+        if (channelId === 'About Me' || channelId === 'Resume and CV' || channelId === 'My Projects') {
             setIsIntermission(true)
             pendingChannelRef.current = channelId
             intermissionTimerRef.current = setTimeout(() => {
                 setActiveChannel(pendingChannelRef.current)
                 setIsIntermission(false)
                 pendingChannelRef.current = null
-            }, 3500) // ~3.5 seconds for readability
+            }, 3500)
         } else {
             setActiveChannel(channelId)
         }
+        // close pause if opening a channel
+        setIsPauseOpen(false)
     }
 
     const closeChannel = () => {
         console.log('Closing channel')
-        // Clear any pending intermission / channel switch
         if (intermissionTimerRef.current) {
             clearTimeout(intermissionTimerRef.current)
             intermissionTimerRef.current = null
@@ -166,7 +180,6 @@ function App() {
         if (activeChannel || isIntermission) {
             setShouldPlayMenu(false)
         } else {
-            // Resume only after welcome finished at least once
             setShouldPlayMenu((prev) => prev || !showWelcome)
         }
     }, [activeChannel, showWelcome, isIntermission])
@@ -185,6 +198,21 @@ function App() {
 
             {/* Intermission overlay during channel transitions */}
             <AnimatePresence>{isIntermission && <IntermissionOverlay />}</AnimatePresence>
+
+            {/* Global Pause Overlay (opened via right-click) */}
+            <AnimatePresence>
+                {isPauseOpen && (
+                    <PauseOverlay
+                        onClose={() => setIsPauseOpen(false)}
+                        onWiiMenu={() => {
+                            // navigate internally to the main menu without full reload
+                            setIsPauseOpen(false)
+                            setIsIntermission(false)
+                            setActiveChannel(null)
+                        }}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Main Menu - Only visible after welcome is dismissed */}
             {!showWelcome && (

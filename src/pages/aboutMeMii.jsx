@@ -169,7 +169,7 @@ const contentByKey = {
 
           <p>
               This experience deepened my interest in sustainable technology and global
-              collaboration, an area I hope to explore further throughout my career. This was genuninely one of the most rewarding experiences of my life!
+              collaboration, an area I hope to explore further throughout my career. This was genunely one of the most rewarding experiences of my life!
           </p>
 
           <div className="mii-inline-carousel" aria-label="IBM photos carousel">
@@ -186,7 +186,7 @@ const contentByKey = {
 
 
           <h3>Test Administrator - NOVOMATIC Gaming UK</h3>
-          <p><em>Jun 2023 - Aug 2024 (multiple contracts)</em></p>
+          <p><em>Jul - Sep 2023, Jun - Aug 2024 (contract)</em></p>
 
           <p>
               Worked across two summer placements supporting software and hardware test
@@ -244,7 +244,7 @@ const contentByKey = {
   ),
   tools: (
       <>
-          <h2>Skills</h2>
+          <h2>Languages, tools and Frameworks</h2>
 
           <h3>Programming & Development</h3>
           <ul>
@@ -457,7 +457,7 @@ const AboutMeMii = ({ onExit }) => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.25 }}
           >
-                      <div className="mii-gif-placeholder"><img src={miiman} draggable="false" /></div>
+                      <div className="mii-gif-placeholder"><img src={miiman} alt="Mii man animation" loading="eager" decoding="async" draggable={false} /></div>
             <motion.button
               className="mii-exit-btn"
               onClick={onExit}
@@ -467,16 +467,16 @@ const AboutMeMii = ({ onExit }) => {
             >
               Exit
             </motion.button>
-            <motion.button
-              className="mii-audio-toggle"
-              onClick={toggleMute}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.35 }}
-              aria-label={isMuted ? "Unmute" : "Mute"}
-            >
-              {isMuted ? "Unmute" : "Mute"}
-            </motion.button>
+            {/*<motion.button*/}
+            {/*  className="mii-audio-toggle"*/}
+            {/*  onClick={toggleMute}*/}
+            {/*  initial={{ opacity: 0, y: 6 }}*/}
+            {/*  animate={{ opacity: 1, y: 0 }}*/}
+            {/*  transition={{ duration: 0.3, delay: 0.35 }}*/}
+            {/*  aria-label={isMuted ? "Unmute" : "Mute"}*/}
+            {/*>*/}
+            {/*  {isMuted ? "Unmute" : "Mute"}*/}
+            {/*</motion.button>*/}
           </motion.section>
           <motion.section
             className="mii-panel mii-panel-right"

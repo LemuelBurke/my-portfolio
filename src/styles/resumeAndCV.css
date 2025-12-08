@@ -94,6 +94,24 @@
   justify-content: center;
 }
 
+/* Enable touch interactions inside embedded PDF on mobile */
+.pdf-container object,
+.pdf-container embed,
+.pdf-container iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Override global selection/touch callout to permit PDF scrolling */
+  user-select: auto;
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  -webkit-touch-callout: default;
+  pointer-events: auto;
+}
+
 .pdf-placeholder { text-align: center; color: #0b2a3c; font-size: 1.05rem; }
 
 /* Save button styles */

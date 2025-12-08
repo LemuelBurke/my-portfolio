@@ -100,7 +100,7 @@ const ResumeAndCV = ({ onExit }) => {
                 )}
                 <object
                   ref={objectRef}
-                  data={`${cvPdf}#toolbar=0&navpanes=0&scrollbar=0`}
+                  data={`${cvPdf}#toolbar=0&navpanes=0`}
                   type="application/pdf"
                   width="100%"
                   height="100%"
@@ -113,7 +113,7 @@ const ResumeAndCV = ({ onExit }) => {
               </>
             ) : (
               <div className="pdf-placeholder">
-                <p>Resume page will appear here.</p>
+                <p>Resume coming soon...</p>
               </div>
             )}
           </div>
