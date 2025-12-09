@@ -464,6 +464,7 @@ const AboutMeMii = ({ onExit }) => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: 0.3 }}
+              style={{ background: '#ef4444', color: '#fff', fontWeight: 700, fontSize: '1.1rem', borderRadius: '12px', border: 'none', padding: '0.7rem 2.2rem', boxShadow: '0 2px 8px rgba(239,68,68,0.12)' }}
             >
               Exit
             </motion.button>
