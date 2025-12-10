@@ -225,12 +225,13 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
     const knownChannels = new Set(["About Me", "Resume and CV", "My Projects"])
 
     return (
-        <>
+        <div>
             <motion.div
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
+                className=""
             >
                 <div className="menu-viewport">
                     {/* Previous Arrow */}
@@ -350,33 +351,35 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ duration: 0.6, delay: 0.5 }}
                     >
-                        {/* Time above footer in the dip */}
-                        <div className="footer-time-above">{formatTime(currentTime)}</div>
+                    <div>
+                            {/* Time above footer in the dip */}
+                            <div className="footer-time-above">{formatTime(currentTime)}</div>
                         
-                        {/* Footer base image */}
-                        <img src={footerImg} alt="" className="footer-base-img" draggable={false} />
+                            {/* Footer base image */}
+                            <img src={footerImg} alt="" className="footer-base-img" draggable={false} />
                         
-                        {/* Wii button on the left */}
-                        <button 
-                            className="footer-wii-button"
-                            onClick={() => console.log('Wii button clicked')}
-                        >
-                            Wii
-                        </button>
+                            {/* Wii button on the left */}
+                            <button 
+                                className="footer-wii-button"
+                                onClick={() => console.log('Wii button clicked')}
+                            >
+                                Wii
+                            </button>
                         
-                        {/* Email button on the right */}
-                        <button 
-                            className="footer-email-button"
-                            onClick={handleContactOpen}
-                        >
-                            <svg className="footer-email-icon" viewBox="0 0 24 24">
-                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v 2z"/>
-                            </svg>
-                            <div className="footer-email-notification">1</div>
-                        </button>
+                            {/* Email button on the right */}
+                            <button 
+                                className="footer-email-button"
+                                onClick={handleContactOpen}
+                            >
+                                <svg className="footer-email-icon" viewBox="0 0 24 24">
+                                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v 2z"/>
+                                </svg>
+                                <div className="footer-email-notification">1</div>
+                            </button>
                         
-                        {/* Date centered in footer */}
-                        <div className="footer-date-center">{formatDate(currentTime)}</div>
+                            {/* Date centered in footer */}
+                            <div className="footer-date-center">{formatDate(currentTime)}</div>
+                        </div>
                     </motion.div>
                 )}
             </motion.div>
@@ -439,7 +442,7 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                     />
                 )}
             </AnimatePresence>
-        </>
+        </div>
     )
 }
 

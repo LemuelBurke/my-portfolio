@@ -5,6 +5,7 @@ import cvPdf from "../assets/Morgan Burke CV_compressed.pdf"
 import ContactMe from "./components/contactMe"
 import resumeTitle from "../assets/imgs/resumeandcv/title.png"
 
+
 const ResumeAndCV = ({ onExit }) => {
   const [docType, setDocType] = useState("cv")
   const [isContactOpen, setIsContactOpen] = useState(false)
@@ -65,7 +66,7 @@ const ResumeAndCV = ({ onExit }) => {
   const closeContact = () => setIsContactOpen(false)
 
   return (
-    <div className="resume-page">
+      <div className="resume-page">
       <div className="resume-header" role="banner">
         <img className="resume-title" src={resumeTitle} alt="Resume and CV" />
       </div>

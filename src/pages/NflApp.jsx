@@ -10,9 +10,9 @@ const NflApp = ({ title, thumb }) => (
   <div>
     <h1>{title}</h1>
     <p className="badges-row">
-      <img src="https://img.shields.io/badge/Platform-Android-green" alt="Android" draggable={false} className="no-crt" />
-      <img src="https://img.shields.io/badge/Language-Kotlin-orange" alt="Kotlin" draggable={false} className="no-crt" />
-      <img src="https://img.shields.io/badge/License-Educational-blue" alt="License" draggable={false} className="no-crt" />
+      <img src="https://img.shields.io/badge/Platform-Android-green" alt="Android" draggable={false} />
+      <img src="https://img.shields.io/badge/Language-Kotlin-orange" alt="Kotlin" draggable={false} />
+      <img src="https://img.shields.io/badge/License-Educational-blue" alt="License" draggable={false} />
     </p>
     <p><em>This project is no longer being worked on.</em></p>
     <hr />
@@ -32,34 +32,29 @@ const NflApp = ({ title, thumb }) => (
       <li><strong>Bilingual Support:</strong> Full English and Cymraeg (Welsh) translations are supported.</li>
       <li><strong>Push Notifications:</strong> Alerts users when games are about to start and sends users random NFL 'Fun Facts'.</li>
     </ul>
-    <h2>Full Application Breakdown</h2>
-    <hr />
-    <p>A full breakdown of the application and its functions can be viewed here.</p>
-    <p>
-      <a href="6-video.mp4">View Breakdown Video</a>
-    </p>
+    <hr/>
     <h2>Application at a glance</h2>
     <h3>Welcome View</h3>
     <p>When users open the app for the first time they are greeted with a welcome screen where they're asked to select their language English or Cymraeg (Welsh).</p>
-    <img src={welcomeGif} alt="Welcome Screen" draggable={false} className="no-crt" />
+    <img src={welcomeGif} alt="Welcome Screen" draggable={false} />
     <h3>Team Selection View</h3>
     <p>Following the welcome users can pick their favourite team and can filter by conference.</p>
-    <img src={teamSelGif} alt="Team Selection" draggable={false} className="no-crt" />
+    <img src={teamSelGif} alt="Team Selection" draggable={false} />
     <h3>Home View</h3>
     <p>Users are then presented with the home screen, this is where users can view team lineups from the selected year as well as game history.</p>
-    <img src={homePageGif} alt="Home Screen" draggable={false} className="no-crt" />
+    <img src={homePageGif} alt="Home Screen" draggable={false} />
     <h3>Stats View</h3>
     <p>Users can view upcoming games in the season as well as view statistics about past games, hall of famers and fun facts.</p>
-    <img src={statsPageGif} alt="Statistics Screen" draggable={false} className="no-crt" />
+    <img src={statsPageGif} alt="Statistics Screen" draggable={false} />
     <h3>News View</h3>
     <p>A webview connects directly with the NFL news site allowing users to get up to date news reports regarding the NFL.</p>
-    <img src={newsPageGif} alt="News Screen" draggable={false} className="no-crt" />
+    <img src={newsPageGif} alt="News Screen" draggable={false} />
     <h3>Bilingual Support</h3>
     <p>The application support full translations of both English and Cymraeg (Welsh).</p>
-    <img src={languageSelGif} alt="Bilingual Support" draggable={false} className="no-crt" />
+    <img src={languageSelGif} alt="Bilingual Support" draggable={false} />
     <h3>Notifications</h3>
     <p>Users recieve notifications after not using the app for prolonged period of time with fun facts about NFL to push them to engage with using the app.</p>
-    <img src={notifsGif} alt="Notifications" draggable={false} className="no-crt" />
+    <img src={notifsGif} alt="Notifications" draggable={false} />
     <hr />
     <h2>Copyright, Trademark and General Notice</h2>
     <p>

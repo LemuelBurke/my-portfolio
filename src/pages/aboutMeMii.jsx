@@ -418,7 +418,7 @@ const AboutMeMii = ({ onExit }) => {
   )
 
   return (
-    <motion.div className="mii-page" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
+      <motion.div className="mii-page" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
       <motion.div className="mii-header-row" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }}>
         <img className="mii-logo mii-logo-inline" src={nameTitleImg} alt="Name Title" draggable={false} />
         <motion.header className="mii-header" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }}>

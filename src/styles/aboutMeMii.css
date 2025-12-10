@@ -3,11 +3,12 @@
 /* Responsive styling for Wii Mii creator themed page */
 
 .mii-page {
-  min-height: 100vh;
-  background: linear-gradient(to bottom, #FFFFFF 0%, #CDFFFF 100%);
-  padding-top: 0;
-  overflow-y: auto; /* allow vertical scrolling when content exceeds viewport */
-  -webkit-overflow-scrolling: touch; /* smooth iOS/embedded webview scrolling */
+    min-height: 100vh;
+    background: linear-gradient( to bottom, rgba(255,255,255,0.8) 0%, rgba(205,255,255,0.8) 100% );
+    backdrop-filter: blur(2px);
+    padding-top: 0;
+    overflow-y: auto; /* allow vertical scrolling when content exceeds viewport */
+    -webkit-overflow-scrolling: touch; /* smooth iOS/embedded webview scrolling */
 }
 
 /* Top controls row housing name title */
