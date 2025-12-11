@@ -1,0 +1,156 @@
+/* Gradient background: white at top, baby blue at bottom */
+.resume-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(to bottom, #ffffff 0%, #eaf6ff 45%, #bfe9ff 100%);
+  color: #0b2a3c;
+  overflow-y: auto; /* allow the whole view to scroll */
+  -webkit-overflow-scrolling: touch; /* smooth touch scrolling */
+}
+
+/* Header with title image */
+.resume-header {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.resume-title {
+  max-width: 680px;
+  width: 90%;
+  height: auto;
+}
+
+/* Main layout: centered with reasonable max width */
+.resume-layout {
+  display: grid;
+  grid-template-columns: 210px 1fr; /* left sidebar + content area */
+  column-gap: 24px; /* more space between sidebar and content */
+  row-gap: 0;
+  padding: 16px;
+  max-width: 1200px; /* center the whole page content */
+  width: 100%;
+  margin: 32px auto 24px; /* add top margin and center */
+  flex: 1;
+}
+
+/* Sidebar on the left */
+.resume-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 18px; /* more padding between buttons */
+  align-self: start;
+}
+
+/* Readable Wii-style inspired buttons (bigger) */
+.resume-side-btn,
+.resume-action-btn {
+  background: #ffffff;
+  color: #0b2a3c;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 20px; /* slightly larger radius */
+  padding: 14px 22px; /* bigger padding */
+  font-weight: 800;
+  font-size: 1.08rem; /* bigger text */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.resume-side-btn:hover,
+.resume-action-btn:hover { background: #f7fbff; transform: translateY(-1px); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
+.resume-side-btn:focus,
+.resume-action-btn:focus { outline: 3px solid #005fa3; }
+
+.resume-side-btn.active { outline: 3px solid #005fa3; }
+.resume-side-btn.exit { background: #fffcfc; color: #7a1f1f; border-color: #e8bebe; }
+
+/* Middle content (preview + right actions) */
+.resume-content {
+  display: grid;
+  grid-template-columns: 1fr 190px; /* preview middle + actions right */
+  align-items: start;
+  column-gap: 26px; /* more space between box and right buttons */
+}
+
+/* Right actions rail */
+.resume-actions.right-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 18px; /* more padding between buttons */
+}
+
+/* Preview box tuned for PDF (slightly larger than A4) */
+.pdf-container {
+  width: min(780px, 58vw); /* thinner box */
+  height: 80vh; /* increased height to use more screen space */
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.22);
+  overflow: auto; /* allow vertical scroll if content exceeds height */
+  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Enable touch interactions inside embedded PDF on mobile */
+.pdf-container object,
+.pdf-container embed,
+.pdf-container iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Override global selection/touch callout to permit PDF scrolling */
+  user-select: auto;
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  -webkit-touch-callout: default;
+  pointer-events: auto;
+}
+
+.pdf-placeholder { text-align: center; color: #0b2a3c; font-size: 1.05rem; }
+
+/* Save button styles */
+.resume-action-btn.save {
+  background: #e9f3ff;
+  border-color: rgba(0, 95, 163, 0.25);
+  color: #0b2a3c;
+}
+
+.resume-action-btn.save:hover {
+  background: #d9ecff;
+}
+
+/* Contact Me button styles */
+.resume-action-btn.contact {
+  background: #e8f8ee;
+  border-color: rgba(0, 163, 95, 0.25);
+  color: #0b2a3c;
+}
+
+.resume-action-btn.contact:hover {
+  background: #d8f3e6;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .resume-layout { max-width: 1000px; }
+}
+
+@media (max-width: 1024px) {
+  .resume-layout { grid-template-columns: 190px 1fr; column-gap: 20px; }
+  .resume-content { grid-template-columns: 1fr 170px; column-gap: 22px; }
+  .pdf-container { width: min(720px, 64vw); height: 74vh; }
+}
+
+@media (max-width: 768px) {
+  .resume-layout { grid-template-columns: 1fr; max-width: 680px; padding: 12px; }
+  .resume-sidebar { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 14px; }
+  .resume-content { grid-template-columns: 1fr; row-gap: 14px; }
+  .resume-actions.right-rail { flex-direction: row; justify-content: center; gap: 14px; }
+  .pdf-container { width: 100%; height: 68vh; }
+}

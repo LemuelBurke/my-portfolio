@@ -1,0 +1,478 @@
+﻿/* Styling */
+body {
+    background-color: #f5f5f5;
+    background-blend-mode: overlay;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+}
+
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.10) 0px, rgba(0, 0, 0, 0.10) 2px, rgba(0, 0, 0, 0.00) 2px, rgba(0, 0, 0, 0.00) 4px);
+        mix-blend-mode: multiply;
+        opacity: 0.55;
+        z-index: 1;
+    }
+
+    body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.25) 0px, rgba(255, 255, 255, 0.25) 2px, rgba(255, 255, 255, 0.00) 2px, rgba(255, 255, 255, 0.00) 4px);
+        mix-blend-mode: screen;
+        opacity: 0.45;
+        z-index: 1;
+    }
+
+/* Game cards */
+.menu-viewport {
+    position: relative;
+    width: 100vw;
+    height: calc(100vh - clamp(200px, 22vh, 240px));
+    overflow: hidden;
+    padding-top: clamp(0.5rem, 1vh, 1rem);
+    padding-bottom: clamp(0.5rem, 1vh, 1rem);
+    box-sizing: border-box;
+    z-index: 1;
+}
+
+
+.push-left {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: visible;
+}
+
+.menu-grid {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    padding-left: clamp(50px, 6vw, 80px);
+    padding-right: clamp(30px, 4vw, 40px);
+    padding-bottom: 0;
+    box-sizing: border-box;
+    /* Hide scrollbar but allow scrolling */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.menu-grid::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.menu-page {
+    min-width: calc(100vw - clamp(120px, 12vw, 200px));
+    max-width: calc(100vw - clamp(120px, 12vw, 200px));
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: min-content;
+    column-gap: clamp(0.2rem, 0.5vw, 0.4rem);
+    row-gap: clamp(0.6rem, 1.5vh, 1.2rem);
+    padding: clamp(0.5rem, 1vh, 1rem) clamp(1rem, 2vw, 2rem);
+    padding-bottom: clamp(1rem, 2vh, 1.5rem);
+    box-sizing: border-box;
+    align-content: start;
+    margin-right: 0;
+    height: fit-content;
+    max-height: 100%;
+    overflow: visible;
+}
+
+/* Arrow positioning - PROPERLY FIXED */
+.prev-arrow-container,
+.next-arrow-container {
+    position: fixed;
+    top: 45%; /* Moved up from 50% */
+    z-index: 100;
+    pointer-events: all;
+}
+
+.prev-arrow-container {
+    left: clamp(10px, 2vw, 20px);
+    transform: translateY(-50%);
+}
+
+.next-arrow-container {
+    right: clamp(10px, 2vw, 20px);
+    transform: translateY(-50%);
+}
+
+.next-arrow,
+.prev-arrow {
+    width: clamp(50px, 5vw, 65px);
+    height: clamp(50px, 5vw, 65px);
+    transition: opacity 0.3s, transform 0.2s;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    display: block;
+    opacity: 0.85;
+    cursor: url('../assets/imgs/user-cursor-med.png'), auto; /* Move cursor here */
+}
+
+/* Flip the prev arrow in CSS */
+.prev-arrow {
+    transform: scaleX(-1);
+}
+
+    .next-arrow:not(.disabled):hover,
+    .prev-arrow:not(.disabled):hover {
+        opacity: 1;
+        transform: scale(1.15);
+        cursor: url('../assets/imgs/user-cursor-med.png'), auto; /* Add cursor to hover state too */
+    }
+
+    /* Keep the flip on hover for prev arrow */
+    .prev-arrow:not(.disabled):hover {
+        transform: scaleX(-1) scale(1.15);
+        cursor: url('../assets/imgs/user-cursor-med.png'), auto; /* Add cursor here too */
+    }
+
+    .next-arrow.disabled,
+    .prev-arrow.disabled {
+        pointer-events: none;
+        opacity: 0.3;
+        cursor: url('../assets/imgs/user-cursor-med.png'), auto; /* Keep cursor on disabled state */
+    }
+
+/* Footer */
+.wii-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    height: clamp(180px, 20vh, 220px);
+    z-index: 100;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Footer base image */
+.footer-base-img {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: auto;
+    min-height: 100%;
+    object-fit: contain;
+    object-position: bottom center;
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+/* Footer left overlay (Wii logo) */
+/* Footer left overlay (Wii logo) */
+.footer-left-img {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 90%;
+    width: auto;
+    max-width: none;
+    object-fit: contain;
+    object-position: left bottom;
+    z-index: 2;
+    margin: 0;
+    padding: 0;
+    display: block;
+}
+
+/* Footer SD card */
+.footer-sd-img {
+    position: absolute;
+    bottom: clamp(15px, 2vh, 20px);
+    left: clamp(160px, 20vw, 220px);
+    height: clamp(50px, 7vh, 70px);
+    width: auto;
+    object-fit: contain;
+    object-position: left bottom;
+    z-index: 2;
+    margin: 0;
+    padding: 0;
+    display: block;
+}
+
+/* Footer right overlay (Email icon) */
+.footer-right-img {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 90%;
+    width: auto;
+    max-width: none;
+    object-fit: contain;
+    object-position: 100% bottom;
+    z-index: 2;
+    margin: 0;
+    padding: 0;
+    display: block;
+    transform: translateX(0);
+}
+
+/* Time above footer in the dip */
+.footer-time-above {
+    position: absolute;
+    top: clamp(-60px, -8vh, -40px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(3.6rem, 8vw, 5rem);
+    font-weight: 300;
+    color: #666;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    letter-spacing: 0.05em;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    z-index: 3;
+    white-space: nowrap;
+}
+
+/* Date centered in footer */
+.footer-date-center {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(1.7rem, 3vw, 2rem);
+    color: #777;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    z-index: 3;
+    white-space: nowrap;
+}
+
+/* Channel Overlay */
+.channel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+}
+
+.channel-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 90%;
+    max-height: 90%;
+    overflow: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+.channel-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    cursor: url('../assets/imgs/user-cursor-med.png'), auto;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: background 0.2s;
+    z-index: 10;
+}
+
+    .channel-close:hover {
+        background: #cc0000;
+    }
+
+/* Responsive adjustments */
+@media (max-width: 1600px) {
+    .menu-page {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1400px) {
+    .menu-page {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1200px) {
+    .menu-page {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1024px) {
+    .menu-viewport {
+        padding-top: clamp(1rem, 1.5vh, 1.5rem);
+        overflow-x: hidden;
+    }
+
+    .push-left {
+        overflow: hidden;
+    }
+
+    .menu-grid {
+        display: grid;
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding-left: clamp(30px, 4vw, 50px);
+        padding-right: clamp(30px, 4vw, 50px);
+        padding-bottom: clamp(3rem, 6vh, 5rem);
+        /* Custom scrollbar styling */
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    }
+
+    .menu-grid::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .menu-grid::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .menu-grid::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+    }
+
+    .menu-grid::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .menu-page {
+        min-width: 100%;
+        max-width: 100%;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        padding: clamp(1rem, 2vh, 1.5rem) 0;
+        padding-bottom: clamp(3rem, 6vh, 5rem);
+        margin-right: 0;
+    }
+
+    .prev-arrow-container,
+    .next-arrow-container {
+        display: none; /* Hide arrows on smaller screens with vertical scroll */
+    }
+}
+
+@media (max-width: 768px) {
+    .menu-viewport {
+        height: calc(100vh - clamp(180px, 22vh, 200px));
+        overflow-x: hidden;
+    }
+
+    .push-left {
+        overflow: hidden;
+    }
+
+    .menu-grid {
+        display: grid;
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding-left: clamp(20px, 3vw, 30px);
+        padding-right: clamp(20px, 3vw, 30px);
+        padding-bottom: clamp(3rem, 6vh, 5rem);
+    }
+
+    .menu-page {
+        min-width: 100%;
+        max-width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding: clamp(1rem, 2vh, 1.5rem) 0;
+        padding-bottom: clamp(3rem, 6vh, 5rem);
+    }
+
+    .wii-footer {
+        height: clamp(160px, 20vh, 180px);
+    }
+
+    .footer-sd-img {
+        left: clamp(100px, 12vw, 140px);
+        height: clamp(70px, 8vh, 90px);
+    }
+
+    .footer-time-above {
+        top: clamp(-50px, -7vh, -35px);
+        font-size: clamp(2rem, 6vw, 2rem);
+    }
+
+    .footer-date-center {
+        bottom: clamp(15px, 2.5vh, 25px);
+        font-size: clamp(1.6rem, 4vw, 1.8rem);
+    }
+
+    .prev-arrow-container,
+    .next-arrow-container {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .menu-viewport {
+        overflow-x: hidden;
+    }
+
+    .push-left {
+        overflow: hidden;
+    }
+
+    .menu-grid {
+        display: grid;
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding-left: clamp(15px, 2vw, 20px);
+        padding-right: clamp(15px, 2vw, 20px);
+        padding-bottom: clamp(3rem, 6vh, 5rem);
+    }
+
+    .menu-page {
+        min-width: 100%;
+        max-width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: clamp(0.3rem, 1vw, 0.5rem);
+        row-gap: clamp(0.6rem, 1.5vh, 0.8rem);
+        padding: clamp(1rem, 2vh, 1.5rem) 0;
+        padding-bottom: clamp(3rem, 6vh, 5rem);
+    }
+
+    .wii-footer {
+        height: clamp(140px, 18vh, 160px);
+    }
+
+    .footer-sd-img {
+        left: clamp(90px, 10vw, 120px);
+        height: clamp(60px, 7vh, 80px);
+    }
+
+    .footer-time-above {
+        top: clamp(-40px, -6vh, -30px);
+        font-size: clamp(2.4rem, 7vw, 3rem);
+    }
+
+    .footer-date-center {
+        bottom: clamp(12px, 2vh, 20px);
+        font-size: clamp(1.4rem, 3.6vw, 1.6rem);
+    }
+
+    .prev-arrow-container,
+    .next-arrow-container {
+        display: none;
+    }
+}

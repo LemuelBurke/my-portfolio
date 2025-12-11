@@ -1,0 +1,222 @@
+/* Responsive adjustments */
+
+/* Large desktop screens */
+@media (min-width: 1920px) {
+    .menu-viewport {
+        height: calc(100vh - clamp(240px, 25vh, 280px));
+    }
+}
+
+/* Common laptop screens (1366x768, 1440x900, 1920x1080) */
+@media (max-width: 1920px) and (min-width: 1200px) {
+    .menu-viewport {
+        height: calc(100vh - clamp(210px, 23vh, 250px));
+        padding-bottom: clamp(1.2rem, 2.2vh, 2rem);
+    }
+    
+    .menu-page {
+        row-gap: clamp(0.5rem, 1.2vh, 1rem);
+        padding-bottom: clamp(1.5rem, 2.8vh, 2.2rem);
+    }
+}
+
+@media (max-width: 1600px) {
+    .menu-page {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1400px) {
+    .menu-page {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1200px) {
+    .menu-page {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1024px) {
+    .menu-viewport {
+        height: calc(100vh - clamp(200px, 24vh, 240px));
+        padding-top: clamp(1rem, 1.5vh, 1.5rem);
+        padding-bottom: clamp(1.5rem, 2.5vh, 2rem);
+        overflow-x: hidden;
+        overflow-y: hidden;
+    }
+
+    .push-left {
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .menu-grid {
+        display: block;
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding-left: clamp(30px, 4vw, 50px);
+        padding-right: clamp(30px, 4vw, 50px);
+        padding-bottom: clamp(1rem, 2vh, 2rem);
+        height: 100%;
+        width: 100%;
+        /* Custom scrollbar styling */
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    }
+
+    .menu-grid::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .menu-grid::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .menu-grid::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+    }
+
+    .menu-grid::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .menu-page {
+        min-width: 100%;
+        max-width: 100%;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        padding: clamp(1rem, 2vh, 1.5rem) 0;
+        padding-bottom: clamp(2rem, 3vh, 2.5rem);
+        margin-right: 0;
+        margin-bottom: clamp(1rem, 2vh, 2rem);
+    }
+
+    .prev-arrow-container,
+    .next-arrow-container {
+        display: none; /* Hide arrows on smaller screens with vertical scroll */
+    }
+}
+
+@media (max-width: 768px) {
+    .menu-viewport {
+        height: calc(100vh - clamp(180px, 22vh, 200px));
+        overflow-x: hidden;
+        overflow-y: hidden;
+    }
+
+    .push-left {
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .menu-grid {
+        display: block;
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding-left: clamp(20px, 3vw, 30px);
+        padding-right: clamp(20px, 3vw, 30px);
+        padding-bottom: clamp(1rem, 2vh, 2rem);
+        height: 100%;
+        width: 100%;
+    }
+
+    .menu-page {
+        min-width: 100%;
+        max-width: 100%;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding: clamp(1rem, 2vh, 1.5rem) 0;
+        padding-bottom: clamp(1.5rem, 2.5vh, 2rem);
+        margin-bottom: clamp(1rem, 2vh, 2rem);
+    }
+
+    .wii-footer {
+        height: clamp(160px, 20vh, 180px);
+    }
+
+    .footer-sd-img {
+        left: clamp(100px, 12vw, 140px);
+        height: clamp(70px, 8vh, 90px);
+    }
+
+    .footer-time-above {
+        top: clamp(-50px, -7vh, -35px);
+        font-size: clamp(2rem, 6vw, 2rem);
+    }
+
+    .footer-date-center {
+        bottom: clamp(15px, 2.5vh, 25px);
+        font-size: clamp(1.6rem, 4vw, 1.8rem);
+    }
+
+    .prev-arrow-container,
+    .next-arrow-container {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .menu-viewport {
+        height: calc(100vh - clamp(160px, 20vh, 180px));
+        overflow-x: hidden;
+        overflow-y: hidden;
+    }
+
+    .push-left {
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .menu-grid {
+        display: block;
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding-left: clamp(15px, 2vw, 20px);
+        padding-right: clamp(15px, 2vw, 20px);
+        padding-bottom: clamp(1rem, 2vh, 2rem);
+        height: 100%;
+        width: 100%;
+    }
+
+    .menu-page {
+        min-width: 100%;
+        max-width: 100%;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: clamp(0.3rem, 1vw, 0.5rem);
+        row-gap: clamp(0.5rem, 1.2vh, 0.7rem);
+        padding: clamp(1rem, 2vh, 1.5rem) 0;
+        padding-bottom: clamp(1.5rem, 2.5vh, 2rem);
+        margin-bottom: clamp(1rem, 2vh, 2rem);
+    }
+
+    .wii-footer {
+        height: clamp(140px, 18vh, 160px);
+    }
+
+    .footer-sd-img {
+        left: clamp(90px, 10vw, 120px);
+        height: clamp(60px, 7vh, 80px);
+    }
+
+    .footer-time-above {
+        top: clamp(-40px, -6vh, -30px);
+        font-size: clamp(2.4rem, 7vw, 3rem);
+    }
+
+    .footer-date-center {
+        bottom: clamp(12px, 2vh, 20px);
+        font-size: clamp(1.4rem, 3.6vw, 1.6rem);
+    }
+
+    .prev-arrow-container,
+    .next-arrow-container {
+        display: none;
+    }
+}

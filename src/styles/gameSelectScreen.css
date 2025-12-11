@@ -1,0 +1,477 @@
+/* Base Styles */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    background: #f0f0f0;
+    color: #333;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, p {
+    margin: 0;
+    padding: 0;
+}
+
+/* Links */
+a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+a:hover {
+    color: #007bff;
+}
+
+/* Button Reset */
+button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    outline: inherit;
+}
+
+/* Full Page Overlay for Game Selection */
+.game-select-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(to bottom, #e0e0e0 0%, #f5f5f5 50%, #e0e0e0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    overflow: hidden;
+}
+
+/* Game Page Styles */
+.game-page-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(to bottom, #a8d8f0 0%, #7ec8e3 30%, #5eb8d8 70%, #4ea8c8 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    overflow: hidden;
+}
+
+.game-page-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Full Screen Overlay for Game */
+.game-fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2000;
+    overflow: hidden;
+}
+
+.game-fullscreen-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Full Screen Image Background */
+.game-fullscreen-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    bottom: clamp(80px, 18vh, 160px);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-fullscreen-image img {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    display: block;
+}
+
+/* Navigation Arrows for Game Selection */
+.game-nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(50px, 6vw, 80px);
+    height: clamp(50px, 6vw, 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: url('../assets/imgs/user-cursor-med.png'), auto !important;
+    z-index: 15;
+    transition: all 0.3s ease;
+    opacity: 0.8;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+.game-nav-arrow:hover {
+    transform: translateY(-50%) scale(1.15);
+    opacity: 1;
+    filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.6));
+    cursor: url('../assets/imgs/user-cursor-med.png'), auto !important;
+}
+
+.game-nav-arrow:active {
+    transform: translateY(-50%) scale(1.05);
+}
+
+.game-nav-arrow-left {
+    left: clamp(20px, 3vw, 50px);
+}
+
+.game-nav-arrow-left img {
+    transform: scaleX(-1);
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.game-nav-arrow-right {
+    right: clamp(20px, 3vw, 50px);
+}
+
+.game-nav-arrow-right img {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Main Content Area */
+.game-page-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: clamp(40px, 5vh, 80px) clamp(60px, 8vw, 120px);
+    background: radial-gradient(ellipse at center top, rgba(255,255,255,0.3) 0%, transparent 50%);
+}
+
+/* Navigation Arrows */
+.game-page-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(60px, 8vw, 100px);
+    height: clamp(60px, 8vw, 100px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: url('../assets/imgs/user-cursor-med.png'), auto;
+    z-index: 10;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.7;
+}
+
+.game-page-arrow:hover {
+    transform: translateY(-50%) scale(1.1);
+    opacity: 1;
+}
+
+.game-page-arrow-left {
+    left: clamp(20px, 3vw, 40px);
+}
+
+.game-page-arrow-left img {
+    transform: scaleX(-1);
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.game-page-arrow-right {
+    right: clamp(20px, 3vw, 40px);
+}
+
+.game-page-arrow-right img {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+/* Game Display Area */
+.game-page-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(30px, 4vh, 50px);
+    width: 100%;
+    max-width: clamp(600px, 70vw, 1000px);
+}
+
+/* Game Title */
+.game-page-title {
+    text-align: center;
+    margin-bottom: clamp(10px, 2vh, 20px);
+}
+
+.game-page-title h1 {
+    font-family: "Wii NTLG", Arial, sans-serif;
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: bold;
+    color: white;
+    text-shadow: 
+        -3px -3px 0 rgba(0, 0, 0, 0.3),
+        3px -3px 0 rgba(0, 0, 0, 0.3),
+        -3px 3px 0 rgba(0, 0, 0, 0.3),
+        3px 3px 0 rgba(0, 0, 0, 0.3),
+        0 6px 20px rgba(0, 0, 0, 0.4);
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+/* Game Screen */
+.game-page-screen {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    border-radius: clamp(30px, 4vw, 50px);
+    overflow: hidden;
+    box-shadow: 
+        0 15px 50px rgba(0, 0, 0, 0.4),
+        inset 0 0 30px rgba(0, 0, 0, 0.1),
+        inset 0 2px 4px rgba(255, 255, 255, 0.5);
+    border: clamp(8px, 1vw, 12px) solid rgba(255, 255, 255, 0.8);
+    position: relative;
+}
+
+.game-page-screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at top left, rgba(255,255,255,0.4) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.game-page-screen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+/* Footer Bar */
+.game-page-footer {
+    background: linear-gradient(to bottom, #d8d8d8 0%, #c0c0c0 100%);
+    padding-top: 0;
+    position: relative;
+    box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.game-page-footer-border {
+    height: clamp(3px, 0.5vh, 5px);
+    background: linear-gradient(to right, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.6) 10%, 
+        rgba(255, 255, 255, 0.8) 50%, 
+        rgba(255, 255, 255, 0.6) 90%, 
+        transparent 100%
+    );
+    box-shadow: 0 1px 3px rgba(255, 255, 255, 0.5);
+}
+
+.game-page-footer-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(30px, 4vw, 60px);
+    padding: clamp(20px, 3vh, 35px) clamp(40px, 5vw, 80px);
+}
+
+/* Footer Bar - Overlaid at bottom */
+.game-fullscreen-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to bottom, rgba(216, 216, 216, 0.95) 0%, rgba(192, 192, 192, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.5);
+}
+
+.game-fullscreen-footer-border {
+    height: clamp(4px, 0.6vh, 6px);
+    background: #4FB8DE;
+    box-shadow: 
+        0 1px 3px rgba(79, 184, 222, 0.6),
+        0 -1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.game-fullscreen-footer-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(30px, 5vw, 70px);
+    padding: clamp(20px, 3.5vh, 40px) clamp(40px, 5vw, 80px);
+}
+
+/* Footer Buttons - Styled like footer email button */
+.game-fullscreen-btn {
+    flex: 0 1 auto;
+    min-width: clamp(200px, 28vw, 320px);
+    padding: clamp(16px, 2.5vh, 22px) clamp(40px, 5vw, 60px);
+    font-family: "Wii NTLG", Arial, sans-serif;
+    font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+    font-weight: 600;
+    color: #333;
+    background: #e0e0e0;
+    border: 4px solid #4FB8DE;
+    border-radius: clamp(40px, 5vw, 50px);
+    cursor: url('../assets/imgs/user-cursor-med.png'), auto !important;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.game-fullscreen-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top left, rgba(255,255,255,0.3), transparent 70%);
+    pointer-events: none;
+}
+
+.game-fullscreen-btn:hover {
+    background: #d0d0d0;
+    border-color: #3a9bb8;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    cursor: url('../assets/imgs/user-cursor-med.png'), auto !important;
+}
+
+.game-fullscreen-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.game-fullscreen-btn-start {
+    background: #e0e0e0;
+    border-color: #4FB8DE;
+    color: #333;
+}
+
+.game-fullscreen-btn-start:hover {
+    background: #d0d0d0;
+    border-color: #3a9bb8;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+    .game-page-content {
+        padding: clamp(30px, 4vh, 60px) clamp(40px, 6vw, 80px);
+    }
+
+    .game-nav-arrow {
+        width: clamp(45px, 5.5vw, 70px);
+        height: clamp(45px, 5.5vw, 70px);
+    }
+
+    .game-fullscreen-footer-content {
+        gap: clamp(25px, 4vw, 50px);
+        padding: clamp(18px, 3vh, 35px) clamp(30px, 4vw, 60px);
+    }
+}
+
+@media (max-width: 768px) {
+    .game-page-content {
+        padding: clamp(20px, 3vh, 40px) clamp(20px, 4vw, 40px);
+    }
+
+    .game-fullscreen-image {
+        /* keep centering and overflow hidden for cropping */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .game-fullscreen-image img {
+        height: 100%;
+        width: auto;
+        max-width: none;
+        /* ensure it can crop width while filling height */
+        display: block;
+    }
+
+    .game-page-footer-content {
+        flex-direction: column;
+        gap: clamp(15px, 2vh, 20px);
+        padding: clamp(15px, 2vh, 25px) clamp(20px, 3vw, 40px);
+    }
+
+    .game-fullscreen-footer-content {
+        flex-direction: column;
+        gap: clamp(15px, 2.5vh, 22px);
+        padding: clamp(15px, 2.5vh, 28px) clamp(20px, 3vw, 40px);
+    }
+
+    .game-footer-btn, .game-fullscreen-btn {
+        min-width: clamp(200px, 60vw, 280px);
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .game-nav-arrow {
+        width: clamp(40px, 5vw, 60px);
+        height: clamp(40px, 5vw, 60px);
+        opacity: 0.7;
+    }
+
+    .game-nav-arrow-left {
+        left: clamp(10px, 2vw, 30px);
+    }
+
+    .game-nav-arrow-right {
+        right: clamp(10px, 2vw, 30px);
+    }
+}
+
+@media (max-width: 480px) {
+    .game-page-display {
+        gap: clamp(15px, 2vh, 25px);
+    }
+
+    .game-page-screen {
+        border-width: clamp(5px, 0.8vw, 8px);
+    }
+
+    .game-page-footer-content {
+        padding: clamp(12px, 1.5vh, 20px) clamp(15px, 2vw, 30px);
+    }
+
+    .game-fullscreen-footer-content {
+        padding: clamp(12px, 2vh, 20px) clamp(15px, 2vw, 30px);
+        gap: clamp(12px, 2vh, 18px);
+    }
+
+    .game-footer-btn, .game-fullscreen-btn {
+        min-width: clamp(180px, 70vw, 280px);
+        padding: clamp(14px, 2vh, 18px) clamp(30px, 4vw, 45px);
+    }
+}

@@ -1,0 +1,530 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Varela+Round&display=swap');
+
+/* Responsive styling for Wii Mii creator themed page */
+
+.mii-page {
+    min-height: 100vh;
+    background: linear-gradient( to bottom, rgba(255,255,255,0.8) 0%, rgba(205,255,255,0.8) 100% );
+    backdrop-filter: blur(2px);
+    padding-top: 0;
+    overflow-y: auto; /* allow vertical scrolling when content exceeds viewport */
+    -webkit-overflow-scrolling: touch; /* smooth iOS/embedded webview scrolling */
+}
+
+/* Top controls row housing name title */
+.mii-top-controls {
+  display: none; /* hidden by default, shown on mobile */
+  align-items: center;
+  justify-content: center;
+  padding: 0 clamp(12px, 2vw, 24px);
+  margin-top: clamp(8px, 1.6vw, 16px);
+}
+
+/* Audio toggle under Exit button */
+.mii-audio-toggle {
+  position: static;
+  align-self: center; /* prevent full-width stretch in flex column */
+  width: auto;
+  margin-top: clamp(8px, 1.4vw, 12px);
+  background: rgba(0,0,0,0.08);
+  color: #2a4b5e;
+  border: clamp(2px, 0.35vw, 4px) solid #ABBEBC;
+  height: clamp(28px, 3.6vw, 40px);
+  min-width: clamp(56px, 8vw, 88px);
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(4px, 0.7vw, 8px) clamp(8px, 0.9vw, 12px);
+  font-family: 'Nunito', 'Varela Round', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: clamp(10px, 0.85vw, 13px);
+  transition: transform 0.18s ease-out, box-shadow 0.18s ease-out, background-color 0.18s ease-out;
+}
+
+.mii-audio-toggle:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+  background: rgba(0,0,0,0.12);
+}
+
+.mii-header-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(12px, 2.2vw, 28px);
+  padding: 0 clamp(12px, 2vw, 24px);
+}
+
+/* Inline logo (laptop/tablet) */
+.mii-logo-inline { display: inline-block; }
+/* Mobile logo */
+.mii-logo-mobile { display: none; }
+
+.mii-logo {
+  height: clamp(32px, 5vw, 64px);
+  width: auto;
+}
+
+.mii-header {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: clamp(6px, 1.2vw, 14px);
+  padding-top: 0;
+  position: relative;
+}
+
+.mii-exit-btn {
+  margin-top: clamp(12px, 2vw, 20px);
+  align-self: center;
+  background: rgba(0,0,0,0.08);
+  color: #2a4b5e;
+  border: clamp(3px, 0.45vw, 6px) solid #ABBEBC;
+  height: clamp(38px, 4.6vw, 56px);
+  width: clamp(140px, 18vw, 240px);
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: clamp(6px, 0.9vw, 10px);
+  padding-bottom: clamp(4px, 0.7vw, 8px);
+  padding-left: clamp(22px, 2vw, 30px);
+  padding-right: clamp(16px, 2vw, 24px);
+  font-family: 'Nunito', 'Varela Round', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: clamp(12px, 1vw, 15px);
+  transition: transform 0.18s ease-out, box-shadow 0.18s ease-out, background-color 0.18s ease-out;
+}
+
+.mii-exit-btn:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+  background: rgba(0,0,0,0.12);
+}
+
+.mii-header-inner {
+  display: inline-block;
+  margin-left: clamp(8px, 1.6vw, 24px);
+  background: rgba(0,0,0,0.08);
+  border-left: clamp(3px, 0.45vw, 6px) solid #ABBEBC;
+  border-right: clamp(3px, 0.45vw, 6px) solid #ABBEBC;
+  border-bottom: clamp(3px, 0.45vw, 6px) solid #ABBEBC;
+  border-top: none;
+  border-bottom-left-radius: clamp(8px, 1vw, 14px);
+  border-bottom-right-radius: clamp(8px, 1vw, 14px);
+  padding: 0 clamp(14px, 2vw, 28px) clamp(6px, 1vw, 12px);
+}
+
+.mii-header-items {
+  display: flex;
+  justify-content: center;
+  gap: clamp(6px, 1.2vw, 14px);
+  padding: 0;
+  align-items: flex-end;
+}
+
+.mii-item { position: relative; display: flex; flex-direction: column; align-items: center; }
+
+.mii-item-img {
+  display: block;
+  margin-top: -1px;
+  height: clamp(60px, 8vw, 108px);
+  width: auto;
+  transition: transform 0.2s ease-out;
+}
+
+.mii-item-img:hover {
+  transform: scale(1.1);
+  cursor: url('../assets/imgs/user-cursor-med.png'), auto;
+}
+
+.mii-tooltip {
+  position: absolute;
+  top: 100%;
+  transform: translateY(clamp(6px, 0.8vw, 10px));
+  background: rgba(255,255,255,0.95);
+  color: #222;
+  border: 1px solid #ABBEBC;
+  border-radius: clamp(6px, 1vw, 10px);
+  padding: clamp(6px, 1vw, 10px) clamp(10px, 1.5vw, 14px);
+  font-size: clamp(11px, 0.95vw, 14px);
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease-out;
+}
+
+.mii-item:hover .mii-tooltip { opacity: 1; }
+
+/* Disable tooltips on mobile devices */
+@media (max-width: 767px) {
+  .mii-tooltip { display: none !important; }
+}
+
+/* Alternative: use touch media query */
+@media (hover: none) and (pointer: coarse) {
+  .mii-tooltip { display: none !important; }
+  .mii-item:hover .mii-tooltip { display: none !important; }
+}
+
+/* Content layout */
+.mii-content { padding: clamp(12px, 2vw, 24px); -webkit-overflow-scrolling: touch; }
+
+.mii-content-layout {
+  display: grid;
+  grid-template-columns: clamp(260px, 30vw, 420px) 1fr;
+  gap: clamp(16px, 2.2vw, 28px);
+  align-items: stretch;
+  /* avoid height lock that may break scrolling in embedded webviews */
+  min-height: calc(100vh - clamp(140px, 18vw, 200px));
+}
+
+/* Ensure desktop uses a fixed viewport-based height so the right panel can scroll */
+@media (min-width: 721px) {
+  .mii-content-layout { height: calc(100vh - clamp(140px, 18vw, 200px)); }
+}
+
+.mii-panel { height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; overflow-x: hidden; }
+
+.mii-panel-left {
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.mii-gif-placeholder {
+  /* ensure the container has space to render the image */
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* set a consistent height window for the gif area - larger on bigger screens */
+  height: clamp(200px, 32vh, 500px);
+  min-height: 200px;
+  color: #2a4b5e;
+  /* prevent horizontal scrolling */
+  overflow: hidden;
+}
+
+/* Increase GIF size on larger screens */
+@media (min-width: 1024px) {
+  .mii-gif-placeholder {
+    height: clamp(300px, 40vh, 600px);
+  }
+}
+
+@media (min-width: 1440px) {
+  .mii-gif-placeholder {
+    height: clamp(350px, 45vh, 700px);
+  }
+}
+
+.mii-gif-placeholder img {
+  display: block;
+  /* fill the placeholder vertically for a larger appearance */
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  /* iOS Safari GIF rendering fixes */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+.mii-panel-right {
+  background: rgba(0,0,0,0.08); /* standard background */
+  border: clamp(3px, 0.45vw, 6px) solid #ABBEBC;
+  border-radius: clamp(8px, 1vw, 14px);
+  padding: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure polaroid images sit above any decorative background lines/overlays */
+.mii-polaroids { position: relative; z-index: 3; }
+.mii-polaroid { position: relative; z-index: 3; mix-blend-mode: normal; background-color: transparent; }
+
+/* On hover, keep them above and unaffected by blends */
+.mii-polaroid:hover { z-index: 4; mix-blend-mode: normal; }
+
+/* Custom scrollbar for themed panels */
+.mii-panel-right,
+.mii-panel {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #ABBEBC rgba(0,0,0,0.08);
+}
+
+.mii-panel-right::-webkit-scrollbar,
+.mii-panel::-webkit-scrollbar {
+  width: clamp(8px, 0.8vw, 12px);
+}
+
+.mii-panel-right::-webkit-scrollbar-track,
+.mii-panel::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.06);
+  border-radius: clamp(8px, 1vw, 14px);
+}
+
+.mii-panel-right::-webkit-scrollbar-thumb,
+.mii-panel::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #BFD2CF 0%, #8FA6A3 100%);
+  border: 2px solid #E7F3F2;
+  border-radius: clamp(8px, 1vw, 14px);
+}
+
+.mii-panel-right::-webkit-scrollbar-thumb:hover,
+.mii-panel::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #AFC4C1 0%, #7E9895 100%);
+}
+
+.mii-section-content {
+  padding: clamp(18px, 2.8vw, 32px);
+  font-size: clamp(15px, 1.2vw, 19px); /* larger base size */
+  line-height: 1.7; /* a bit more line spacing for readability */
+  color: #1c2a31; /* slightly darker */
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: 'Nunito', 'Varela Round', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-weight: 500; /* thicker default text */
+}
+
+.mii-section-content p {
+  font-size: 1.15rem; /* larger paragraphs */
+  font-weight: 600; /* thicker paragraphs */
+  color: #333; /* darker paragraph text */
+}
+
+.mii-section-content h2 {
+  font-weight: 600; /* slightly bolder heading */
+  font-size: 1.7rem; /* larger heading */
+  color: #3a677a;
+}
+
+/* Nintendo-style spacing between blocks */
+.mii-section-content > * + * {
+  margin-top: 1.2rem;
+}
+
+/* Polaroid image tilt variants */
+.mii-polaroid {
+    display: block;
+    width: 28%; /* smaller width for 3-up layout */
+    max-width: 220px; /* cap size for large screens */
+    height: auto;
+    transition: transform 0.25s ease, filter 0.25s ease;
+    background: transparent;
+    filter: drop-shadow(0 6px 18px rgba(0,0,0,.18));
+    margin: 0; /* spacing handled by row gap */
+    position: relative;
+    z-index: 1;
+}
+
+/* Make the CAR polaroid a bit bigger */
+.mii-polaroid.mii-car-polaroid {
+  width: 34%;
+  max-width: 270px;
+}
+
+/* create slight overlap between adjacent polaroids */
+.mii-polaroid:not(:first-child) {
+  margin-left: -8px;
+}
+
+.mii-polaroid.tilt-right {
+  transform: rotate(3deg);
+}
+
+.mii-polaroid.tilt-left {
+  transform: rotate(-3deg);
+}
+
+/* Restore hover animations and ensure hovered card pops above neighbors */
+.mii-polaroid.tilt-right:hover {
+    transform: rotate(6deg) translateY(-2px);
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,.22));
+    z-index: 2;
+}
+
+.mii-polaroid.tilt-left:hover {
+    transform: rotate(-6deg) translateY(-2px);
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,.22));
+    z-index: 2;
+}
+
+/* Polaroids row layout */
+.mii-polaroids {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px; /* slightly reduced gap to aid overlap */
+  margin: 16px 0 8px;
+  flex-wrap: wrap; /* allow wrap on small screens */
+}
+
+/* Inline image row for IBM photos */
+.mii-inline-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+  margin: 12px 0 8px;
+  flex-wrap: nowrap;
+  position: relative;
+  z-index: 3; /* above body overlays */
+}
+
+/* Inline carousel for IBM photos */
+.mii-inline-carousel {
+  overflow: hidden;
+  position: relative;
+  z-index: 3;
+  margin: 14px 0 8px;
+}
+
+/* Seamless carousel: ensure perfect pattern repetition and subpixel-stable transform */
+.mii-inline-track {
+  display: inline-flex;
+  width: max-content;
+  align-items: center;
+  will-change: transform;
+  animation: miiInfiniteScroll 26s linear infinite;
+}
+
+/* Keep identical spacing on EVERY item so the duplicated halves match exactly */
+.mii-inline-img { margin-right: 16px; }
+/* remove special-case last-child margin so the pattern repeats perfectly */
+/* .mii-inline-img:last-child { margin-right: 0; } */
+
+@keyframes miiInfiniteScroll {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .mii-inline-img { width: min(44%, 380px); }
+}
+
+@media (max-width: 600px) {
+  .mii-inline-img { width: 80%; }
+  .mii-inline-track { gap: 12px; }
+}
+
+/* Force consistent sizing inside the carousel regardless of intrinsic image dimensions */
+.mii-inline-carousel .mii-inline-img {
+  display: block;
+  width: 300px; /* fixed, consistent width */
+  aspect-ratio: 16 / 9;
+  height: auto;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  mix-blend-mode: normal;
+  margin-right: 16px;
+}
+
+/* Responsive steps to avoid overflow while keeping uniform size */
+@media (max-width: 960px) {
+  .mii-inline-carousel .mii-inline-img { width: 260px; }
+}
+
+@media (max-width: 720px) {
+  .mii-inline-carousel .mii-inline-img { width: 220px; }
+}
+
+@media (max-width: 520px) {
+  .mii-inline-carousel .mii-inline-img { width: 180px; }
+}
+
+/* Mobile layout adjustments: stack panels and show content before GIF/buttons */
+@media (max-width: 720px) {
+  .mii-content { padding: clamp(12px, 4vw, 24px); }
+
+  .mii-content-layout {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(12px, 3.5vw, 18px);
+    height: auto; /* let content grow naturally */
+    min-height: auto; /* avoid residual constraints that can lock scroll */
+  }
+
+  /* Show mobile name title image row */
+  .mii-top-controls { display: flex; }
+  .mii-logo-inline { display: none; }
+  .mii-logo-mobile { display: inline-block; }
+
+  /* Place content box before the GIF/buttons panel */
+  .mii-panel-right { order: 1; }
+  .mii-panel-left { order: 2; }
+
+  /* Tweak the right panel spacing for readability */
+  .mii-panel-right { padding: 0; }
+  .mii-section-content { padding: clamp(16px, 4vw, 24px); }
+
+  /* Ensure the GIF area has sensible height on mobile */
+  .mii-gif-placeholder {
+    height: clamp(220px, 34vh, 380px);
+    margin-top: clamp(8px, 2.5vw, 12px);
+  }
+
+  /* Buttons spacing on mobile */
+  .mii-exit-btn { margin-top: clamp(10px, 3vw, 16px); }
+  .mii-audio-toggle { margin-top: clamp(8px, 2.5vw, 12px); }
+
+  /* Allow the whole page to scroll on mobile instead of nested panels */
+  .mii-page { overflow-y: auto; }
+  .mii-panel { overflow-y: visible; height: auto; }
+  .mii-panel-right { overflow-y: visible; }
+}
+
+/* Small-screen header scaling improvements */
+@media (max-width: 720px) {
+  .mii-header-row {
+    flex-wrap: wrap;
+    gap: clamp(8px, 2.5vw, 16px);
+    padding: 0 clamp(8px, 4vw, 16px);
+  }
+
+  .mii-header {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .mii-header-inner {
+    width: 100%;
+    margin-left: 0;
+    padding: 0 clamp(10px, 3.5vw, 18px) clamp(6px, 2.5vw, 12px);
+    box-sizing: border-box;
+  }
+
+  .mii-header-items {
+    flex-wrap: wrap;
+    gap: clamp(6px, 2.5vw, 12px);
+    justify-content: center;
+  }
+
+  /* Scale down header icons to avoid overflow */
+  .mii-item-img {
+    height: clamp(48px, 9.5vw, 84px);
+  }
+
+  /* Keep tooltip readable yet compact */
+  .mii-tooltip {
+    font-size: clamp(10px, 2.8vw, 12px);
+    padding: clamp(4px, 1.8vw, 8px) clamp(8px, 2.5vw, 12px);
+  }
+}
+
+/* Extra-small devices: further reductions */
+@media (max-width: 420px) {
+  .mii-item-img { height: clamp(42px, 11vw, 72px); }
+  .mii-header-items { gap: clamp(4px, 2vw, 10px); }
+}

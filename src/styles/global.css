@@ -4,17 +4,65 @@
     line-height: 1.5;
     color-scheme: light dark;
     color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
+/*    background-color: #242424;*/
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     cursor: url('../assets/imgs/cursor-normal-med.png'), auto;
 }
-    :root:active {
-        cursor: url('../assets/imgs/user-cursor-med.png'), auto;
-    }
 
-a:hover {
+:root:active {
     cursor: url('../assets/imgs/user-cursor-med.png'), auto;
 }
+
+/* Ensure all interactive elements use custom cursor */
+a,
+button,
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+[role="button"],
+[onclick],
+.game-nav-arrow,
+.game-fullscreen-btn,
+.game-fullscreen-btn-menu,
+.game-fullscreen-btn-start {
+    cursor: url('../assets/imgs/user-cursor-med.png'), auto !important;
+}
+
+a:hover,
+button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+input[type="reset"]:hover,
+.game-nav-arrow:hover,
+.game-fullscreen-btn:hover {
+    cursor: url('../assets/imgs/user-cursor-med.png'), auto !important;
+}
+
+/* Input fields and textareas use normal cursor */
+input:not([type="submit"]):not([type="button"]):not([type="reset"]),
+textarea,
+select {
+    cursor: url('../assets/imgs/cursor-normal-med.png'), auto !important;
+}
+
+/* Disable text selection and highlighting */
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* Allow text selection in input fields and textareas */
+input,
+textarea {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
