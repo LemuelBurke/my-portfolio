@@ -158,6 +158,17 @@
 
 .mii-item:hover .mii-tooltip { opacity: 1; }
 
+/* Disable tooltips on mobile devices */
+@media (max-width: 767px) {
+  .mii-tooltip { display: none !important; }
+}
+
+/* Alternative: use touch media query */
+@media (hover: none) and (pointer: coarse) {
+  .mii-tooltip { display: none !important; }
+  .mii-item:hover .mii-tooltip { display: none !important; }
+}
+
 /* Content layout */
 .mii-content { padding: clamp(12px, 2vw, 24px); -webkit-overflow-scrolling: touch; }
 
@@ -190,11 +201,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* set a consistent height window for the gif area */
-  height: clamp(200px, 32vh, 360px);
+  /* set a consistent height window for the gif area - larger on bigger screens */
+  height: clamp(200px, 32vh, 500px);
+  min-height: 200px;
   color: #2a4b5e;
   /* prevent horizontal scrolling */
   overflow: hidden;
+}
+
+/* Increase GIF size on larger screens */
+@media (min-width: 1024px) {
+  .mii-gif-placeholder {
+    height: clamp(300px, 40vh, 600px);
+  }
+}
+
+@media (min-width: 1440px) {
+  .mii-gif-placeholder {
+    height: clamp(350px, 45vh, 700px);
+  }
 }
 
 .mii-gif-placeholder img {
@@ -203,6 +228,12 @@
   height: 100%;
   width: auto;
   object-fit: contain;
+  /* iOS Safari GIF rendering fixes */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 .mii-panel-right {

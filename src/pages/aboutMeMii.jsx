@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import "../styles/aboutMeMii.css"
+import { useIsMobile } from "../hooks/useIsMobile"
 import nameTitleImg from "../assets/imgs/aboutMePage/nameTitle.png"
 import abtmeImg from "../assets/imgs/aboutMePage/abtme.png"
 import abtmeSelectedImg from "../assets/imgs/aboutMePage/abtmeSelected.png"
@@ -72,7 +73,7 @@ const contentByKey = {
                 Looking to the future, I really want to spend a few years gaining industry experience
                 and build funds, I then plan to go on to explore the world as a digital nomad (working remotely,
                 travelling, and building software along the way!)
-                Having already visited the United States, Czech Republic and Japan independantly, I can't wait to see more of the world!
+                Having already visited the United States, Czech Republic and Japan independently, I can't wait to see more of the world!
             </p>
 
             <div className="mii-polaroids">
@@ -319,7 +320,7 @@ const contentByKey = {
           <h3>Bryntirion Comprehensive School</h3>
           <p><em>A-Levels (2021 - 2023)</em></p>
           <p>
-              Awarded 3 B's in; Welsh Baccalaureate, Histroy and Computer Science, building early foundations in
+              Awarded 3 B's in; Welsh Baccalaureate, History and Computer Science, building early foundations in
               programming and software development.
           </p>
 
@@ -353,7 +354,7 @@ const contentByKey = {
 
           <p>
               Overall, I enjoy hobbies that mix strategy, creativity, or even a little bit of
-              adrenaline - whether that's going from my 9-5 laptop to my 5-9 laptop to play video games or pracitce my creative skills, a surfboard, riding my motorbike or going on a lengthy hike.
+              adrenaline - whether that's going from my 9-5 laptop to my 5-9 laptop to play video games or practice my creative skills, a surfboard, riding my motorcycle or going on a lengthy hike.
           </p>
       </>
 
@@ -365,6 +366,7 @@ const AboutMeMii = ({ onExit }) => {
   const [isMuted, setIsMuted] = useState(false)
   const audioRef = useRef(null)
   const rightPanelRef = useRef(null)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     const music = new Audio(miiChannelMusic)
@@ -413,7 +415,7 @@ const AboutMeMii = ({ onExit }) => {
         alt={label}
         draggable={false}
       />
-      <div className="mii-tooltip">{label}</div>
+      {!isMobile && <div className="mii-tooltip">{label}</div>}
     </motion.div>
   )
 
@@ -457,7 +459,30 @@ const AboutMeMii = ({ onExit }) => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.25 }}
           >
-                      <div className="mii-gif-placeholder"><img src={miiman} alt="Mii man animation" loading="eager" decoding="async" draggable={false} /></div>
+                      <div className="mii-gif-placeholder">
+                        <img 
+                          src={miiman} 
+                          alt="Mii man animation" 
+                          loading="eager" 
+                          draggable={false}
+                          onError={(e) => {
+                            console.warn('GIF failed to load, attempting fallback')
+                            // Force reload the image as a fallback
+                            const currentSrc = e.target.src
+                            e.target.src = ''
+                            setTimeout(() => {
+                              e.target.src = miiman + '?t=' + Date.now()
+                            }, 100)
+                          }}
+                          onLoad={() => {
+                            // Ensure the image is visible after loading on iOS
+                            const img = document.querySelector('.mii-gif-placeholder img')
+                            if (img) {
+                              img.style.opacity = '1'
+                            }
+                          }}
+                        />
+                      </div>
             <motion.button
               className="mii-exit-btn"
               onClick={onExit}

@@ -115,6 +115,18 @@
     }
 }
 
+/* Disable tooltips on mobile devices */
+@media (max-width: 767px) {
+    .wii-card-tooltip,
+    .wii-card-tooltip-fixed { display: none !important; }
+}
+
+/* Alternative: use touch media query for touch devices */
+@media (hover: none) and (pointer: coarse) {
+    .wii-card-tooltip,
+    .wii-card-tooltip-fixed { display: none !important; }
+}
+
 /* Responsive adjustments */
 @media (min-width: 1920px) {
     .wii-card-wrap { max-width: 24rem; }

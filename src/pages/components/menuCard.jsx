@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import "../../styles/menuCard.css"
+import { useIsMobile } from "../../hooks/useIsMobile"
 
 const MenuCard = ({ title, thumbnail, onClick }) => {
     const [showTooltip, setShowTooltip] = useState(false)
     const [tooltipStyle, setTooltipStyle] = useState({ left: 0, top: 0, width: 0 })
+    const isMobile = useIsMobile()
 
     const updateTooltipPosition = (el) => {
         if (!el) return
@@ -29,13 +31,14 @@ const MenuCard = ({ title, thumbnail, onClick }) => {
     }, [showTooltip])
 
     const handleMouseEnter = (e) => {
-        if (!title) return
+        if (!title || isMobile) return // Don't show tooltips on mobile
         e.currentTarget.setAttribute('data-card-hover', 'true')
         updateTooltipPosition(e.currentTarget)
         setShowTooltip(true)
     }
 
     const handleMouseLeave = (e) => {
+        if (isMobile) return // Don't handle tooltip events on mobile
         e.currentTarget.removeAttribute('data-card-hover')
         setShowTooltip(false)
     }
@@ -57,7 +60,7 @@ const MenuCard = ({ title, thumbnail, onClick }) => {
                 </div>
             </div>
 
-            {showTooltip && title && createPortal(
+            {showTooltip && title && typeof document !== 'undefined' && document.body && createPortal(
                 <div className="wii-card-tooltip-fixed" style={{ left: tooltipStyle.left, top: tooltipStyle.top, width: tooltipStyle.width }}>
                     {title}
                 </div>,
