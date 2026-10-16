@@ -1,4 +1,4 @@
-﻿import { useCallback, useState, useContext } from "react"
+import { useCallback, useState, useContext } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { SoundContext } from "../App"
 import "../styles/warningWelcome.css"
@@ -12,13 +12,11 @@ const WarningWelcome = ({ onDismiss }) => {
     const handleOverlayClick = useCallback((e) => {
         if (e.target.closest?.("a, button, [role='button']")) return
         
-        console.log(' User clicked! Starting audio immediately...')
         startWelcomeAudio()
         setVisible(false)
     }, [startWelcomeAudio])
 
     const handleExited = useCallback(() => {
-        console.log('Animation complete, calling onDismiss')
         onDismiss?.()
     }, [onDismiss])
 

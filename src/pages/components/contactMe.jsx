@@ -126,7 +126,7 @@ const ContactMe = ({ isOpen, onClose }) => {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                 >
-                                    ? Message sent successfully!
+                                    ✓ Message sent successfully!
                                 </motion.div>
                             )}
 
@@ -136,7 +136,7 @@ const ContactMe = ({ isOpen, onClose }) => {
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                 >
-                                    ? Failed to send message. Please try again.
+                                    ✗ Failed to send message. Please try again.
                                 </motion.div>
                             )}
                         </form>

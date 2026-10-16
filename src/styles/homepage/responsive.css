@@ -4,6 +4,7 @@
 @media (min-width: 1920px) {
     .menu-viewport {
         height: calc(100vh - clamp(240px, 25vh, 280px));
+        height: calc(100dvh - clamp(240px, 25vh, 280px));
     }
 }
 
@@ -11,6 +12,7 @@
 @media (max-width: 1920px) and (min-width: 1200px) {
     .menu-viewport {
         height: calc(100vh - clamp(210px, 23vh, 250px));
+        height: calc(100dvh - clamp(210px, 23vh, 250px));
         padding-bottom: clamp(1.2rem, 2.2vh, 2rem);
     }
     
@@ -41,6 +43,7 @@
 @media (max-width: 1024px) {
     .menu-viewport {
         height: calc(100vh - clamp(200px, 24vh, 240px));
+        height: calc(100dvh - clamp(200px, 24vh, 240px));
         padding-top: clamp(1rem, 1.5vh, 1.5rem);
         padding-bottom: clamp(1.5rem, 2.5vh, 2rem);
         overflow-x: hidden;
@@ -104,6 +107,7 @@
 @media (max-width: 768px) {
     .menu-viewport {
         height: calc(100vh - clamp(180px, 22vh, 200px));
+        height: calc(100dvh - clamp(180px, 22vh, 200px));
         overflow-x: hidden;
         overflow-y: hidden;
     }
@@ -163,6 +167,7 @@
 @media (max-width: 480px) {
     .menu-viewport {
         height: calc(100vh - clamp(160px, 20vh, 180px));
+        height: calc(100dvh - clamp(160px, 20vh, 180px));
         overflow-x: hidden;
         overflow-y: hidden;
     }

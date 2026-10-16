@@ -1,12 +1,13 @@
-﻿import { useRef, useEffect, useState, createContext } from 'react'
+import { useRef, useEffect, useState, createContext } from 'react'
 import { AnimatePresence } from 'framer-motion'
-import WarningWelcome from './pages/WarningWelcome'
+import WarningWelcome from './pages/warningWelcome'
 import HomePage from './pages/homePage'
 import clickSound from './assets/audio/click-sound.mp3'
 import startUpSound from './assets/audio/wii-startup-sound.mp3'
 import wiimenu from './assets/audio/wiimenu.mp3'
 import IntermissionOverlay from './pages/components/intermissionOverlay'
 import PauseOverlay from './pages/components/pauseOverlay'
+import { ARCADE_TITLES } from './pages/arcade/arcadeTitles'
 
 export const SoundContext = createContext({
     playSound: () => { },
@@ -26,20 +27,17 @@ function App() {
     const intermissionTimerRef = useRef(null)
 
     useEffect(() => {
-        console.log('Initializing audio cache...')
 
         const startup = new Audio(audioSources.current.startup)
         startup.preload = 'auto'
         startup.volume = 0.3
         audioCache.current.startup = startup
-        console.log('Startup audio created')
 
         const menu = new Audio(audioSources.current.menu)
         menu.preload = 'auto'
         menu.loop = true
         menu.volume = 0.3
         audioCache.current.menu = menu
-        console.log('Menu audio created')
 
         return () => {
             if (intermissionTimerRef.current) {
@@ -68,12 +66,9 @@ function App() {
     }
 
     const startWelcomeAudio = () => {
-        console.log('Starting welcome audio sequence...')
-
         const startupAudio = audioCache.current.startup
         if (startupAudio) {
             const onStartupEnded = () => {
-                console.log('Startup sound ended! Starting menu music...')
                 startupAudio.removeEventListener('ended', onStartupEnded)
                 setShouldPlayMenu(true)
             }
@@ -81,9 +76,6 @@ function App() {
             startupAudio.addEventListener('ended', onStartupEnded)
 
             startupAudio.play()
-                .then(() => {
-                    console.log('Startup sound playing successfully')
-                })
                 .catch((error) => {
                     console.error('Failed to play startup sound:', error)
                     startupAudio.removeEventListener('ended', onStartupEnded)
@@ -125,12 +117,10 @@ function App() {
 
     // Menu audio control
     useEffect(() => {
-        console.log('Menu should play:', shouldPlayMenu)
         const menuEl = audioCache.current.menu
         if (!menuEl) return
 
         if (shouldPlayMenu) {
-            console.log('Starting menu music...')
             menuEl.play().catch((error) => console.error('Menu play failed:', error))
         } else {
             try {
@@ -141,15 +131,13 @@ function App() {
     }, [shouldPlayMenu])
 
     const dismissWelcome = () => {
-        console.log('Welcome dismissed after animation')
         setShowWelcome(false)
     }
 
     // Channel management functions
     const openChannel = (channelId) => {
-        console.log('Opening channel:', channelId)
         // Show intermission for specific "game" screens
-        if (channelId === 'About Me' || channelId === 'Resume and CV' || channelId === 'My Projects') {
+        if (channelId === 'About Me' || channelId === 'Resume and CV' || channelId === 'My Projects' || channelId === 'Message Me' || ARCADE_TITLES.includes(channelId)) {
             setIsIntermission(true)
             pendingChannelRef.current = channelId
             intermissionTimerRef.current = setTimeout(() => {
@@ -165,7 +153,6 @@ function App() {
     }
 
     const closeChannel = () => {
-        console.log('Closing channel')
         if (intermissionTimerRef.current) {
             clearTimeout(intermissionTimerRef.current)
             intermissionTimerRef.current = null

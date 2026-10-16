@@ -6,32 +6,55 @@ import AboutMeMii from "./aboutMeMii"
 import ResumeAndCV from "./resumeAndCV"
 import Projects from "./projects"
 import IntermissionOverlay from "./components/intermissionOverlay"
+import ArcadeChannel from "./arcade/ArcadeChannel"
+import { ARCADE_GAMES } from "./arcade/arcadeGames"
 
 // Thumnail Imports
 import Img from "../assets/imgs/thumbnails/placeholderCardImg.png"
-import miiMorgan from "../assets/imgs/thumbnails/2025-12-06 14-18-45.gif"
-import projectImg from "../assets/imgs/thumbnails/projects.png"
-import linkedImg from "../assets/imgs/thumbnails/linkedin.png"
-import githubImg from "../assets/imgs/thumbnails/github.png"
-import linkedFULLimg from "../assets/imgs/thumbnails/linkedinFULL.png"
-import githubFULLimg from "../assets/imgs/thumbnails/githubFULL.png"
-import projectFULLimg from "../assets/imgs/thumbnails/projectsFULL.png"
-import cvFULLimg from "../assets/imgs/thumbnails/cvFULL.png"
-import discImg from "../assets/imgs/disc.png"
+import miiMorgan from "../assets/imgs/thumbnails/about-me.webp"
+import miiMorganFull from "../assets/imgs/thumbnails/about-me-full.webp"
+import projectImg from "../assets/imgs/thumbnails/project-street.webp"
+import linkedImg from "../assets/imgs/thumbnails/linkedin.webp"
+import githubImg from "../assets/imgs/thumbnails/github.webp"
+import linkedFULLimg from "../assets/imgs/thumbnails/linkedin-full.webp"
+import githubFULLimg from "../assets/imgs/thumbnails/github-full.webp"
+import projectFULLimg from "../assets/imgs/thumbnails/project-street-full.webp"
+import cvFULLimg from "../assets/imgs/thumbnails/cv-board-full.webp"
+import discImg from "../assets/imgs/disc.webp"
 
 import NextArrow from "./components/nextPage"
 import wiiArrowImg from "../assets/imgs/wiiArrow.svg"
 import GameSelectScreen from "./components/gameSelectScreen"
-import ContactMe from "./components/contactMe"
+import UpdatesBoard from "./mail/UpdatesBoard"
+import { UPDATES, markUpdatesSeen, readSeenUpdates } from "./mail/updates"
+import LetterChannel from "./mail/LetterChannel"
+import messageMeImg from "../assets/imgs/thumbnails/message-me.webp"
+import messageMeFullImg from "../assets/imgs/thumbnails/message-me-full.webp"
 import userCursor from "../assets/imgs/user-cursor-med.png"
 import footerImg from "../assets/imgs/footer_img.png"
-import cvImg from "../assets/imgs/thumbnails/cv.png"
+import cvImg from "../assets/imgs/thumbnails/cv-board.webp"
+
+const formatTime = (date) => date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+const formatDate = (date) => date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'numeric' })
+
+// The footer clock ticks on its own, so the rest of the menu doesn't redraw every second
+const FooterClock = ({ className, format }) => {
+    const [now, setNow] = useState(() => new Date())
+    useEffect(() => {
+        const timer = setInterval(() => setNow(new Date()), 1000)
+        return () => clearInterval(timer)
+    }, [])
+    return <div className={className}>{format(now)}</div>
+}
 
 const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
     const [currentPage, setCurrentPage] = useState(0)
-    const [currentTime, setCurrentTime] = useState(new Date())
     const [selectedGameIndex, setSelectedGameIndex] = useState(null)
-    const [isContactOpen, setIsContactOpen] = useState(false)
+    const [isUpdatesOpen, setIsUpdatesOpen] = useState(false)
+    // notices this visitor had already seen when the board was last opened; drives the badge and "New" tags
+    const [seenUpdates, setSeenUpdates] = useState(readSeenUpdates)
+    const [seenAtOpen, setSeenAtOpen] = useState(seenUpdates)
+    const unreadUpdates = UPDATES.filter((u) => !seenUpdates.has(u.id)).length
     const [swipeDirection, setSwipeDirection] = useState(0) // -1 prev, 1 next
     const menuGridRef = useRef(null)
     const totalPages = 2
@@ -45,7 +68,12 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
             {
                 title: "About Me",
                 thumbnail: miiMorgan,
-                fullImage: miiMorgan
+                fullImage: miiMorganFull
+            },
+            {
+                title: "My Projects",
+                thumbnail: projectImg,
+                fullImage: projectFULLimg
             },
             {
                 title: "Resume and CV",
@@ -53,9 +81,9 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                 fullImage: cvFULLimg
             },
             {
-                title: "My Projects",
-                thumbnail: projectImg,
-                fullImage: projectFULLimg
+                title: "Message Me",
+                thumbnail: messageMeImg,
+                fullImage: messageMeFullImg
             },
             {
                 title: "LinkedIn",
@@ -67,7 +95,9 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                 thumbnail: githubImg,
                 fullImage: githubFULLimg
             },
-            ...Array.from({ length: 6 }, (_, i) => ({
+            ...ARCADE_GAMES.map(({ title, thumbnail, fullImage }) => ({ title, thumbnail, fullImage })),
+            // empty slots fill the rest of the first page
+            ...Array.from({ length: 12 - 6 - ARCADE_GAMES.length }, (_, i) => ({
                 title: ``,
                 thumbnail: Img,
                 fullImage: Img
@@ -80,14 +110,6 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
         ];
         return allGames;
     }, []);
-
-    // Update time every second
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentTime(new Date())
-        }, 1000)
-        return () => clearInterval(timer)
-    }, [])
 
     // When closing selected game, force menu pages to re-mount to replay card animations
     useEffect(() => {
@@ -125,30 +147,17 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
         }
     }
 
-    const formatTime = (date) => {
-        return date.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-        })
+    // Mail button: open the board of notices and mark them all as seen
+    const handleUpdatesOpen = () => {
+        setSeenAtOpen(seenUpdates)
+        setIsUpdatesOpen(true)
+        markUpdatesSeen()
+        setSeenUpdates(new Set(UPDATES.map((u) => u.id)))
     }
 
-    const formatDate = (date) => {
-        return date.toLocaleDateString('en-GB', {
-            weekday: 'short',
-            day: 'numeric',
-            month: 'numeric'
-        })
-    }
-
-    // Open contact modal
-    const handleContactOpen = () => {
-        setIsContactOpen(true)
-    }
-
-    // Close contact modal
-    const handleContactClose = () => {
-        setIsContactOpen(false)
+    const handleUpdatesChannel = (channel) => {
+        setIsUpdatesOpen(false)
+        onChannelOpen(channel)
     }
 
     // Game navigation
@@ -221,8 +230,18 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
         return <Projects onExit={onChannelClose} />
     }
 
+    if (activeChannel === "Message Me") {
+        return <LetterChannel onExit={onChannelClose} />
+    }
+
+    // Arcade games each run in their own channel
+    const arcadeGame = ARCADE_GAMES.find((g) => g.title === activeChannel)
+    if (arcadeGame) {
+        return <ArcadeChannel key={arcadeGame.title} game={arcadeGame} onExit={onChannelClose} />
+    }
+
     // Known channels that render dedicated pages
-    const knownChannels = new Set(["About Me", "Resume and CV", "My Projects"])
+    const knownChannels = new Set(["About Me", "Resume and CV", "My Projects", "Message Me", ...ARCADE_GAMES.map((g) => g.title)])
 
     return (
         <div>
@@ -353,7 +372,7 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                     >
                     <div>
                             {/* Time above footer in the dip */}
-                            <div className="footer-time-above">{formatTime(currentTime)}</div>
+                            <FooterClock className="footer-time-above" format={formatTime} />
                         
                             {/* Footer base image */}
                             <img src={footerImg} alt="" className="footer-base-img" draggable={false} />
@@ -369,25 +388,28 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                             {/* Email button on the right */}
                             <button 
                                 className="footer-email-button"
-                                onClick={handleContactOpen}
+                                onClick={handleUpdatesOpen}
+                                aria-label={unreadUpdates ? `Messages, ${unreadUpdates} new` : "Messages"}
                             >
                                 <svg className="footer-email-icon" viewBox="0 0 24 24">
                                     <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v 2z"/>
                                 </svg>
-                                <div className="footer-email-notification">1</div>
+                                {unreadUpdates > 0 && <div className="footer-email-notification">{unreadUpdates}</div>}
                             </button>
                         
                             {/* Date centered in footer */}
-                            <div className="footer-date-center">{formatDate(currentTime)}</div>
+                            <FooterClock className="footer-date-center" format={formatDate} />
                         </div>
                     </motion.div>
                 )}
             </motion.div>
 
-            {/* Contact Form Modal */}
-            <ContactMe 
-                isOpen={isContactOpen}
-                onClose={() => setIsContactOpen(false)}
+            {/* Notices from Morgan, opened by the mail button */}
+            <UpdatesBoard
+                isOpen={isUpdatesOpen}
+                onClose={() => setIsUpdatesOpen(false)}
+                onOpenChannel={handleUpdatesChannel}
+                seen={seenAtOpen}
             />
 
             {/* Intermission / Pause Overlay */}

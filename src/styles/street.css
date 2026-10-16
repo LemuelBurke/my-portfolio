@@ -1,0 +1,986 @@
+/**********************************
+  PROJECT STREET
+  The stage fills the window. Sizes are in world units: --u is the pixel size of one unit
+  (set from the window size in projects.jsx) and --cqw is 16 units, the old 1% of a 1600-wide view.
+**********************************/
+.street-page {
+    --street-cyan: #34beed;
+    --street-cyan-dark: #1e9fcf;
+    --street-ink: #3c4247;
+    --street-sky: #c6ebfa;
+    --street-paving: #f1f3f4;
+    --street-road: #c3ccd1;
+
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--street-sky);
+    color: var(--street-ink);
+    z-index: 50;
+}
+
+.street-stage {
+    --cqw: calc(var(--u, 1px) * 16);
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    touch-action: manipulation;
+    /* sky down to the shop line, which sits 560 units into the 900-unit-tall world */
+    /* soft blue sky warming towards the rooftops, like late afternoon */
+    background: linear-gradient(
+        180deg,
+        #a9dff5 0%,
+        #d4eef8 calc(var(--world-top, 0px) + 300 * var(--u, 1px)),
+        #fbeedb calc(var(--world-top, 0px) + 560 * var(--u, 1px))
+    );
+}
+
+/* Distant town: pale rounded buildings and hills, scrolled at a slower rate */
+.street-skyline {
+    position: absolute;
+    left: calc(-100 * var(--cqw));
+    top: var(--world-top, 0px);
+    width: calc(600 * var(--cqw));
+    height: calc(35 * var(--cqw)); /* down to the shop line at y 560 */
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 300'%3E%3Cg fill='%23d7f0fa'%3E%3Cellipse cx='120' cy='300' rx='220' ry='90'/%3E%3Cellipse cx='560' cy='300' rx='260' ry='110'/%3E%3C/g%3E%3Cg fill='%23c3e6f5'%3E%3Crect x='40' y='150' width='70' height='150' rx='14'/%3E%3Crect x='120' y='110' width='56' height='190' rx='14'/%3E%3Crect x='186' y='176' width='84' height='124' rx='14'/%3E%3Crect x='330' y='130' width='64' height='170' rx='14'/%3E%3Crect x='404' y='190' width='96' height='110' rx='14'/%3E%3Crect x='520' y='96' width='58' height='204' rx='14'/%3E%3Crect x='588' y='160' width='78' height='140' rx='14'/%3E%3Crect x='700' y='136' width='62' height='164' rx='14'/%3E%3C/g%3E%3Cg fill='%23e3f5fc'%3E%3Crect x='136' y='130' width='10' height='14' rx='3'/%3E%3Crect x='154' y='130' width='10' height='14' rx='3'/%3E%3Crect x='136' y='156' width='10' height='14' rx='3'/%3E%3Crect x='154' y='156' width='10' height='14' rx='3'/%3E%3Crect x='536' y='118' width='10' height='14' rx='3'/%3E%3Crect x='554' y='118' width='10' height='14' rx='3'/%3E%3Crect x='536' y='144' width='10' height='14' rx='3'/%3E%3Crect x='554' y='144' width='10' height='14' rx='3'/%3E%3C/g%3E%3C/svg%3E")
+        repeat-x left bottom / calc(50 * var(--cqw)) auto;
+    will-change: transform;
+    pointer-events: none;
+}
+
+.street-world {
+    position: absolute;
+    left: 0;
+    top: var(--world-top, 0px);
+    height: calc(56.25 * var(--cqw)); /* 900 units */
+    will-change: transform;
+}
+
+/* Pavement from the shop line (y 560) to the kerb (y 800) */
+.street-pavement {
+    position: absolute;
+    left: calc(-200 * var(--cqw));
+    right: calc(-200 * var(--cqw));
+    top: calc(35 * var(--cqw));
+    height: calc(15 * var(--cqw));
+    background-color: var(--street-paving);
+    background-image:
+        linear-gradient(#e0e5e8 calc(0.12 * var(--cqw)), transparent calc(0.12 * var(--cqw))),
+        linear-gradient(90deg, #e0e5e8 calc(0.12 * var(--cqw)), transparent calc(0.12 * var(--cqw)));
+    background-size: calc(5 * var(--cqw)) calc(3.75 * var(--cqw));
+    box-shadow: inset 0 calc(0.6 * var(--cqw)) calc(0.8 * var(--cqw)) calc(-0.4 * var(--cqw)) rgba(30, 60, 75, 0.15);
+}
+
+/* Kerb and road */
+.street-road {
+    position: absolute;
+    left: calc(-200 * var(--cqw));
+    right: calc(-200 * var(--cqw));
+    top: calc(50 * var(--cqw));
+    bottom: calc(-50 * var(--cqw)); /* runs on to the bottom of tall screens */
+    background:
+        linear-gradient(90deg, #fff 0 calc(4 * var(--cqw)), transparent calc(4 * var(--cqw)) calc(8 * var(--cqw))) 0 calc(3.2 * var(--cqw)) / calc(8 * var(--cqw)) calc(0.45 * var(--cqw)) repeat-x,
+        var(--street-road);
+    border-top: calc(0.6 * var(--cqw)) solid #dfe4e7;
+}
+
+/**********************************
+  SHOPS
+**********************************/
+.street-shop {
+    position: absolute;
+    display: block;
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    color: inherit;
+}
+
+.street-shop:focus-visible {
+    outline: calc(0.3 * var(--cqw)) solid var(--street-cyan);
+    outline-offset: calc(0.4 * var(--cqw));
+    border-radius: calc(1.2 * var(--cqw));
+}
+
+.shop {
+    position: relative;
+    display: block;
+}
+
+.shop-art {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.shop-window {
+    filter: saturate(0.85) brightness(0.94);
+    transition: filter 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.street-shop.is-near .shop-window,
+.street-shop:hover .shop-window {
+    filter: none;
+}
+
+/* The door swings open on its left hinge */
+.shop-door {
+    transform-box: fill-box;
+    transform-origin: left center;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.shop.is-open .shop-door {
+    transform: scaleX(0.12) skewY(-10deg);
+}
+
+.shop-loading {
+    animation: shop-spin 1.2s steps(8) infinite;
+}
+
+@keyframes shop-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Fascia lettering (the fascia spans x 38-402, y 236-278 of the 440 x 420 art) */
+.shop-name {
+    position: absolute;
+    left: 8.6%;
+    width: 82.8%;
+    top: 56.2%;
+    height: 10%;
+    display: grid;
+    place-items: center;
+    font-size: max(calc(1.5 * var(--cqw) * var(--name-scale, 1)), 10px);
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    color: #fff;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+/* Fascia lettering in each era's style */
+.shop[data-era="modern"] .shop-name {
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-shadow: none;
+}
+
+.shop[data-era="deco"] .shop-name {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: max(calc(1.25 * var(--cqw) * var(--name-scale, 1)), 9px);
+}
+
+.shop[data-era="victorian"] .shop-name,
+.shop[data-era="georgian"] .shop-name,
+.shop[data-era="tudor"] .shop-name {
+    font-family: Georgia, "Times New Roman", serif;
+    color: #fff4d0;
+}
+
+.shop[data-era="victorian"] .shop-name,
+.shop[data-era="tudor"] .shop-name {
+    font-style: italic;
+}
+
+.shop[data-era="georgian"] .shop-name {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: max(calc(1.3 * var(--cqw) * var(--name-scale, 1)), 9px);
+}
+
+/* Intro chat: a Wii-style message box at the bottom of the screen */
+.street-stage {
+    transition: transform 1s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.street-intro {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(16px, 5vh, 48px);
+    translate: -50% 0;
+    z-index: 60;
+    width: min(640px, calc(100vw - 32px));
+    padding: 28px 28px 16px;
+    color: var(--street-ink);
+    background: linear-gradient(180deg, #ffffff 0%, #f1f5f7 100%);
+    border: 3px solid var(--street-cyan);
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(30, 60, 75, 0.25), inset 0 2px 0 #fff;
+    cursor: pointer;
+}
+
+.street-intro-name {
+    position: absolute;
+    top: -16px;
+    left: 24px;
+    padding: 4px 16px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--street-cyan);
+    border-radius: 99px;
+    box-shadow: 0 2px 6px rgba(30, 60, 75, 0.2);
+}
+
+.street-intro-text {
+    min-height: 3.2em;
+    margin: 0 0 14px;
+    font-size: clamp(1rem, 2.4vw, 1.25rem);
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.street-intro-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.street-intro-progress {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: #8a949a;
+}
+
+.street-intro-skip,
+.street-intro-next {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    font: inherit;
+    font-weight: 700;
+    color: var(--street-ink);
+    background: #fff;
+    border: 2px solid #c8d0d5;
+    border-radius: 99px;
+    cursor: pointer;
+}
+
+.street-intro-skip {
+    font-weight: 600;
+    color: #6b747a;
+}
+
+.street-intro-next {
+    border-color: var(--street-cyan);
+}
+
+.street-intro-skip:hover,
+.street-intro-next:hover {
+    background: #eef9fd;
+}
+
+.street-intro-skip:focus-visible,
+.street-intro-next:focus-visible {
+    outline: 3px solid var(--street-cyan);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .street-stage {
+        transition: none;
+    }
+}
+
+/* Phones held sideways: a more compact intro box so the Mii stays in view */
+@media (max-height: 500px) {
+    .street-intro {
+        padding: 20px 20px 10px;
+    }
+
+    .street-intro-text {
+        min-height: 0;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Clouds and birds drift across the sky. Each is a single element with an image background and a
+   transform animation, so the browser can move them without redrawing anything. */
+.street-clouds {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.street-cloud {
+    position: absolute;
+    left: 0;
+    width: calc(14 * var(--cqw));
+    aspect-ratio: 140 / 60;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 60'%3E%3Cg fill='%23fff'%3E%3Crect x='0' y='26' width='140' height='34' rx='17'/%3E%3Ccircle cx='46' cy='28' r='24'/%3E%3Ccircle cx='82' cy='24' r='20'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+    opacity: 0.9;
+    will-change: transform;
+    animation: street-cloud-drift 140s linear infinite;
+}
+
+.street-cloud:nth-child(1) { top: calc(var(--world-top, 0px) + 6 * var(--cqw)); animation-delay: -20s; }
+.street-cloud:nth-child(2) { top: calc(var(--world-top, 0px) + 1.5 * var(--cqw)); width: calc(10 * var(--cqw)); animation-duration: 180s; animation-delay: -95s; }
+.street-cloud:nth-child(3) { top: calc(var(--world-top, 0px) + 3.5 * var(--cqw)); width: calc(17 * var(--cqw)); animation-duration: 160s; animation-delay: -60s; }
+
+.street-sky-bird {
+    position: absolute;
+    left: 0;
+    width: calc(1.8 * var(--cqw));
+    aspect-ratio: 26 / 12;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 12'%3E%3Cpath d='M2 3 Q8 1 13 9 Q18 1 24 3' fill='none' stroke='%236b7c8c' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+    will-change: transform;
+    animation: street-bird-fly 38s linear infinite;
+}
+
+.street-sky-bird:nth-child(4) { top: calc(var(--world-top, 0px) + 4 * var(--cqw)); animation-delay: -6s; }
+.street-sky-bird:nth-child(5) { top: calc(var(--world-top, 0px) + 5.2 * var(--cqw)); width: calc(1.4 * var(--cqw)); animation-delay: -7s; }
+
+/* transform (not the separate translate property) so the compositor can run these */
+@keyframes street-cloud-drift {
+    from { transform: translateX(-20vw); }
+    to { transform: translateX(110vw); }
+}
+
+@keyframes street-bird-fly {
+    from { transform: translate(-10vw, 0); }
+    to { transform: translate(110vw, -2vh); }
+}
+
+/* Cars driving along the road: a rounded body, a window and two wheels */
+.street-car {
+    position: absolute;
+    left: calc(-240 * var(--u));
+    width: calc(9 * var(--cqw));
+    height: calc(2.2 * var(--cqw));
+    border-radius: calc(1.4 * var(--cqw)) calc(1.8 * var(--cqw)) calc(0.6 * var(--cqw)) calc(0.6 * var(--cqw));
+    background:
+        linear-gradient(#dff3fb, #dff3fb) calc(2.2 * var(--cqw)) calc(-0.9 * var(--cqw)) / calc(4 * var(--cqw)) calc(1.6 * var(--cqw)) no-repeat,
+        var(--car-color);
+    box-shadow: inset 0 calc(0.5 * var(--cqw)) 0 rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+    z-index: 3;
+    will-change: transform;
+    animation: street-drive linear infinite;
+}
+
+/* cabin roof */
+.street-car::before {
+    content: "";
+    position: absolute;
+    left: 20%;
+    bottom: 90%;
+    width: 52%;
+    height: 80%;
+    border-radius: calc(1.2 * var(--cqw)) calc(1.2 * var(--cqw)) 0 0;
+    background: var(--car-color);
+    box-shadow: inset 0 0 0 calc(0.35 * var(--cqw)) var(--car-color), inset 0 0 0 calc(2 * var(--cqw)) #dff3fb;
+}
+
+/* wheels */
+.street-car::after {
+    content: "";
+    position: absolute;
+    left: 14%;
+    right: 14%;
+    bottom: calc(-0.8 * var(--cqw));
+    height: calc(1.6 * var(--cqw));
+    background:
+        radial-gradient(circle, #9aa5ad 0 30%, #2b2b2b 32% 70%, transparent 72%) left / calc(1.6 * var(--cqw)) 100% no-repeat,
+        radial-gradient(circle, #9aa5ad 0 30%, #2b2b2b 32% 70%, transparent 72%) right / calc(1.6 * var(--cqw)) 100% no-repeat;
+}
+
+@keyframes street-drive {
+    from { transform: translateX(0); }
+    to { transform: translateX(var(--drive-dist)); }
+}
+
+/* Birds on the rooftops bob their heads every so often */
+.street-bird {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: street-bird-peck 5s ease-in-out infinite;
+}
+
+@keyframes street-bird-peck {
+    0%, 86%, 100% { rotate: 0deg; }
+    90% { rotate: 14deg; }
+    94% { rotate: -4deg; }
+}
+
+/* Little lights in the window scenes and on the race car's sensors */
+.scene-glow {
+    animation: scene-glow 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes scene-glow {
+    from { opacity: 0.45; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .street-cloud,
+    .street-sky-bird,
+    .street-car,
+    .street-bird,
+    .scene-glow {
+        animation: none;
+    }
+}
+
+/* The post box: click it, or walk up and press Enter, to write to Morgan */
+.street-postbox {
+    position: absolute;
+    z-index: 6; /* on the kerb, nearer than the pavement, so in front of the Mii */
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    translate: -50% 0;
+    filter: drop-shadow(0 calc(0.3 * var(--cqw)) calc(0.3 * var(--cqw)) rgba(0, 0, 0, 0.15));
+}
+
+.street-postbox:focus-visible {
+    outline: 3px solid var(--street-cyan);
+    outline-offset: 4px;
+    border-radius: 8px;
+}
+
+/* a letter rises out of the slot when you're beside the box */
+.postbox-letter {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: transform 0.35s cubic-bezier(0.34, 1.6, 0.5, 1), opacity 0.2s ease;
+}
+
+.street-postbox.is-near .postbox-letter,
+.street-postbox:hover .postbox-letter {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Street furniture on the pavement */
+.street-prop {
+    position: absolute;
+    translate: -50% 0;
+    pointer-events: none;
+    z-index: 2;
+    filter: drop-shadow(0 calc(0.3 * var(--cqw)) calc(0.3 * var(--cqw)) rgba(0, 0, 0, 0.15));
+}
+
+.street-prop-art {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.street-prop-text {
+    font-size: 6.5px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    fill: #3a3f47;
+}
+
+.street-prop-text-light {
+    font-size: 9px;
+    fill: #fff;
+}
+
+/* Building site at the start of the street */
+.street-construction {
+    position: absolute;
+    display: block;
+    pointer-events: none;
+}
+
+.construction-art {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.construction-text {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    fill: var(--street-ink);
+}
+
+.construction-subtext {
+    font-size: 7.5px;
+    fill: #6b747a;
+}
+
+.construction-beacon {
+    fill: #ff5a3c;
+    animation: construction-blink 1.4s steps(2, jump-none) infinite;
+}
+
+.construction-load {
+    transform-box: view-box;
+    transform-origin: 172px 24px;
+    animation: construction-sway 4s ease-in-out infinite alternate;
+}
+
+@keyframes construction-blink {
+    50% { fill: #7a2b1f; }
+}
+
+@keyframes construction-sway {
+    from { rotate: -2deg; }
+    to { rotate: 2deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .construction-beacon,
+    .construction-load {
+        animation: none;
+    }
+}
+
+/* Invisible marker at the doorway, used to centre the circle-wipe */
+.shop-door-anchor {
+    position: absolute;
+    left: 78.4%;
+    top: 84%;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+}
+
+/* "Go inside" prompt above the Mii's head */
+.street-bubble {
+    position: absolute;
+    translate: -50% -100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(0.4 * var(--cqw));
+    padding: calc(0.7 * var(--cqw)) calc(1.4 * var(--cqw));
+    font-size: max(calc(1.2 * var(--cqw)), 12px);
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--street-ink);
+    background: #fff;
+    border: calc(0.2 * var(--cqw)) solid var(--street-cyan);
+    border-radius: calc(1.4 * var(--cqw));
+    box-shadow: 0 calc(0.3 * var(--cqw)) calc(0.8 * var(--cqw)) rgba(0, 0, 0, 0.12);
+    pointer-events: none;
+    z-index: 7;
+}
+
+/* what the shop is and when, above the prompt */
+.street-bubble-info {
+    display: flex;
+    align-items: baseline;
+    gap: calc(0.5 * var(--cqw));
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.street-bubble-date {
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* the Wii pointer hand, as on the welcome screen's "Click to continue" */
+.street-click-icon {
+    width: 1.5em;
+    height: 1.5em;
+    margin: -0.2em 0;
+    animation: street-click-tap 1.2s ease-in-out infinite;
+}
+
+@keyframes street-click-tap {
+    0%, 60%, 100% { translate: 0 0; }
+    75% { translate: 0 0.12em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .street-click-icon {
+        animation: none;
+    }
+}
+
+.street-bubble-action {
+    display: flex;
+    align-items: center;
+    gap: calc(0.6 * var(--cqw));
+}
+
+.street-bubble::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    translate: -50% calc(-0.1 * var(--cqw));
+    border: calc(0.7 * var(--cqw)) solid transparent;
+    border-top-color: var(--street-cyan);
+}
+
+/**********************************
+  THE MII
+**********************************/
+/* Moved by the game loop with a transform; the Mii and its bubbles hang off this point */
+.street-mii-anchor {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 5;
+    will-change: transform;
+}
+
+.street-mii-anchor .street-bubble {
+    left: 0;
+}
+
+.street-mii {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 5;
+    width: calc(7 * var(--cqw));
+    min-height: calc(9.9 * var(--cqw));
+    translate: -50% -100%;
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Stepping through the door */
+.street-mii.is-inside {
+    opacity: 0;
+    transform: translateY(calc(-2.6 * var(--cqw))) scale(0.86);
+}
+
+.street-mii img {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: auto;
+    transform-origin: 50% 100%;
+}
+
+.street-mii.is-walking img {
+    animation: street-walk 0.36s ease-in-out infinite alternate;
+}
+
+@keyframes street-walk {
+    from { translate: 0 0; rotate: -3deg; }
+    to { translate: 0 calc(-0.5 * var(--cqw)); rotate: 3deg; }
+}
+
+.street-mii-shadow {
+    position: absolute;
+    left: 50%;
+    bottom: calc(-0.6 * var(--cqw));
+    width: 80%;
+    height: calc(1.4 * var(--cqw));
+    translate: -50% 0;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 70%);
+}
+
+/* 3D Mii canvas: wider than the sprite so swinging arms and turns aren't clipped.
+   Its feet are aligned to the bottom-centre floor point. */
+.plaza-mii-3d {
+    position: absolute;
+    left: 50%;
+    bottom: calc(-0.4 * var(--cqw));
+    width: calc(10 * var(--cqw));
+    height: calc(11.8 * var(--cqw));
+    translate: -50% 0;
+}
+
+.plaza-mii-3d canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/**********************************
+  HUD
+**********************************/
+.street-title {
+    position: absolute;
+    top: clamp(12px, 2.4vh, 28px);
+    left: 50%;
+    translate: -50% 0;
+    margin: 0;
+    padding: 0.35em 1.2em;
+    font-size: clamp(1.1rem, 4.2vh, 2.3rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    color: var(--street-cyan-dark);
+    background: #fff;
+    border: 3px solid var(--street-cyan);
+    border-radius: 99px;
+    box-shadow: 0 4px 10px rgba(30, 159, 207, 0.2);
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Narrow screens: tuck the title to the right of the Exit button */
+@media (max-width: 640px) {
+    .street-title {
+        left: auto;
+        right: 12px;
+        translate: none;
+        font-size: 1.05rem;
+    }
+}
+
+.street-exit {
+    position: absolute;
+    top: clamp(12px, 2vw, 24px);
+    left: clamp(12px, 2vw, 24px);
+    z-index: 2000;
+    padding: 0.7rem 2.2rem;
+    font: inherit;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    background: #ef4444;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+}
+
+.street-exit:hover {
+    background: #dc2626;
+}
+
+.street-hint {
+    position: absolute;
+    bottom: clamp(10px, 2vh, 20px);
+    left: 50%;
+    translate: -50% 0;
+    z-index: 2000;
+    padding: 0.45rem 1.1rem;
+    font-size: clamp(0.75rem, 1.3vw, 0.95rem);
+    background: rgba(255, 255, 255, 0.94);
+    border: 2px solid var(--street-cyan);
+    border-radius: 99px;
+    white-space: nowrap;
+    max-width: calc(100vw - 32px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+}
+
+.street-hint kbd {
+    display: inline-block;
+    min-width: 1.5em;
+    margin: 0 0.1em;
+    padding: 0 0.3em;
+    font: inherit;
+    font-size: 0.85em;
+    text-align: center;
+    background: #eef2f4;
+    border: 1px solid #c5ced3;
+    border-bottom-width: 2px;
+    border-radius: 4px;
+}
+
+.street-hint-touch {
+    display: none;
+}
+
+@media (hover: none) {
+    .street-hint-desktop { display: none; }
+    .street-hint-touch { display: inline; }
+}
+
+/**********************************
+  CIRCLE-WIPE TRANSITION
+**********************************/
+.street-iris {
+    position: fixed;
+    inset: 0;
+    z-index: 4000;
+    background: radial-gradient(circle at var(--iris-x) var(--iris-y),
+            transparent var(--iris-r),
+            #16323d calc(var(--iris-r) + 1px));
+}
+
+/**********************************
+  INSIDE A SHOP
+**********************************/
+.shop-interior-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(255, 233, 168, 0.55) 0%, rgba(255, 233, 168, 0) 60%),
+        #f6efe2;
+}
+
+.shop-interior {
+    display: flex;
+    flex-direction: column;
+    width: min(900px, 100%);
+    max-height: min(88dvh, 920px);
+    background: #fff;
+    border-radius: 28px;
+    box-shadow: 0 24px 60px rgba(60, 40, 10, 0.18);
+    overflow: hidden;
+}
+
+/* Awning across the top with the shop's name board */
+.shop-interior-sign {
+    position: relative;
+    display: grid;
+    place-items: center;
+    padding: 1.6rem 1rem 2rem;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 700;
+    color: var(--street-ink);
+    background: repeating-linear-gradient(90deg,
+            var(--shop-color) 0 48px,
+            color-mix(in srgb, var(--shop-color) 75%, #fff) 48px 96px);
+}
+
+.shop-interior-sign::before {
+    content: "";
+    position: absolute;
+    inset: 1rem 50% auto;
+    translate: -50% 0;
+    width: min(420px, 80%);
+    height: calc(100% - 2.6rem);
+    background: #fff;
+    border-radius: 99px;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+.shop-interior-sign {
+    isolation: isolate;
+}
+
+.shop-interior-sign::before {
+    z-index: -1;
+}
+
+.shop-interior-body {
+    flex: 1;
+    padding: clamp(1.25rem, 3vw, 2.25rem);
+    overflow-y: auto;
+    color: var(--street-ink);
+    font-size: clamp(0.95rem, 1.6vw, 1.05rem);
+    line-height: 1.7;
+    scrollbar-width: thin;
+    scrollbar-color: var(--shop-color) rgba(0, 0, 0, 0.06);
+}
+
+.shop-interior-body,
+.shop-interior-body * {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+.shop-interior-body ::selection {
+    background: color-mix(in srgb, var(--shop-color) 30%, #fff);
+}
+
+.shop-interior-body h1,
+.shop-interior-body h2,
+.shop-interior-body h3,
+.shop-interior-body h4 {
+    color: var(--street-ink);
+    line-height: 1.25;
+    margin: 1.5rem 0 0.75rem;
+}
+
+.shop-interior-body h1 { font-size: clamp(1.5rem, 3vw, 2rem); margin-top: 0; }
+.shop-interior-body h2 { font-size: clamp(1.25rem, 2.4vw, 1.6rem); }
+.shop-interior-body h3 { font-size: clamp(1.1rem, 2vw, 1.3rem); }
+.shop-interior-body p { margin: 0 0 1rem; }
+.shop-interior-body ul,
+.shop-interior-body ol { margin: 0 0 1rem 1.5rem; }
+.shop-interior-body hr { border: none; border-top: 2px solid #e6ebee; margin: 1.5rem 0; }
+
+.shop-interior-body img {
+    max-width: 100%;
+    height: auto;
+    margin: 1rem 0;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.shop-interior-body .badges-row img {
+    margin: 0 0.35rem 0.35rem 0;
+    border-radius: 4px;
+    box-shadow: none;
+}
+
+.shop-interior-body a {
+    color: var(--street-cyan-dark);
+    text-underline-offset: 0.2em;
+}
+
+.shop-interior-body blockquote {
+    margin: 1rem 0 1.25rem;
+    padding: 1rem 1.25rem;
+    font-size: 1.05em;
+    font-style: italic;
+    background: color-mix(in srgb, var(--shop-color) 8%, #fff);
+    border-radius: 14px;
+}
+
+.shop-interior-empty {
+    padding: 2rem 0;
+    text-align: center;
+}
+
+.shop-interior-empty h2 {
+    margin-top: 0;
+}
+
+.shop-interior-footer {
+    display: flex;
+    justify-content: center;
+    padding: 0.9rem;
+    background: linear-gradient(180deg, #f4f6f7 0%, #e3e8eb 100%);
+    border-top: 2px solid #d7dde1;
+}
+
+/* Wii-style pill button */
+.street-btn {
+    min-width: 180px;
+    padding: 0.65rem 2rem;
+    font: inherit;
+    font-size: 1.1rem;
+    color: var(--street-ink);
+    background: linear-gradient(180deg, #ffffff 0%, #eef1f3 100%);
+    border: 3px solid #b8c2c8;
+    border-radius: 99px;
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.08);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.street-btn:hover,
+.street-btn:focus-visible {
+    outline: none;
+    border-color: var(--street-cyan);
+    box-shadow: 0 0 0 4px rgba(52, 190, 237, 0.3), 0 3px 0 rgba(0, 0, 0, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .street-mii.is-walking img,
+    .shop-loading {
+        animation: none;
+    }
+
+    .shop-door,
+    .street-mii {
+        transition: none;
+    }
+}

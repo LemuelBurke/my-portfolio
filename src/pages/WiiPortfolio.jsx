@@ -1,8 +1,8 @@
 import welcomeScreen from "../assets/imgs/wiiPage/warningWelcome.png";
 import homePage from "../assets/imgs/wiiPage/HomePage.png";
 import gameSelect from "../assets/imgs/wiiPage/GameSelect.png";
-import aboutMeMii from "../assets/imgs/wiiPage/AboutMeMii.png";
-import projectPage from "../assets/imgs/wiiPage/ProjectPage.png";
+import aboutMeMii from "../assets/imgs/wiiPage/AboutMeMii.webp";
+import projectPage from "../assets/imgs/wiiPage/ProjectPage.webp";
 import pauseScreen from "../assets/imgs/wiiPage/PauseScreen.png";
 import contactForm from "../assets/imgs/wiiPage/ContactForm.png";
 
@@ -43,14 +43,14 @@ const WiiPortfolio = ({ title, thumb }) => (
       <li><strong>Mii Channel Music:</strong> Authentic background audio</li>
     </ul>
 
-    <h4>My Projects (Wii Sports Resort Style)</h4>
+    <h4>My Projects (Project Street)</h4>
     <ul>
-      <li><strong>Wii Sports Resort Theme:</strong> Beautiful resort-style interface</li>
-      <li><strong>Project Gallery:</strong> Grid layout showcasing portfolio projects</li>
-      <li><strong>Filter System:</strong> Filter projects by tags (personal, academic, etc.)</li>
-      <li><strong>Project Details Panel:</strong> Slide-out panel with detailed project information</li>
+      <li><strong>Explorable Street:</strong> Walk your 3D Mii down a side-scrolling street with the arrow keys/WASD, or click and tap to move</li>
+      <li><strong>Project Shops:</strong> Each project has its own shopfront - stand outside and press Enter to go in</li>
+      <li><strong>Idle Wave:</strong> Your Mii waves at you if left standing still</li>
+      <li><strong>Shop Interiors:</strong> Door and circle-wipe transition into each shop</li>
       <li><strong>Featured Projects:</strong> NFL Superfan mobile app, Wii Themed Portfolio Site (this project!)</li>
-      <li><strong>Background Music:</strong> Wii Sports Resort soundtrack</li>
+      <li><strong>Background Music:</strong> Wii Party soundtrack</li>
     </ul>
 
     <h4>Resume and CV</h4>
@@ -128,7 +128,7 @@ const WiiPortfolio = ({ title, thumb }) => (
     <p>The About Me section recreates the Mii Channel experience, allowing users to navigate through different sections including work experience, skills, education, and hobbies.</p>
     <img src={aboutMeMii} alt="About Me Channel" draggable={false} />
     <h3>Projects Page</h3>
-    <p>The projects gallery features a Wii Sports Resort-themed interface with a filterable grid of project cards and a slide-out detail panel.</p>
+    <p>Project Street is a side-scrolling street of shops: walk your 3D Mii along it and step inside a shop to see that project.</p>
     <img src={projectPage} alt="Projects Page" draggable={false} />
     <h3>Pause Menu</h3>
     <p>Right-clicking anywhere on the site opens a pause overlay menu, allowing users to return to the main menu or adjust settings.</p>
@@ -144,7 +144,7 @@ const WiiPortfolio = ({ title, thumb }) => (
     <ul>
       <li><strong>Startup Sound:</strong> Plays when the site first loads</li>
       <li><strong>Menu Music:</strong> Loops continuously on the main menu</li>
-      <li><strong>Contextual Music:</strong> Different tracks for different sections (Mii Channel, Wii Sports Resort)</li>
+      <li><strong>Contextual Music:</strong> Different tracks for different sections (Mii Channel, Wii Party, Wii Shop)</li>
       <li><strong>Click Sounds:</strong> Audio feedback for user interactions</li>
       <li><strong>Smart Audio Management:</strong> Music pauses when navigating to channels, resumes when returning</li>
     </ul>

@@ -2,7 +2,8 @@
 .menu-viewport {
     position: relative;
     width: 100vw;
-    height: calc(100vh - clamp(220px, 24vh, 260px)); /* Increased margin for footer */
+    height: calc(100vh - clamp(220px, 24vh, 260px));
+    height: calc(100dvh - clamp(220px, 24vh, 260px)); /* Increased margin for footer */
     overflow-x: hidden;
     overflow-y: visible; /* Changed to visible to allow tooltips to show */
     padding-top: clamp(1rem, 2vh, 2rem);

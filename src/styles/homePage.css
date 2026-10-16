@@ -7,6 +7,7 @@ body {
     overflow: hidden;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
 }
 
     body::before {
@@ -36,6 +37,7 @@ body {
     position: relative;
     width: 100vw;
     height: calc(100vh - clamp(200px, 22vh, 240px));
+    height: calc(100dvh - clamp(200px, 22vh, 240px));
     overflow: hidden;
     padding-top: clamp(0.5rem, 1vh, 1rem);
     padding-bottom: clamp(0.5rem, 1vh, 1rem);
@@ -261,11 +263,13 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     background: rgba(0, 0, 0, 0.85);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
 }
 
@@ -375,6 +379,7 @@ body {
 @media (max-width: 768px) {
     .menu-viewport {
         height: calc(100vh - clamp(180px, 22vh, 200px));
+        height: calc(100dvh - clamp(180px, 22vh, 200px));
         overflow-x: hidden;
     }
 

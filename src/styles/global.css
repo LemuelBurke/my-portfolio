@@ -1,4 +1,17 @@
 /*Global styling*/
+@font-face {
+    font-family: "rodin-ntlg";
+    src: url("/RodinNTLG.otf") format("opentype");
+    font-display: swap;
+}
+
+/* Several components ask for "Wii NTLG"; point it at the same font */
+@font-face {
+    font-family: "Wii NTLG";
+    src: url("/RodinNTLG.otf") format("opentype");
+    font-display: swap;
+}
+
 :root {
     font-family: "rodin-ntlg", system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;

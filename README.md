@@ -30,15 +30,15 @@ A nostalgic, interactive portfolio website inspired by the Nintendo Wii menu sys
 - **Rich Media Content**: Photos, polaroids, and visual storytelling
 - **Mii Channel Music**: Authentic background audio
 
-#### My Projects (Wii Sports Resort Style)
-- **Wii Sports Resort Theme**: Beautiful resort-style interface
-- **Project Gallery**: Grid layout showcasing portfolio projects
-- **Filter System**: Filter projects by tags (personal, academic, etc.)
-- **Project Details Panel**: Slide-out panel with detailed project information
+#### My Projects (Project Street)
+- **Explorable Street**: Walk your 3D Mii down a side-scrolling street with the arrow keys/WASD, or click/tap to move
+- **Project Shops**: Each project has its own shopfront - stand outside and press Enter to go in
+- **Idle Wave**: Your Mii waves at you if left standing still
+- **Shop Interiors**: Door and circle-wipe transition into each shop
 - **Featured Projects**: 
   - NFL Superfan mobile app
   - Wii Themed Portfolio Site (this project!)
-- **Background Music**: Wii Sports Resort soundtrack
+- **Background Music**: Wii Party soundtrack
 
 #### Resume and CV
 - **PDF Viewer**: View and download resume/CV
@@ -81,7 +81,7 @@ A nostalgic, interactive portfolio website inspired by the Nintendo Wii menu sys
 
 ### Channels
 - **About Me**: Click through different sections using the navigation buttons
-- **My Projects**: Click on project cards to view details, use filters to narrow down projects
+- **My Projects**: Walk to a shop and press Enter (or click/tap the shop) to go inside
 - **Resume and CV**: View and download the PDF
 - **LinkedIn/GitHub**: Opens in a new tab
 
@@ -109,7 +109,7 @@ A nostalgic, interactive portfolio website inspired by the Nintendo Wii menu sys
 
 ### Projects Page
 ![Projects Page](./src/assets/imgs/wiiPage/ProjectPage.png)
-*The Wii Sports Resort-themed projects gallery*
+*Project Street*
 
 ### Pause Menu
 ![Pause Menu](./src/assets/imgs/wiiPage/PauseScreen.png)
@@ -126,7 +126,7 @@ A nostalgic, interactive portfolio website inspired by the Nintendo Wii menu sys
 ### Audio System
 - **Startup Sound**: Plays when the site first loads
 - **Menu Music**: Loops continuously on the main menu
-- **Contextual Music**: Different tracks for different sections (Mii Channel, Wii Sports Resort)
+- **Contextual Music**: Different tracks for different sections (Mii Channel, Wii Party, Wii Shop)
 - **Click Sounds**: Audio feedback for user interactions
 - **Smart Audio Management**: Music pauses when navigating to channels, resumes when returning
 
