@@ -1,0 +1,15 @@
+﻿/*.next-arrow {
+    position: fixed;*/ /* stick to viewport */
+    /*right: 2rem;*/ /* move to right side */
+    /*top: 35%;*/ /* vertical center */
+    /*height: 60px;*/ /* ← Add explicit dimensions */
+    /*width: 60px;*/  /* ← Add explicit dimensions */
+    /*cursor: url('../assets/imgs/user-cursor-med.png'), auto;
+    z-index: 9999;*/ /* stay above everything */
+    /*opacity: 0.85;
+    transition: opacity 0.2s;
+}
+
+    .next-arrow:hover {
+        opacity: 1;
+    }*/
