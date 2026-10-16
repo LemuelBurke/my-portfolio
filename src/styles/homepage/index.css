@@ -1,6 +1,0 @@
-/* Homepage styles - Import all modular CSS files */
-@import './layout.css';
-@import './navigation.css';
-@import './footer.css';
-@import './modal.css';
-@import './responsive.css';
