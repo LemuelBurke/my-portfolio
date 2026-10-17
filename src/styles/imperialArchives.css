@@ -1,0 +1,1498 @@
+/**********************************
+  ISD CHIMAERA (hidden channel)
+  The command holotable: a full-screen 3D scene (HoloTable.jsx) with Imperial readouts laid over
+  it — the tactical log, the force readout and the command rail. Panels have chamfered corners and
+  hairline borders, like the consoles on an Imperial bridge. Drawn from scratch.
+**********************************/
+.archive-page {
+    --holo: #74d8ff;
+    --holo-bright: #e4f8ff;
+    --holo-dim: rgba(116, 216, 255, 0.62);
+    --holo-line: rgba(116, 216, 255, 0.3);
+    --rebel: #ff7a5c;
+    --amber: #ffbe5c;
+    --glass: rgba(3, 9, 16, 0.72);
+    --space: #010204;
+    --display: "Michroma", "Eurostile", system-ui, sans-serif;
+    --gutter: clamp(16px, 3vw, 40px);
+    --chamfer: 14px;
+
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    overflow: hidden;
+    color: var(--holo-bright);
+    font-family: "Exo 2", system-ui, sans-serif;
+    background: var(--space);
+    isolation: isolate;
+}
+
+.archive-page *,
+.archive-page *::before,
+.archive-page *::after {
+    box-sizing: border-box;
+}
+
+.archive-page ::selection {
+    color: var(--space);
+    background: var(--holo);
+}
+
+/* The 3D command deck, behind everything */
+.holotable,
+.holotable-view {
+    position: absolute;
+    inset: 0;
+}
+
+.holotable {
+    z-index: 0;
+}
+
+.holotable-view canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    touch-action: none;
+    cursor: grab;
+}
+
+.holotable-view canvas:active {
+    cursor: grabbing;
+}
+
+/* ship labels, pinned above each ship in the hologram */
+.holotable-labels {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.holo-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: grid;
+    justify-items: center;
+    width: max-content;
+    margin: 0;
+    translate: -50% -100%;
+    padding-bottom: 10px;
+    font-family: var(--display);
+    font-size: 0.56rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--holo);
+    text-shadow: 0 0 8px rgba(116, 216, 255, 0.7);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    will-change: transform;
+}
+
+/* a hairline drops from the label to its ship */
+.holo-label::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    height: 8px;
+    background: currentColor;
+    opacity: 0.6;
+}
+
+.holo-label b {
+    font-weight: 400;
+}
+
+.holo-label span {
+    display: none;
+    font-family: "Exo 2", system-ui, sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: none;
+    opacity: 0.75;
+}
+
+.holo-label.is-rebel {
+    color: var(--rebel);
+    text-shadow: 0 0 8px rgba(255, 106, 74, 0.7);
+}
+
+.holo-label.is-hover b {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* the class of ship shows when you point at it */
+.holo-label.is-hover span,
+.holo-label.is-marked span {
+    display: block;
+}
+
+.holo-label.is-marked {
+    color: var(--amber);
+    text-shadow: 0 0 10px rgba(255, 190, 92, 0.8);
+}
+
+.holo-label.is-marked b::before {
+    content: "◆ Target · ";
+}
+
+/* the edges of the deck fall away into darkness */
+.archive-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 75% 70% at 50% 55%, transparent 55%, rgba(0, 0, 0, 0.55) 100%),
+        repeating-linear-gradient(180deg, rgba(116, 216, 255, 0.025) 0 1px, transparent 1px 3px);
+}
+
+/* Readouts float over the scene; only their controls catch the pointer, so you can drag the
+   table through the gaps */
+.cmd-head,
+.cmd-status,
+.cmd-log,
+.cmd-rail,
+.cmd-alert,
+.cmd-panel,
+.archive-disclaimer {
+    position: absolute;
+    z-index: 3;
+}
+
+/* a console frame: dark glass, chamfered corners, a hairline edge */
+.cmd-frame {
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    clip-path: polygon(var(--chamfer) 0, 100% 0, 100% calc(100% - var(--chamfer)), calc(100% - var(--chamfer)) 100%, 0 100%, 0 var(--chamfer));
+    box-shadow: inset 0 0 0 1px var(--holo-line);
+}
+
+.cmd-frame::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(var(--chamfer) * 1.42);
+    height: 1px;
+    background: var(--holo);
+    transform-origin: 0 0;
+    transform: translate(0, var(--chamfer)) rotate(-45deg);
+    opacity: 0.8;
+}
+
+.glyphs {
+    display: inline-block;
+    height: 0.62em;
+    width: auto;
+    margin-left: 0.6em;
+    vertical-align: 0.05em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    opacity: 0.55;
+}
+
+/* Title */
+.cmd-head {
+    top: var(--gutter);
+    left: var(--gutter);
+    max-width: min(560px, 60vw);
+    pointer-events: none;
+}
+
+.cmd-kicker,
+.cmd-record,
+.cmd-label {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 0.64rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--holo-dim);
+}
+
+.cmd-head h1 {
+    margin: 10px 0 8px;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(1.15rem, 2.4vw, 1.8rem);
+    letter-spacing: 0.06em;
+    line-height: 1.25;
+    text-transform: uppercase;
+    color: var(--holo-bright);
+    text-shadow: 0 0 18px rgba(116, 216, 255, 0.5);
+    text-wrap: balance;
+}
+
+.cmd-record {
+    color: var(--holo);
+}
+
+/* Forces */
+.cmd-status {
+    top: var(--gutter);
+    right: var(--gutter);
+    display: grid;
+    gap: 8px;
+    width: 280px;
+    padding: 16px 18px;
+    font-size: 0.82rem;
+    pointer-events: none;
+}
+
+.cmd-status-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.cmd-status-row span {
+    font-family: var(--display);
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--holo-dim);
+    align-self: center;
+}
+
+.cmd-status-row strong {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.cmd-status-row.is-rebel strong {
+    color: var(--rebel);
+}
+
+.cmd-status-row.is-on strong {
+    color: var(--amber);
+}
+
+.cmd-status-clock {
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--holo-line);
+}
+
+.cmd-status-clock strong {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 0.9rem;
+    color: var(--holo);
+}
+
+/* The tactical log: newest at the bottom, older lines fading up */
+.cmd-log {
+    left: var(--gutter);
+    bottom: calc(var(--gutter) + 72px);
+    width: min(360px, calc(100vw - 2 * var(--gutter)));
+    padding: 14px 16px 12px;
+    pointer-events: none;
+}
+
+.cmd-log .cmd-label {
+    margin-bottom: 10px;
+}
+
+.cmd-log ol {
+    /* newest at the bottom: when the log overflows, the oldest lines go off the top */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 30vh;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 30%);
+    mask-image: linear-gradient(180deg, transparent, #000 30%);
+}
+
+.cmd-line {
+    display: grid;
+    gap: 3px;
+    animation: line-in 0.5s steps(10, end);
+}
+
+@keyframes line-in {
+    from { clip-path: inset(0 100% 0 0); }
+    to { clip-path: inset(0 0 0 0); }
+}
+
+.cmd-line-meta {
+    display: flex;
+    gap: 10px;
+    font-family: var(--display);
+    font-size: 0.56rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--holo-dim);
+}
+
+.cmd-line-meta span:first-child {
+    font-variant-numeric: tabular-nums;
+    color: var(--holo);
+}
+
+.cmd-line-text {
+    font-size: 0.92rem;
+    line-height: 1.45;
+}
+
+/* the Grand Admiral's words stand apart from the officers' reports */
+.cmd-line.is-thrawn .cmd-line-meta span:last-child {
+    color: #ff9a8a;
+}
+
+.cmd-line.is-thrawn .cmd-line-text {
+    font-style: italic;
+    color: #fff;
+}
+
+.cmd-line.is-archive .cmd-line-text {
+    color: var(--holo-dim);
+}
+
+.cmd-hint {
+    margin: 14px 0 0;
+    max-width: 34ch;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: rgba(220, 235, 255, 0.55);
+}
+
+/* The X-wing run: an amber call to the battery */
+.cmd-alert {
+    left: 0;
+    right: 0;
+    bottom: calc(var(--gutter) + 100px);
+    width: max-content;
+    max-width: calc(100vw - 2 * var(--gutter));
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 22px 12px 16px;
+    font: inherit;
+    text-align: left;
+    color: var(--amber);
+    background: rgba(28, 16, 4, 0.82);
+    border: 1px solid var(--amber);
+    box-shadow: 0 0 24px rgba(255, 190, 92, 0.35);
+    cursor: pointer;
+}
+
+.cmd-alert > span:last-child {
+    display: grid;
+    gap: 2px;
+}
+
+.cmd-alert strong {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.cmd-alert > span > span {
+    font-size: 0.82rem;
+    color: #ffe2b5;
+}
+
+.cmd-alert-light {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 12px var(--amber);
+    animation: alert-blink 0.8s steps(1) infinite;
+}
+
+@keyframes alert-blink {
+    50% { opacity: 0.2; }
+}
+
+.cmd-alert:hover {
+    background: rgba(48, 28, 6, 0.9);
+}
+
+.cmd-alert:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 3px;
+}
+
+/* The command rail */
+.cmd-rail {
+    left: 0;
+    right: 0;
+    bottom: var(--gutter);
+    width: max-content;
+    margin: 0 auto;
+    display: flex;
+    gap: 2px;
+    max-width: calc(100vw - 2 * var(--gutter));
+    padding: 4px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: inset 0 0 0 1px var(--holo-line);
+    clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%);
+}
+
+.cmd-rail-btn {
+    position: relative;
+    flex: none;
+    min-height: 44px;
+    padding: 10px 20px;
+    font-family: var(--display);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--holo-dim);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.12s ease, background 0.12s ease;
+}
+
+.cmd-rail-btn:first-child {
+    padding-left: 26px;
+}
+
+.cmd-rail-btn:last-child {
+    padding-right: 26px;
+}
+
+.cmd-rail-btn:hover,
+.cmd-rail-btn:focus-visible {
+    color: var(--holo-bright);
+    background: rgba(116, 216, 255, 0.12);
+    outline: none;
+}
+
+.cmd-rail-btn.is-current {
+    color: var(--holo-bright);
+    background: linear-gradient(180deg, rgba(116, 216, 255, 0.24), rgba(116, 216, 255, 0.06));
+    text-shadow: 0 0 10px rgba(116, 216, 255, 0.8);
+}
+
+.cmd-rail-btn.is-current::after {
+    content: "";
+    position: absolute;
+    left: 20%;
+    right: 20%;
+    bottom: 4px;
+    height: 2px;
+    background: var(--holo);
+    box-shadow: 0 0 8px var(--holo);
+}
+
+.cmd-rail-btn.is-urgent {
+    color: var(--amber);
+}
+
+.cmd-rail-btn.is-leave {
+    margin-left: 10px;
+    color: rgba(220, 235, 255, 0.55);
+    box-shadow: -1px 0 0 var(--holo-line);
+}
+
+/* Side panel for transmissions and the dossier */
+.cmd-panel {
+    top: calc(var(--gutter) + 150px);
+    right: var(--gutter);
+    bottom: calc(var(--gutter) + 72px);
+    width: min(440px, 38vw);
+    padding: clamp(20px, 2.4vw, 30px);
+    overflow-y: auto;
+    scrollbar-color: var(--holo-line) transparent;
+    scrollbar-width: thin;
+}
+
+.archive-page.has-panel .cmd-status {
+    display: none;
+}
+
+.archive-page.has-panel .cmd-panel {
+    top: var(--gutter);
+}
+
+.cmd-panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--holo-line);
+}
+
+.cmd-panel-head h2 {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(0.85rem, 1.4vw, 1.05rem);
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    color: var(--holo);
+}
+
+.cmd-panel-close {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    margin: -6px -8px 0 0;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--holo-dim);
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.cmd-panel-close:hover,
+.cmd-panel-close:focus-visible {
+    color: var(--holo-bright);
+    border-color: var(--holo-line);
+    outline: none;
+}
+
+.cmd-panel-glyphs {
+    display: block;
+    height: 9px;
+    margin: 10px 0 20px;
+    color: var(--holo);
+}
+
+.cmd-panel-note {
+    margin: 0 0 22px;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--holo-dim);
+}
+
+/* The cut to the battery: the hologram whites out as the view dives in */
+.cmd-dive-flash {
+    position: absolute;
+    inset: 0;
+    z-index: 8;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 50%, rgba(220, 245, 255, 0.95), rgba(116, 216, 255, 0.4) 60%, transparent);
+    opacity: 0;
+    animation: dive-flash 0.95s ease-in forwards;
+}
+
+@keyframes dive-flash {
+    0%, 55% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.archive-page.is-diving .cmd-head,
+.archive-page.is-diving .cmd-status,
+.archive-page.is-diving .cmd-log,
+.archive-page.is-diving .cmd-rail {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* While the turret has the screen, the readouts step aside */
+.archive-page.is-turret .cmd-head,
+.archive-page.is-turret .cmd-status,
+.archive-page.is-turret .cmd-log,
+.archive-page.is-turret .cmd-rail,
+.archive-page.is-turret .archive-vignette,
+.archive-page.is-turret .archive-disclaimer {
+    display: none;
+}
+
+.archive-disclaimer {
+    right: var(--gutter);
+    bottom: 6px;
+    max-width: 60ch;
+    margin: 0;
+    font-size: 0.6rem;
+    line-height: 1.4;
+    text-align: right;
+    color: rgba(116, 216, 255, 0.42);
+    pointer-events: none;
+}
+
+/* Medium screens: the log narrows and the hint goes */
+@media (max-width: 1180px) {
+    .cmd-log {
+        width: min(340px, 40vw);
+    }
+
+    .cmd-panel {
+        width: min(420px, 46vw);
+    }
+}
+
+/* Phones: title and forces up top, the latest log lines beneath, the rail along the bottom, and
+   panels as a sheet over the table */
+@media (max-width: 760px) {
+    .archive-page {
+        --gutter: 16px;
+    }
+
+    .cmd-head {
+        max-width: calc(100vw - 32px);
+    }
+
+    .cmd-head h1 {
+        margin: 6px 0 4px;
+        font-size: 0.95rem;
+    }
+
+    .cmd-hint {
+        display: none;
+    }
+
+    /* forces as three short columns above the rail */
+    .cmd-status {
+        top: auto;
+        bottom: calc(var(--gutter) + 58px);
+        left: var(--gutter);
+        right: var(--gutter);
+        width: auto;
+        grid-template-columns: auto 1fr 1fr;
+        gap: 12px;
+        padding: 8px 12px;
+        font-size: 0.72rem;
+        --chamfer: 8px;
+    }
+
+    .cmd-status-row {
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 2px;
+    }
+
+    .cmd-status-row:nth-child(4) {
+        display: none;
+    }
+
+    .cmd-status-clock {
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .cmd-status-clock strong {
+        font-size: 0.72rem;
+    }
+
+    .cmd-log {
+        top: 118px;
+        bottom: auto;
+        left: var(--gutter);
+        width: auto;
+        right: var(--gutter);
+        padding: 10px 14px;
+        background: rgba(3, 9, 16, 0.6);
+    }
+
+    .cmd-log ol {
+        max-height: 132px;
+        gap: 6px;
+    }
+
+    .cmd-line-text {
+        font-size: 0.8rem;
+    }
+
+    .cmd-alert {
+        bottom: calc(var(--gutter) + 124px);
+        padding: 10px 14px;
+        width: auto;
+        margin: 0 var(--gutter);
+    }
+
+    .cmd-rail {
+        width: auto;
+        max-width: none;
+        margin: 0 var(--gutter);
+        overflow-x: auto;
+        scrollbar-width: none;
+        clip-path: none;
+    }
+
+    .cmd-rail-btn {
+        padding: 10px 12px;
+        font-size: 0.6rem;
+    }
+
+    .cmd-rail-btn:first-child {
+        padding-left: 14px;
+    }
+
+    .cmd-panel,
+    .archive-page.has-panel .cmd-panel {
+        top: 30vh;
+        left: var(--gutter);
+        right: var(--gutter);
+        bottom: calc(var(--gutter) + 62px);
+        width: auto;
+    }
+
+    .archive-page.has-panel .cmd-log {
+        display: none;
+    }
+
+    .archive-disclaimer {
+        display: none;
+    }
+
+    .holo-label span {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cmd-line,
+    .cmd-alert-light,
+    .cmd-dive-flash {
+        animation: none;
+    }
+}
+
+/**********************************
+  OPENING CRAWL
+**********************************/
+.archive-crawl-wrap {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+}
+
+.archive-crawl {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: #010206;
+    cursor: pointer;
+}
+
+/* "A long time ago..." in blue, before the crawl */
+.archive-crawl-intro {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(760px, 86vw);
+    margin: 0;
+    translate: -50% -50%;
+    font-size: clamp(1.1rem, 3vw, 2rem);
+    line-height: 1.4;
+    color: #4bd5ee;
+    opacity: 0;
+    animation: crawl-intro 5s ease-in-out forwards;
+}
+
+@keyframes crawl-intro {
+    0% { opacity: 0; }
+    15%, 70% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* the text tilts back into space and drifts away */
+.archive-crawl-field {
+    position: absolute;
+    inset: 0;
+    perspective: 360px;
+    perspective-origin: 50% 30%;
+}
+
+.archive-crawl-text {
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    width: min(660px, 88vw);
+    translate: -50% 0;
+    font-family: "Exo 2", system-ui, sans-serif;
+    font-weight: 600;
+    font-size: clamp(1.15rem, 3.6vw, 2.4rem);
+    line-height: 1.5;
+    text-align: justify;
+    color: #ffe81f;
+    transform-origin: 50% 100%;
+    transform: rotateX(24deg) translateY(0);
+    opacity: 0;
+    animation: crawl-scroll 34s linear 5s forwards;
+}
+
+@keyframes crawl-scroll {
+    0% { opacity: 1; transform: rotateX(24deg) translateY(0); }
+    85% { opacity: 1; }
+    100% { opacity: 0; transform: rotateX(24deg) translateY(-260vh); }
+}
+
+.archive-crawl-text p {
+    margin: 0 0 1.1em;
+}
+
+.archive-crawl-episode,
+.archive-crawl-title {
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.archive-crawl-episode {
+    margin-bottom: 0.2em !important;
+}
+
+.archive-crawl-title {
+    margin: 0 0 1em;
+    font-family: "Michroma", system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 1.25em;
+    letter-spacing: 0.06em;
+}
+
+.archive-crawl-skip {
+    position: absolute;
+    right: clamp(14px, 3vw, 32px);
+    bottom: clamp(14px, 3vh, 28px);
+    min-height: 44px;
+    padding: 8px 20px;
+    font-family: "Michroma", system-ui, sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ffe81f;
+    background: transparent;
+    border: 1px solid rgba(255, 232, 31, 0.6);
+    cursor: pointer;
+}
+
+.archive-crawl-skip:focus-visible {
+    outline: 2px solid #ffe81f;
+    outline-offset: 3px;
+}
+
+/* reduced motion: the crawl text simply sits there to be read */
+.archive-crawl.is-still .archive-crawl-intro {
+    display: none;
+}
+
+.archive-crawl.is-still .archive-crawl-text {
+    top: 50%;
+    translate: -50% -50%;
+    transform: none;
+    opacity: 1;
+    animation: none;
+    font-size: clamp(1rem, 2.4vw, 1.4rem);
+}
+
+/* a holo button */
+.archive-action {
+    justify-self: start;
+    min-height: 44px;
+    padding: 10px 22px;
+    font-family: var(--display);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--holo-bright);
+    background: rgba(116, 216, 255, 0.08);
+    border: 1px solid var(--holo);
+    cursor: pointer;
+    box-shadow: 0 0 14px rgba(116, 216, 255, 0.25);
+}
+
+.archive-action:hover {
+    background: rgba(116, 216, 255, 0.18);
+}
+
+.archive-action:focus-visible {
+    outline: 2px solid var(--holo-bright);
+    outline-offset: 3px;
+}
+
+.archive-action.is-quiet {
+    color: var(--holo-dim);
+    border-color: var(--holo-line);
+    box-shadow: none;
+}
+
+/**********************************
+  TRANSMISSIONS AND THE DOSSIER
+**********************************/
+.transmission {
+    display: grid;
+    justify-items: start;
+    gap: 24px;
+}
+
+.transmission .cmd-panel-note {
+    margin: 0;
+}
+
+.transmission-quote {
+    margin: 0;
+    min-height: 7em;
+    text-shadow: 0 0 10px rgba(116, 216, 255, 0.45);
+}
+
+.transmission-quote blockquote {
+    margin: 0;
+    font-size: clamp(1.35rem, 2.6vw, 1.9rem);
+    font-weight: 600;
+    line-height: 1.3;
+    text-wrap: balance;
+}
+
+.transmission-quote figcaption {
+    margin-top: 12px;
+    font-family: var(--display);
+    font-size: 0.74rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--holo);
+}
+
+.dossier-subject {
+    display: grid;
+    gap: 10px;
+    margin: 0 0 18px;
+}
+
+.dossier-subject div {
+    display: grid;
+    grid-template-columns: 90px minmax(0, 1fr);
+    gap: 12px;
+    align-items: baseline;
+}
+
+.dossier-subject dt {
+    font-family: var(--display);
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--holo-dim);
+}
+
+.dossier-subject dd {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.picks {
+    display: grid;
+    gap: 22px;
+}
+
+.picks-group h3 {
+    margin: 0 0 10px;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--holo-dim);
+}
+
+.archive-ranked {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.archive-ranked li {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+}
+
+.archive-rank {
+    font-family: var(--display);
+    font-size: 1.05rem;
+    color: var(--holo);
+    font-variant-numeric: tabular-nums;
+}
+
+.archive-ranked strong {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.archive-ranked em {
+    display: block;
+    margin-top: 2px;
+    font-style: normal;
+    color: var(--holo-dim);
+}
+
+.archive-text {
+    margin: 0;
+    max-width: 52ch;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.archive-footnote {
+    margin: 12px 0 0;
+    padding-top: 10px;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    color: var(--holo-dim);
+    border-top: 1px dashed var(--holo-line);
+}
+
+/**********************************
+  BATTERY 7: THE TURRET
+**********************************/
+.archive-turret {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+}
+
+.turret {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: #020308;
+    cursor: none;
+    touch-action: none;
+    user-select: none;
+}
+
+.turret.is-ready,
+.turret.is-over {
+    cursor: default;
+}
+
+.turret-view,
+.turret-view canvas {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.turret-targets,
+.turret-floats {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* the targeting reticle follows the aim */
+.turret-reticle {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.turret.is-ready .turret-reticle,
+.turret.is-over .turret-reticle {
+    display: none;
+}
+
+.turret-reticle::before,
+.turret-reticle::after {
+    content: "";
+    position: absolute;
+    left: -24px;
+    top: -24px;
+    width: 48px;
+    height: 48px;
+    border: 2px solid rgba(141, 255, 166, 0.9);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(141, 255, 166, 0.5);
+    /* gaps at the four points of the ring */
+    -webkit-mask: repeating-conic-gradient(from 22deg, #000 0 46deg, transparent 46deg 90deg);
+    mask: repeating-conic-gradient(from 22deg, #000 0 46deg, transparent 46deg 90deg);
+}
+
+.turret-reticle::after {
+    left: -2px;
+    top: -2px;
+    width: 4px;
+    height: 4px;
+    border: none;
+    background: #8dffa6;
+    -webkit-mask: none;
+    mask: none;
+}
+
+/* target brackets on each fighter, with its lead marker */
+.turret-target {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    color: rgba(255, 190, 92, 0.9);
+    will-change: transform;
+}
+
+.turret-bracket {
+    position: absolute;
+    left: 0;
+    top: 0;
+    translate: -50% -50%;
+    border: 1.5px solid currentColor;
+    -webkit-mask: linear-gradient(#000 0 0) top left / 30% 30% no-repeat, linear-gradient(#000 0 0) top right / 30% 30% no-repeat,
+        linear-gradient(#000 0 0) bottom left / 30% 30% no-repeat, linear-gradient(#000 0 0) bottom right / 30% 30% no-repeat;
+    mask: linear-gradient(#000 0 0) top left / 30% 30% no-repeat, linear-gradient(#000 0 0) top right / 30% 30% no-repeat,
+        linear-gradient(#000 0 0) bottom left / 30% 30% no-repeat, linear-gradient(#000 0 0) bottom right / 30% 30% no-repeat;
+}
+
+.turret-lead {
+    position: absolute;
+    left: -5px;
+    top: -5px;
+    width: 10px;
+    height: 10px;
+    border: 1.5px solid #8dffa6;
+    box-shadow: 0 0 6px rgba(141, 255, 166, 0.7);
+}
+
+.turret-target.is-strafing {
+    color: #ff5a46;
+}
+
+/* fighters off screen: an arrow at the edge pointing their way */
+.turret-target.is-off .turret-bracket,
+.turret-target.is-off .turret-lead {
+    display: none;
+}
+
+.turret-target.is-off::before {
+    content: "";
+    position: absolute;
+    left: -8px;
+    top: -7px;
+    border-left: 14px solid currentColor;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+}
+
+.turret-float {
+    position: absolute;
+    translate: -50% -50%;
+    font-family: var(--display);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    color: #ffe2a8;
+    text-shadow: 0 0 8px rgba(255, 160, 60, 0.8);
+    white-space: nowrap;
+    animation: float-up 0.9s ease-out forwards;
+}
+
+@keyframes float-up {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-36px); }
+}
+
+/* a red flash at the edges when the hull takes a hit */
+.turret-hurt {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 80% 75% at 50% 50%, transparent 50%, rgba(255, 40, 30, 0.45) 100%);
+    opacity: 0;
+}
+
+.turret-hurt.is-on {
+    animation: hurt 0.5s ease-out;
+}
+
+@keyframes hurt {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.turret-hud {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: clamp(14px, 2.4vw, 24px);
+    font-family: var(--display);
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--holo-dim);
+    pointer-events: none;
+}
+
+.turret-hud-top {
+    top: 0;
+    background: linear-gradient(180deg, rgba(2, 6, 14, 0.8), transparent);
+}
+
+.turret-hud-bottom {
+    bottom: 0;
+    align-items: flex-end;
+    background: linear-gradient(0deg, rgba(2, 6, 14, 0.75), transparent);
+}
+
+.turret.is-ready .turret-hud-bottom,
+.turret.is-over .turret-hud-bottom {
+    visibility: hidden;
+}
+
+.turret-id,
+.turret-score {
+    display: grid;
+    gap: 4px;
+}
+
+.turret-id span:first-child {
+    color: var(--holo);
+}
+
+.turret-score {
+    justify-items: center;
+    margin-left: auto;
+}
+
+.turret-score strong {
+    font-weight: 400;
+    font-size: clamp(1.2rem, 2.6vw, 1.7rem);
+    letter-spacing: 0.06em;
+    color: var(--holo-bright);
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 12px rgba(116, 216, 255, 0.6);
+}
+
+.turret-leave {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    margin-left: auto;
+    padding: 8px 14px;
+    font: inherit;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--holo-bright);
+    background: rgba(3, 9, 16, 0.6);
+    border: 1px solid var(--holo-line);
+    cursor: pointer;
+}
+
+.turret-leave kbd {
+    padding: 2px 5px;
+    font: inherit;
+    font-size: 0.85em;
+    color: var(--holo-dim);
+    border: 1px solid var(--holo-line);
+}
+
+.turret-leave:hover,
+.turret-leave:focus-visible {
+    border-color: var(--holo);
+    outline: none;
+}
+
+.turret-gauge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.turret-gauge strong {
+    font-weight: 400;
+    color: var(--holo-bright);
+    font-variant-numeric: tabular-nums;
+}
+
+.turret-gauge-bar {
+    width: clamp(90px, 16vw, 200px);
+    height: 6px;
+    background: rgba(116, 216, 255, 0.15);
+}
+
+.turret-gauge-bar span {
+    display: block;
+    height: 100%;
+    background: var(--holo);
+    box-shadow: 0 0 8px var(--holo);
+    transform-origin: left center;
+    transition: transform 0.3s ease;
+}
+
+.turret-gauge.is-low .turret-gauge-bar span {
+    background: #ff5146;
+    box-shadow: 0 0 8px #ff5146;
+}
+
+.turret-gauge.is-low strong {
+    color: #ff8a7a;
+}
+
+.turret-heat .turret-gauge-bar span {
+    background: var(--amber);
+    box-shadow: 0 0 8px var(--amber);
+    transition: none;
+}
+
+.turret-heat-warn {
+    visibility: hidden;
+}
+
+.turret-heat.is-hot .turret-gauge-bar span {
+    background: #ff5146;
+}
+
+.turret-heat.is-hot .turret-heat-warn {
+    visibility: visible;
+    color: #ff8a7a !important;
+    animation: alert-blink 0.4s steps(1) infinite;
+}
+
+.turret-banner {
+    position: absolute;
+    left: 50%;
+    top: 22%;
+    translate: -50% 0;
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    pointer-events: none;
+    text-align: center;
+    animation: banner 2.6s ease forwards;
+}
+
+.turret-banner strong {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(1.3rem, 3.4vw, 2.2rem);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--holo-bright);
+    text-shadow: 0 0 18px rgba(116, 216, 255, 0.7);
+}
+
+.turret-banner span {
+    font-family: var(--display);
+    font-size: 0.66rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--amber);
+}
+
+@keyframes banner {
+    0% { opacity: 0; transform: translateY(8px); }
+    12%, 78% { opacity: 1; transform: none; }
+    100% { opacity: 0; }
+}
+
+.turret-card {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(460px, calc(100% - 32px));
+    max-height: calc(100% - 140px);
+    overflow-y: auto;
+    translate: -50% -50%;
+    display: grid;
+    gap: 14px;
+    padding: 26px;
+    background: rgba(3, 9, 18, 0.88);
+    box-shadow: inset 0 0 0 1px var(--holo-line), 0 0 40px rgba(0, 0, 0, 0.6);
+    clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+}
+
+.turret-card-kicker {
+    margin: 0;
+    font-family: var(--display);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--holo-dim);
+}
+
+.turret-card h3 {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 1.15rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--holo);
+}
+
+.turret-card p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.turret-rules {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding-left: 18px;
+    line-height: 1.5;
+}
+
+.turret-rules li::marker {
+    color: var(--holo);
+}
+
+.turret-best {
+    font-family: var(--display);
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--amber);
+}
+
+.turret-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+@media (max-width: 760px) {
+    .turret-id {
+        display: none;
+    }
+
+    .turret-score {
+        justify-items: start;
+        margin-left: 0;
+    }
+
+    .turret-hud-bottom {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .turret-gauge-bar {
+        flex: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .turret-hurt.is-on,
+    .turret-banner,
+    .turret-float {
+        animation: none;
+    }
+}

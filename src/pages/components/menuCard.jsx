@@ -55,7 +55,7 @@ const MenuCard = ({ title, thumbnail, onClick }) => {
             >
                 <div className="wii-card-inner">
                     {thumbnail && (
-                        <img src={thumbnail} alt={title || ""} style={{ width: "120%" }} draggable={false} />
+                        <img src={thumbnail} alt={title || ""} style={{ width: "120%" }} draggable={false} decoding="async" width="720" height="404" />
                     )}
                 </div>
             </div>

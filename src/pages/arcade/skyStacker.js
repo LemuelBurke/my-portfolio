@@ -1,10 +1,48 @@
-import { PALETTE, clamp, createFloaters, glossyBlock, lerp } from "./draw"
+import { clamp, createFloaters, lerp, roundRect } from "./draw"
+
+// Styled after the channel art: a starry purple night, flat rounded blocks in a rainbow,
+// and blocky white lettering with yellow and pink drop layers
+const FONT = '"Bungee", system-ui, sans-serif'
+const BLOCK_COLORS = ["#34beed", "#ffc93c", "#7cc576", "#b08cff", "#ff9f5a", "#ff5fa2"]
+const TEXT_STYLE = {
+    family: FONT,
+    weight: 400,
+    stroke: null,
+    layers: [
+        { dx: 0.14, dy: 0.14, color: "#ff5fa2" },
+        { dx: 0.07, dy: 0.07, color: "#ffc93c" },
+    ],
+}
+
+// Fixed star field (positions as fractions of the screen), so it doesn't reshuffle on resize
+const STARS = Array.from({ length: 110 }, (_, i) => ({
+    x: (i * 0.6180339) % 1,
+    y: (i * 0.4142135) % 1,
+    r: i % 9 === 0 ? 1.8 : i % 3 === 0 ? 1.2 : 0.8,
+    twinkle: (i * 1.7) % (Math.PI * 2),
+}))
+
+// A flat, rounded block with a soft lighter band along its top, like the blocks in the art
+const block = (ctx, x, y, w, h, color) => {
+    const r = h * 0.32
+    roundRect(ctx, x, y, w, h, r)
+    ctx.fillStyle = color
+    ctx.fill()
+    ctx.save()
+    ctx.clip()
+    ctx.fillStyle = "rgba(255, 255, 255, 0.2)"
+    ctx.fillRect(x, y, w, h * 0.32)
+    ctx.fillStyle = "rgba(40, 10, 80, 0.12)"
+    ctx.fillRect(x, y + h * 0.78, w, h * 0.22)
+    ctx.restore()
+}
 
 // A block slides back and forth; tap to drop it onto the tower. Whatever hangs over the edge is
 // sliced off, so the blocks get narrower. Land three perfect drops in a row and the block grows back.
 const skyStacker = {
     title: "Sky Stacker",
-    color: "#a98bff",
+    color: "#6b40a6",
+    theme: "sky",
     howTo: "Tap (or press Space) to drop the sliding block. Anything hanging over the edge gets chopped off. Line it up perfectly to keep it wide!",
     create({ setScore, setInfo, end, sfx }) {
         let w = 0
@@ -22,7 +60,7 @@ const skyStacker = {
         const floaters = createFloaters()
 
         const topY = (i) => baseY - (i + 1) * blockH
-        const colorFor = (i) => PALETTE[i % PALETTE.length]
+        const colorFor = (i) => BLOCK_COLORS[(i - 1 + BLOCK_COLORS.length) % BLOCK_COLORS.length]
 
         const nextMover = () => {
             const top = tower[tower.length - 1]
@@ -43,7 +81,7 @@ const skyStacker = {
             baseY = h - 70 * s
             const startW = Math.min(w * 0.55, 300 * s)
             tower.length = 0
-            tower.push({ x: (w - startW) / 2, w: startW, color: "#c8d0d5" })
+            tower.push({ x: (w - startW) / 2, w: startW, color: "#ece6ff" })
             nextMover()
         }
 
@@ -71,7 +109,7 @@ const skyStacker = {
                 perfectRun += 1
                 const grow = perfectRun >= 3 ? Math.min(14 * s, w * 0.6 - top.w) : 0
                 block = { x: top.x - Math.max(0, grow) / 2, w: top.w + Math.max(0, grow), color: mover.color }
-                floaters.add(w / 2, topY(n) - camera - 20 * s, perfectRun >= 3 ? "Perfect! Bigger!" : "Perfect!", "#1e9fcf")
+                floaters.add(w / 2, topY(n) - camera - 20 * s, perfectRun >= 3 ? "Perfect! Bigger!" : "Perfect!", "#ffffff")
                 sfx(660 + perfectRun * 60, 0.12)
             } else {
                 perfectRun = 0
@@ -120,37 +158,46 @@ const skyStacker = {
             },
 
             draw(ctx) {
-                // the sky darkens towards space as the tower climbs
-                const height = clamp(tower.length / 60, 0, 1)
+                // Night sky: dusky purple at first, deepening towards space as the tower climbs
+                const height = clamp(tower.length / 50, 0, 1)
                 const bg = ctx.createLinearGradient(0, 0, 0, h)
-                bg.addColorStop(0, `hsl(${lerp(200, 250, height)}, ${lerp(80, 45, height)}%, ${lerp(84, 18, height)}%)`)
-                bg.addColorStop(1, `hsl(${lerp(195, 235, height)}, ${lerp(85, 50, height)}%, ${lerp(94, 30, height)}%)`)
+                bg.addColorStop(0, `hsl(${lerp(250, 245, height)}, ${lerp(55, 60, height)}%, ${lerp(20, 8, height)}%)`)
+                bg.addColorStop(1, `hsl(${lerp(272, 255, height)}, ${lerp(45, 50, height)}%, ${lerp(45, 22, height)}%)`)
                 ctx.fillStyle = bg
                 ctx.fillRect(0, 0, w, h)
-                if (height > 0.4) {
-                    ctx.fillStyle = `rgba(255,255,255,${(height - 0.4) * 1.4})`
-                    for (let i = 0; i < 40; i++) {
-                        const x = (i * 97.3) % w
-                        const y = (((i * 53.7 - camera * 0.1) % h) + h) % h
-                        ctx.fillRect(x, y, 2, 2)
-                    }
+
+                // twinkling stars, drifting down slowly as the camera rises; more show up higher
+                const t = performance.now() / 1000
+                const shown = Math.round(STARS.length * lerp(0.55, 1, height))
+                ctx.fillStyle = "#ffffff"
+                for (let i = 0; i < shown; i++) {
+                    const star = STARS[i]
+                    const y = ((((star.y * h - camera * 0.15) % h) + h) % h)
+                    ctx.globalAlpha = 0.45 + 0.55 * Math.abs(Math.sin(t * 1.3 + star.twinkle))
+                    ctx.beginPath()
+                    ctx.arc(star.x * w, y, star.r * s, 0, Math.PI * 2)
+                    ctx.fill()
                 }
+                ctx.globalAlpha = 1
 
                 ctx.save()
                 ctx.translate(0, -camera)
-                // ground
-                ctx.fillStyle = "#7cc576"
-                ctx.fillRect(0, baseY, w, h)
-                ctx.fillStyle = "rgba(255,255,255,0.25)"
-                ctx.fillRect(0, baseY, w, 6 * s)
+                // ground: a soft violet rise with a lilac rim
+                const ground = ctx.createLinearGradient(0, baseY, 0, baseY + 120 * s)
+                ground.addColorStop(0, "#3a2678")
+                ground.addColorStop(1, "#1d1450")
+                ctx.fillStyle = ground
+                ctx.fillRect(0, baseY, w, h + 200 * s)
+                ctx.fillStyle = "rgba(200, 175, 255, 0.45)"
+                ctx.fillRect(0, baseY, w, 3 * s)
 
-                const r = 8 * s
-                tower.forEach((b, i) => glossyBlock(ctx, b.x, topY(i), b.w, blockH - 2 * s, r, b.color))
-                for (const c of chunks) glossyBlock(ctx, c.x, c.y, c.w, blockH - 2 * s, r, c.color)
-                if (mover) glossyBlock(ctx, mover.x, topY(tower.length), mover.w, blockH - 2 * s, r, mover.color)
+                const bh = blockH - 3 * s
+                tower.forEach((b, i) => block(ctx, b.x, topY(i), b.w, bh, b.color))
+                for (const c of chunks) block(ctx, c.x, c.y, c.w, bh, c.color)
+                if (mover) block(ctx, mover.x, topY(tower.length), mover.w, bh, mover.color)
                 ctx.restore()
 
-                floaters.draw(ctx, 24 * s)
+                floaters.draw(ctx, 24 * s, TEXT_STYLE)
             },
 
             pointerDown() {

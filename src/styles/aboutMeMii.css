@@ -1,614 +1,1005 @@
 /**********************************
-  ABOUT ME: MII PROFILE
-  A Mii data card on the left; category buttons and the chosen section on the right.
+  ABOUT ME: MORGAN'S WORLD
+  A Frutiger Aero sky with a glossy globe of the places in Morgan's life. Glass panels for the
+  passport and the chapter card, jelly buttons in the dock, and Morgan's purple for whatever is chosen.
 **********************************/
-.profile-page {
-    --p-cyan: #34beed;
-    --p-cyan-dark: #1e7fa8;
-    --p-ink: #3c4247;
-    --p-muted: #5f6b72;
-    --p-line: #e1ecf1;
+.world-page {
+    --ink: #1d3a56;
+    --muted: #4d6a84;
+    --aqua: #1fa6e0;
+    --aqua-deep: #0b5fa8;
+    --aqua-ink: #0b4f8a;
+    --grass: #6cc24a;
+    --purple: #7b3fbf;
+    --glass: rgba(255, 255, 255, 0.74);
+    --glass-edge: rgba(255, 255, 255, 0.95);
+    --glass-shadow: 0 18px 44px rgba(8, 62, 112, 0.22), 0 2px 6px rgba(8, 62, 112, 0.08);
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
     position: fixed;
     inset: 0;
     z-index: 50;
-    display: flex;
-    flex-direction: column;
-    color: var(--p-ink);
-    font-family: "rodin-ntlg", system-ui, -apple-system, "Segoe UI", sans-serif;
-    /* the Mii Channel's soft pinstripes */
-    background: repeating-linear-gradient(180deg, #f4f9fb 0 7px, #e7f2f7 7px 14px);
-}
-
-.visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
     overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+    color: var(--ink);
+    font-family: "rodin-ntlg", system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: linear-gradient(180deg, #2f9fe6 0%, #6cc6f6 34%, #bfe9fd 62%, #eefaff 82%, #ffffff 100%);
+    isolation: isolate;
 }
 
-.profile-top {
+.world-page *,
+.world-page *::before,
+.world-page *::after {
+    box-sizing: border-box;
+}
+
+.world-page ::selection {
+    color: #fff;
+    background: var(--purple);
+}
+
+/* Sky: sunlight bloom, a glossy green hill, and a few drifting bubbles */
+.world-sky {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 55% 42% at 14% 6%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.35) 38%, transparent 70%),
+        radial-gradient(ellipse 40% 30% at 90% 18%, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+}
+
+.world-sky::before,
+.world-sky::after {
+    content: "";
+    position: absolute;
+    left: -20%;
+    right: -20%;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+
+/* back hill, then front hill with a glossy top */
+.world-sky::before {
+    bottom: -6vh;
+    height: 26vh;
+    background: linear-gradient(180deg, #9fdc6d 0%, #58b23a 100%);
+    opacity: 0.75;
+    transform: translateX(18%);
+}
+
+.world-sky::after {
+    bottom: -12vh;
+    height: 30vh;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 22%),
+        linear-gradient(180deg, #8fd85c 0%, #4fae32 70%, #3f9a28 100%);
+    transform: translateX(-14%);
+}
+
+.world-bubble {
+    position: absolute;
+    width: var(--size);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.95) 0 7%, rgba(255, 255, 255, 0) 20%),
+        radial-gradient(circle at 50% 50%, rgba(170, 230, 255, 0.05) 0 55%, rgba(255, 255, 255, 0.55) 100%);
+    box-shadow: inset 0 -4px 10px rgba(120, 210, 255, 0.35);
+    animation: world-float var(--time) ease-in-out infinite alternate;
+}
+
+.world-bubble.b1 { --size: 90px; --time: 16s; left: 6%; top: 58%; }
+.world-bubble.b2 { --size: 46px; --time: 12s; left: 22%; top: 76%; }
+.world-bubble.b3 { --size: 64px; --time: 19s; right: 34%; top: 9%; }
+.world-bubble.b4 { --size: 28px; --time: 10s; right: 30%; top: 70%; }
+.world-bubble.b5 { --size: 120px; --time: 22s; right: -30px; top: 40%; }
+
+@keyframes world-float {
+    from { translate: 0 0; }
+    to { translate: 12px -38px; }
+}
+
+/* Header: Exit and the channel title, as on every channel */
+.world-top {
+    position: relative;
+    z-index: 4;
     display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: clamp(12px, 2.4vh, 22px) clamp(14px, 3vw, 40px) 0;
+    justify-content: center;
+    padding: clamp(10px, 2vh, 18px) 16px 6px;
 }
 
-.profile-exit {
+.world-exit {
+    position: absolute;
+    left: clamp(10px, 2vw, 24px);
+    top: 50%;
+    translate: 0 -50%;
     min-height: 44px;
-    padding: 0 22px;
+    padding: 8px 20px;
     font: inherit;
     font-weight: 700;
     color: #fff;
-    background: #d63a3a;
+    background: #ef4444;
     border: none;
-    border-radius: 14px;
+    border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
     cursor: pointer;
 }
 
-.profile-page-title {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: var(--p-cyan-dark);
-}
-
-.profile-layout {
-    flex: 1;
-    min-height: 0;
-    display: grid;
-    grid-template-columns: clamp(300px, 32vw, 420px) minmax(0, 1fr);
-    gap: clamp(16px, 2vw, 28px);
-    padding: clamp(14px, 2.4vh, 22px) clamp(14px, 3vw, 40px) clamp(14px, 3vh, 28px);
-}
-
-/* The Mii data card */
-.profile-card {
-    align-self: start;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    padding: clamp(18px, 2vw, 26px);
-    background: #fff;
-    border-radius: 32px;
-    box-shadow: 0 0 0 3px #cfe6ef, 0 16px 36px rgba(30, 60, 75, 0.14);
-}
-
-.profile-card-head {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-}
-
-.profile-portrait {
-    position: relative;
-    flex: none;
-    width: clamp(110px, 11vw, 150px);
-    aspect-ratio: 1;
-    overflow: hidden;
-    background: radial-gradient(circle at 50% 35%, #ffffff 0%, #d9f1fb 72%);
-    border-radius: 50%;
-    box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--p-cyan);
-}
-
-/* the 3D Mii, framed from the chest up */
-.profile-portrait .plaza-mii-3d {
-    position: absolute;
-    left: 50%;
-    top: -14%;
-    width: 130%;
-    height: 162%;
-    translate: -50% 0;
-}
-
-.profile-portrait .plaza-mii-3d canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-
-.profile-portrait-sprite {
-    position: absolute;
-    left: 50%;
-    top: 10%;
-    height: 135%;
-    translate: -50% 0;
-}
-
-.profile-card h1 {
+.world-title {
     margin: 0;
-    font-size: clamp(1.25rem, 1.9vw, 1.7rem);
-    line-height: 1.15;
+    padding: 6px 26px;
+    font-size: clamp(1.05rem, 3.4vw, 1.6rem);
+    font-weight: 700;
+    color: #1e9fcf;
+    background: #fff;
+    border: 3px solid #34beed;
+    border-radius: 99px;
+    box-shadow: 0 3px 10px rgba(30, 60, 75, 0.12);
     white-space: nowrap;
 }
 
-.profile-job {
-    margin: 4px 0 0;
-    font-weight: 700;
-    color: var(--p-cyan-dark);
+.world-exit:focus-visible,
+.world-dock-btn:focus-visible,
+.world-passport-head:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 6px var(--purple);
 }
 
-.profile-fields {
+/* Layout: globe and passport on the left, the chapter card on the right */
+.world-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) min(480px, 36vw);
+    gap: clamp(12px, 2vw, 28px);
+    min-height: 0;
+    padding: 4px clamp(12px, 2.4vw, 32px) 12px;
+}
+
+.world-stage {
+    position: relative;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    container-type: size;
+}
+
+.world-globe-frame {
+    position: relative;
+    width: min(100cqw, 100cqh);
+    aspect-ratio: 1;
+}
+
+.globe,
+.globe-canvas {
+    position: absolute;
+    inset: 0;
+}
+
+.globe-canvas canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    touch-action: none;
+    cursor: grab;
+}
+
+.globe-canvas canvas:active {
+    cursor: grabbing;
+}
+
+/* fade the globe in once it has drawn */
+.world-globe-frame .globe {
+    opacity: 0;
+    scale: 0.92;
+    transition: opacity 0.7s var(--ease-out), scale 0.9s var(--ease-out);
+}
+
+.world-globe-frame.is-ready .globe {
+    opacity: 1;
+    scale: 1;
+}
+
+.world-globe-loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
     margin: 0;
+    font-weight: 700;
+    color: var(--aqua-ink);
+}
+
+/* Without WebGL: a plain glossy ball, so the page still has its world */
+.world-globe-fallback {
+    position: absolute;
+    inset: 14%;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.85) 0 6%, rgba(255, 255, 255, 0) 30%),
+        radial-gradient(circle at 50% 50%, #2a9ad9 0%, #0b5fa8 70%, #083f74 100%);
+    box-shadow: 0 0 60px rgba(127, 216, 255, 0.8);
+}
+
+/* The Mii stands on top of the globe (its top edge sits 14% down the frame) */
+/* The Mii is framed with headroom for his flag (1.8x), so the box is 1.8x taller, and wider for the cloth */
+.world-mii {
+    position: absolute;
+    left: 50%;
+    bottom: 85.2%;
+    width: 52%;
+    height: 43.2%;
+    translate: -50% 0;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.world-mii .plaza-mii-3d,
+.world-mii .plaza-mii-3d canvas {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    /* Project Street centres its Mii canvas with a translate; here the box is already centred */
+    translate: none;
+}
+
+.world-mii-sprite {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: bottom;
+}
+
+.world-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 3%;
+    translate: -50% 0;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--aqua-ink);
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 99px;
+    pointer-events: none;
+}
+
+/* Pins: glossy capsules on stems; Morgan's purple for the chosen place */
+.globe-pins {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.globe-pin {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    padding: 0;
+    font: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+    will-change: transform, opacity;
+}
+
+.globe-pin-label {
+    position: absolute;
+    left: 0;
+    bottom: 12px;
+    translate: -50% 0;
+    padding: 7px 14px 8px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--aqua-ink);
+    white-space: nowrap;
+    background: linear-gradient(180deg, #ffffff 0%, #f1faff 48%, #d7f0fc 52%, #f5fcff 100%);
+    border: 1px solid var(--glass-edge);
+    border-radius: 99px;
+    box-shadow: 0 5px 12px rgba(5, 50, 90, 0.32), inset 0 -2px 5px rgba(31, 166, 224, 0.22);
+    transition: background 0.2s ease, color 0.2s ease, scale 0.25s var(--ease-out);
+}
+
+/* the stem up from the place to its label */
+.globe-pin::after {
+    content: "";
+    position: absolute;
+    left: -1px;
+    bottom: 0;
+    width: 2px;
+    height: 13px;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.95));
+}
+
+/* labels that would collide with a neighbour lean to one side of their stem */
+.globe-pin.side-left .globe-pin-label {
+    translate: calc(-100% + 18px) 0;
+}
+
+.globe-pin.side-right .globe-pin-label {
+    translate: -18px 0;
+}
+
+.globe-pin:hover .globe-pin-label {
+    scale: 1.06;
+}
+
+.globe-pin.is-selected .globe-pin-label {
+    color: #fff;
+    background: linear-gradient(180deg, #c09bec 0%, #9259d6 48%, #7b3fbf 52%, #a26ce0 100%);
+    border-color: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 6px 16px rgba(70, 20, 120, 0.4), inset 0 -2px 5px rgba(255, 255, 255, 0.25);
+}
+
+/* a soft ring pulsing round the chosen place */
+.globe-pin.is-selected::before {
+    content: "";
+    position: absolute;
+    left: -11px;
+    top: -11px;
+    width: 22px;
+    height: 22px;
+    border: 2px solid rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(123, 63, 191, 0.8);
+    animation: world-ping 1.8s var(--ease-out) infinite;
+}
+
+@keyframes world-ping {
+    from { scale: 0.5; opacity: 1; }
+    to { scale: 1.6; opacity: 0; }
+}
+
+/* Glass panels */
+.world-passport,
+.world-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, var(--glass) 60%, rgba(255, 255, 255, 0.66) 100%);
+    border: 1px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow), inset 0 1px 0 #fff;
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    backdrop-filter: blur(18px) saturate(1.4);
+}
+
+/* Passport: a glass ID page in the corner of the sky */
+.world-passport {
+    position: absolute;
+    top: 6px;
+    left: 0;
+    z-index: 3;
+    width: min(290px, 100%);
     overflow: hidden;
-    border: 2px solid var(--p-line);
     border-radius: 20px;
 }
 
-.profile-field {
-    display: grid;
-    grid-template-columns: 112px 1fr;
-    gap: 8px;
-    padding: 11px 16px;
-}
-
-.profile-field:nth-child(odd) {
-    background: #f4f9fb;
-}
-
-.profile-field dt {
-    font-weight: 700;
-    color: var(--p-muted);
-}
-
-.profile-field dd {
+.world-passport-head {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin: 0;
+    gap: 12px;
+    width: 100%;
+    min-height: 44px;
+    padding: 12px 14px;
+    font: inherit;
+    text-align: left;
+    color: #fff;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0) 51%),
+        linear-gradient(180deg, #3fbcf0 0%, #1590d2 100%);
+    border: none;
+    cursor: pointer;
 }
 
-.profile-swatch {
+.world-passport-photo {
     flex: none;
-    width: 18px;
-    height: 18px;
+    display: grid;
+    place-items: end center;
+    width: 54px;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 38%, #ffffff 0%, #d9f1fb 72%);
+    border: 3px solid #fff;
     border-radius: 50%;
+    box-shadow: 0 3px 8px rgba(5, 50, 90, 0.3);
 }
 
-/* Right: category pills and the chosen section */
-.profile-main {
+.world-passport-photo img {
+    width: 80%;
+    translate: 0 16%;
+}
+
+.world-passport-name {
     display: flex;
     flex-direction: column;
-    gap: 16px;
     min-width: 0;
-    min-height: 0;
+    line-height: 1.2;
 }
 
-.profile-tabs {
+.world-passport-name strong {
+    font-size: 1.15rem;
+    text-shadow: 0 1px 2px rgba(5, 50, 90, 0.35);
+}
+
+.world-passport-name span {
+    font-size: 0.85rem;
+    opacity: 0.95;
+}
+
+.world-passport-toggle {
+    margin-left: auto;
+    width: 10px;
+    height: 10px;
+    border-right: 2.5px solid #fff;
+    border-bottom: 2.5px solid #fff;
+    rotate: 45deg;
+    translate: 0 -2px;
+    transition: rotate 0.25s var(--ease-out);
+}
+
+.world-passport.is-open .world-passport-toggle {
+    rotate: -135deg;
+    translate: 0 2px;
+}
+
+.world-passport-fields {
+    display: none;
+    margin: 0;
+    padding: 6px 14px 12px;
+}
+
+.world-passport.is-open .world-passport-fields {
+    display: block;
+}
+
+.world-passport-fields div {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 10px;
-    padding: 4px 4px 8px;
-}
-
-.profile-tab {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    grid-template-columns: 74px minmax(0, 1fr);
     gap: 8px;
-    min-height: 56px;
-    padding: 0 12px;
-    font: inherit;
-    font-weight: 700;
-    color: var(--p-ink);
-    background: #fff;
-    border: 3px solid #d3dee4;
-    border-radius: 999px;
-    box-shadow: 0 4px 0 #c3d1d8;
-    cursor: pointer;
-    transition: transform 0.12s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.12s ease;
+    padding: 7px 0;
+    border-bottom: 1px dashed rgba(11, 95, 168, 0.18);
 }
 
-.profile-tab:hover {
-    border-color: #a9dcf0;
-}
-
-.profile-tab-icon {
-    flex: none;
-    width: 20px;
-    height: 20px;
-    color: var(--p-cyan);
-}
-
-.profile-tab.is-active {
-    color: #fff;
-    background: var(--p-cyan);
-    border-color: #fff;
-    box-shadow: 0 0 0 3px var(--p-cyan), 0 4px 0 #1e9fcf;
-}
-
-.profile-tab.is-active .profile-tab-icon {
-    color: #fff;
-}
-
-.profile-tab:active {
-    transform: translateY(2px);
-}
-
-.profile-section {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    padding: clamp(16px, 2.4vw, 28px);
-    background: #fff;
-    border-radius: 32px;
-    box-shadow: 0 0 0 3px #cfe6ef, 0 16px 36px rgba(30, 60, 75, 0.14);
-}
-
-/* An entry: photo beside the text, separated by a soft rule */
-/* picture on the left spanning both rows; title, then text, on the right */
-.profile-entry {
-    display: grid;
-    grid-template-columns: clamp(150px, 16vw, 210px) minmax(0, 1fr);
-    grid-template-rows: auto 1fr;
-    grid-template-areas: "media head" "media body";
-    column-gap: clamp(14px, 2vw, 22px);
-    row-gap: 0;
-    align-items: start;
-    padding: 18px 0;
-    border-bottom: 2px solid #eef4f7;
-}
-
-.profile-entry:first-child {
-    padding-top: 0;
-}
-
-.profile-entry:last-child {
-    padding-bottom: 0;
+.world-passport-fields div:last-child {
     border-bottom: none;
 }
 
-.profile-entry.is-bare {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: "head" "body";
-}
-
-.profile-entry > img,
-.profile-entry > .profile-entry-tile {
-    grid-area: media;
-}
-
-.profile-entry-head {
-    grid-area: head;
-}
-
-.profile-entry-body {
-    grid-area: body;
-    min-width: 0;
-}
-
-/* every picture sits in the same 7:5 box so the text column lines up */
-.profile-entry-photo,
-.profile-entry-polaroid,
-.profile-entry-tile {
-    width: 100%;
-    aspect-ratio: 7 / 5;
-}
-
-.profile-entry-photo {
-    object-fit: cover;
-    border-radius: 18px;
-}
-
-/* polaroids already have a frame and caption: show the whole thing, at its own shape */
-.profile-entry-polaroid {
-    aspect-ratio: auto;
-    max-height: 240px;
-    object-fit: contain;
-    filter: drop-shadow(0 6px 10px rgba(30, 60, 75, 0.18));
-}
-
-.profile-entry-tile {
-    display: grid;
-    place-items: center;
-    color: var(--p-cyan);
-    background: radial-gradient(circle at 35% 30%, #ffffff 0%, #e2f4fb 75%);
-    border: 2px solid #d6ecf5;
-    border-radius: 18px;
-    box-sizing: border-box;
-}
-
-.profile-entry-tile svg {
-    width: 34%;
-    height: 34%;
-}
-
-.profile-entry-tile img {
-    width: 62%;
-    height: 62%;
-    object-fit: contain;
-}
-
-.profile-entry-meta {
-    margin: 0 0 2px;
-    font-size: 0.88rem;
+.world-passport-fields dt {
+    font-size: 0.78rem;
     font-weight: 700;
-    color: var(--p-cyan-dark);
+    color: var(--muted);
 }
 
-.profile-entry h3 {
+.world-passport-fields dd {
     margin: 0;
-    font-size: clamp(1.05rem, 1.8vw, 1.3rem);
-    line-height: 1.3;
+    font-size: 0.88rem;
+    line-height: 1.35;
 }
 
-.profile-entry p {
-    margin: 8px 0 0;
-    line-height: 1.6;
+.world-swatch {
+    display: inline-block;
+    width: 0.8em;
+    height: 0.8em;
+    margin-right: 6px;
+    vertical-align: -0.05em;
+    border-radius: 50%;
+    box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.2), 0 0 0 2px #fff;
 }
 
-.profile-entry-more {
-    overflow: hidden;
+/* The chapter card: near-solid white so long passages read comfortably over the sky */
+.world-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(255, 255, 255, 0.93) 100%);
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 20px clamp(16px, 2vw, 24px) 24px;
+    border-radius: 24px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(31, 166, 224, 0.55) transparent;
 }
 
-.profile-more {
-    margin-top: 10px;
-    padding: 6px 16px;
-    font: inherit;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--p-cyan-dark);
-    background: #eef8fc;
-    border: 2px solid #c4e9f8;
-    border-radius: 999px;
-    cursor: pointer;
-}
-
-.profile-more:hover {
-    background: #e1f4fb;
-}
-
-.profile-photos {
+.world-card-head {
     display: flex;
-    gap: 12px;
-    margin-top: 12px;
-    overflow-x: auto;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
 }
 
-/* extra photos: a tidy row of same-size thumbnails */
-.profile-photos img {
+.world-card-head h2 {
+    margin: 0;
+    font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+    line-height: 1.1;
+    color: var(--aqua-ink);
+    text-wrap: balance;
+}
+
+.world-card-head p {
+    margin: 4px 0 0;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.world-card-flag {
     flex: none;
-    width: 150px;
+    width: 58px;
     aspect-ratio: 4 / 3;
     object-fit: cover;
-    border-radius: 14px;
+    border: 3px solid #fff;
+    border-radius: 8px;
+    rotate: -4deg;
+    box-shadow: 0 4px 10px rgba(5, 50, 90, 0.28), 0 0 0 1px rgba(11, 95, 168, 0.12);
 }
 
-.profile-photos.are-polaroids img {
-    width: auto;
-    height: 170px;
-    aspect-ratio: auto;
+.world-card-badge {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    aspect-ratio: 1;
+    color: #fff;
+    border-radius: 50%;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 51%),
+        linear-gradient(180deg, #a26ce0 0%, #7b3fbf 100%);
+    box-shadow: 0 4px 10px rgba(70, 20, 120, 0.35), inset 0 -2px 4px rgba(255, 255, 255, 0.25);
+}
+
+.world-card-badge.is-suitcase {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 51%),
+        linear-gradient(180deg, #3fbcf0 0%, #1590d2 100%);
+    box-shadow: 0 4px 10px rgba(5, 50, 90, 0.3), inset 0 -2px 4px rgba(255, 255, 255, 0.25);
+}
+
+.world-card-badge svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+.world-group h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 22px 0 4px;
+    font-size: 0.95rem;
+    color: var(--aqua);
+}
+
+.world-group h3::after {
+    content: "";
+    flex: 1;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, rgba(31, 166, 224, 0.35), rgba(31, 166, 224, 0));
+}
+
+/* Entries: every paragraph shown, photos underneath */
+.world-entry {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(11, 95, 168, 0.12);
+}
+
+.world-entry.has-tile {
+    grid-template-columns: 64px minmax(0, 1fr);
+}
+
+.world-group .world-entry:last-child {
+    border-bottom: none;
+}
+
+.world-entry h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    line-height: 1.3;
+    color: var(--aqua-ink);
+    text-wrap: balance;
+}
+
+.world-entry-meta {
+    margin: 4px 0 0;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--muted);
+}
+
+.world-entry-body > p {
+    margin: 10px 0 0;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--ink);
+    max-width: 64ch;
+}
+
+/* a thumbnail beside an entry that has no photo gallery */
+.world-entry-photo {
+    width: 64px;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border: 3px solid #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(5, 50, 90, 0.22);
+}
+
+.world-entry-polaroid {
+    width: 64px;
+    rotate: -4deg;
+    filter: drop-shadow(0 4px 8px rgba(5, 50, 90, 0.25));
+}
+
+.world-entry-tile {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    aspect-ratio: 1;
+    color: #fff;
+    border-radius: 18px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0) 51%),
+        linear-gradient(180deg, #3fbcf0 0%, #1590d2 100%);
+    box-shadow: 0 4px 10px rgba(5, 50, 90, 0.25), inset 0 -2px 4px rgba(255, 255, 255, 0.25);
+}
+
+.world-entry-tile svg {
+    width: 32px;
+    height: 32px;
+    fill: currentColor;
+}
+
+.world-entry-tile.is-logo {
+    background: #fff;
+    border: 1px solid rgba(11, 95, 168, 0.12);
+}
+
+.world-entry-tile img {
+    width: 78%;
+    height: 78%;
     object-fit: contain;
-    border-radius: 0;
-    filter: drop-shadow(0 6px 10px rgba(30, 60, 75, 0.18));
 }
 
-.profile-chips {
+.world-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     margin: 10px 0 0;
     padding: 0;
     list-style: none;
 }
 
-.profile-chips li {
-    padding: 5px 14px;
-    font-size: 0.9rem;
+.world-chips li {
+    padding: 5px 12px;
+    font-size: 0.85rem;
     font-weight: 600;
-    background: #eaf7fd;
-    border: 2px solid #c4e9f8;
-    border-radius: 999px;
+    color: var(--aqua-ink);
+    background: linear-gradient(180deg, #ffffff 0%, #e7f6fe 100%);
+    border: 1px solid rgba(31, 166, 224, 0.3);
+    border-radius: 99px;
+    box-shadow: 0 1px 2px rgba(5, 50, 90, 0.08);
 }
 
-/* About tab: text beside a cluster of tilted polaroids, alternating sides */
-.profile-story {
+/* Photos under an entry: rounded snapshots in a row, or a loose spread of polaroids */
+.world-photos {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) clamp(280px, 32vw, 420px);
-    gap: clamp(18px, 3vw, 40px);
-    align-items: center;
-    padding: 12px 0 28px;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+    margin-top: 14px;
 }
 
-.profile-story + .profile-story {
-    padding-top: 28px;
-    border-top: 2px solid #eef4f7;
+.world-photos img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border: 3px solid #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(5, 50, 90, 0.18);
 }
 
-/* flipped: pictures on the left, but the text keeps the wide column */
-.profile-story.is-flipped {
-    grid-template-columns: clamp(280px, 32vw, 420px) minmax(0, 1fr);
+.world-photos.are-polaroids {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 6px;
+    padding: 4px 2px;
 }
 
-.profile-story.is-flipped .profile-story-text {
-    order: 2;
-}
-
-.profile-story-text h3 {
-    margin: 0;
-    font-size: clamp(1.3rem, 2.2vw, 1.7rem);
-    line-height: 1.25;
-}
-
-.profile-story:first-child .profile-story-text h3 {
-    font-size: clamp(1.6rem, 3vw, 2.2rem);
-}
-
-.profile-story-text p {
-    margin: 12px 0 0;
-    font-size: 1.05rem;
-    line-height: 1.7;
-}
-
-.profile-story-polaroids {
-    position: relative;
-    height: clamp(200px, 22vw, 270px);
-}
-
-.profile-story-polaroids img {
-    position: absolute;
-    height: 82%;
-    width: auto;
-    filter: drop-shadow(0 8px 12px rgba(30, 60, 75, 0.2));
-    transition: transform 0.2s ease;
-}
-
-.profile-story-polaroids img:hover {
-    z-index: 2;
-}
-
-.profile-story-polaroids.count-1 img {
-    left: 50%;
-    top: 4%;
-    height: 90%;
-    max-width: 100%;
+.world-photos.are-polaroids img {
+    width: min(180px, 46%);
+    aspect-ratio: auto;
     object-fit: contain;
-    translate: -50% 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
     rotate: -3deg;
+    filter: drop-shadow(0 5px 10px rgba(5, 50, 90, 0.25));
 }
 
-/* fanned out side by side, so every handwritten caption stays readable */
-.profile-story-polaroids.count-2 img:nth-child(1) { left: 4%; top: 4%; rotate: -6deg; }
-.profile-story-polaroids.count-2 img:nth-child(2) { right: 4%; top: 10%; rotate: 5deg; }
-
-.profile-story-polaroids.count-3 img { height: 72%; }
-.profile-story-polaroids.count-3 img:nth-child(1) { left: 0; top: 10%; rotate: -8deg; }
-.profile-story-polaroids.count-3 img:nth-child(2) { left: 50%; top: 0; translate: -50% 0; rotate: 2deg; z-index: 1; }
-.profile-story-polaroids.count-3 img:nth-child(3) { right: 0; top: 14%; rotate: 8deg; }
-
-.profile-exit:focus-visible,
-.profile-tab:focus-visible,
-.profile-more:focus-visible {
-    outline: 3px solid var(--p-cyan-dark);
-    outline-offset: 3px;
+.world-photos.are-polaroids img:nth-child(even) {
+    rotate: 3deg;
+    translate: 0 6px;
 }
 
-/* Narrower screens: tabs wrap into three columns */
+/* a photo-only entry (a travel polaroid): its caption, then the polaroid */
+.world-entry.is-photo-only .world-photos.are-polaroids img {
+    width: min(220px, 70%);
+}
+
+/* The dock: an Aero glass bar of jelly buttons */
+.world-dock {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    justify-content: safe center;
+    overflow-x: auto;
+    scrollbar-width: none;
+    align-items: center;
+    gap: 14px;
+    padding: 10px clamp(12px, 2vw, 24px) max(12px, env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.42) 100%);
+    border-top: 1px solid var(--glass-edge);
+    box-shadow: 0 -8px 24px rgba(8, 62, 112, 0.12);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    backdrop-filter: blur(16px) saturate(1.5);
+}
+
+.world-dock-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.world-dock-group.is-suitcase {
+    padding-left: 14px;
+    border-left: 2px solid rgba(255, 255, 255, 0.9);
+    box-shadow: -2px 0 0 rgba(11, 95, 168, 0.12);
+}
+
+.world-dock-case {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    color: #c98a3c;
+}
+
+.world-dock-case .world-icon {
+    width: 26px;
+    height: 26px;
+}
+
+.world-dock-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    min-height: 44px;
+    padding: 8px 16px 9px 12px;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--aqua-ink);
+    white-space: nowrap;
+    background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 48%, #d8eefb 52%, #f2faff 100%);
+    border: 1px solid rgba(31, 166, 224, 0.35);
+    border-radius: 99px;
+    box-shadow: 0 3px 8px rgba(5, 50, 90, 0.15), inset 0 -2px 4px rgba(31, 166, 224, 0.15);
+    cursor: pointer;
+    transition: translate 0.15s var(--ease-out), box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.world-dock-btn svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    fill: currentColor;
+    color: var(--aqua);
+}
+
+.world-dock-btn:hover {
+    translate: 0 -2px;
+    border-color: var(--aqua);
+    box-shadow: 0 6px 14px rgba(5, 50, 90, 0.2), inset 0 -2px 4px rgba(31, 166, 224, 0.15);
+}
+
+.world-dock-btn.is-active {
+    color: #fff;
+    background: linear-gradient(180deg, #c09bec 0%, #9259d6 48%, #7b3fbf 52%, #a26ce0 100%);
+    border-color: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 5px 14px rgba(70, 20, 120, 0.38), inset 0 -2px 5px rgba(255, 255, 255, 0.25);
+}
+
+.world-dock-btn.is-active svg {
+    color: #fff;
+}
+
+/* the white dot inside the pin icon stays white on purple too */
+.world-dock-btn.is-active .world-icon circle {
+    fill: #7b3fbf;
+}
+
+/* Tablets and narrow laptops: the card narrows */
 @media (max-width: 1100px) {
-    .profile-tabs {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+    .world-layout {
+        grid-template-columns: minmax(0, 1fr) min(420px, 42vw);
+    }
+
+    .world-dock-btn {
+        padding: 8px 13px 9px 10px;
+        font-size: 0.86rem;
     }
 }
 
-/* Medium-width screens: the About tab's sections stack, polaroids above the text */
-@media (max-width: 1100px) {
-    .profile-story,
-    .profile-story.is-flipped {
+/* Phones and portrait tablets: globe on top, the chapter as a sheet below, the dock scrolls */
+@media (max-width: 820px) {
+    .world-layout {
         grid-template-columns: minmax(0, 1fr);
-        gap: 14px;
+        grid-template-rows: minmax(210px, 40%) minmax(0, 1fr);
+        gap: 6px;
+        padding: 0 10px 8px;
     }
 
-    .profile-story.is-flipped .profile-story-text {
-        order: 0;
+    /* the Mii stands at the top of the globe, so the passport chip sits in the bottom corner
+       and opens upwards */
+    .world-passport {
+        top: auto;
+        bottom: 0;
+        width: min(250px, 72%);
+        border-radius: 16px;
     }
 
-    .profile-story-polaroids {
-        order: -1;
-        width: min(100%, 420px);
-        margin: 0 auto;
-    }
-}
 
-/* Phones (upright or sideways): the card shrinks to a header strip and the page scrolls as one */
-@media (max-width: 760px), (max-height: 520px) {
-    .profile-page {
-        overflow-y: auto;
+    .world-passport-head {
+        padding: 8px 12px;
+        gap: 10px;
     }
 
-    .profile-layout {
-        display: flex;
-        flex-direction: column;
-        flex: none;
+    .world-passport-photo {
+        width: 40px;
     }
 
-    .profile-card {
-        align-self: stretch;
-        gap: 14px;
-        padding: 16px;
-        border-radius: 26px;
+    .world-passport-name strong {
+        font-size: 1rem;
     }
 
-    .profile-portrait {
-        width: 92px;
+    .world-hint {
+        display: none;
     }
 
-    .profile-fields {
-        font-size: 0.92rem;
+    /* sit the globe low in its area so the Mii and his flag fit above it, under the header */
+    .world-stage {
+        place-items: end center;
     }
 
-    .profile-field {
-        grid-template-columns: 92px 1fr;
-        padding: 9px 12px;
+    .world-globe-frame {
+        width: min(100cqw, 76cqh);
     }
 
-    .profile-tabs {
-        display: flex;
+    .world-card {
+        border-radius: 22px;
+        padding-top: 16px;
+    }
+
+    .world-card-badge {
+        width: 40px;
+    }
+
+    .world-dock {
+        justify-content: flex-start;
         overflow-x: auto;
         scrollbar-width: none;
+        scroll-padding: 0 16px;
+        -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 28px), transparent 100%);
+        mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 28px), transparent 100%);
+        padding-right: 32px;
     }
 
-    .profile-tab {
-        flex: none;
-        min-height: 48px;
-        padding: 0 16px;
+    .world-dock::-webkit-scrollbar {
+        display: none;
     }
 
-    .profile-section {
-        overflow: visible;
-        border-radius: 26px;
+    .world-dock-group {
+        gap: 6px;
     }
 
-    /* About tab: polaroids above the text, one column whichever way the section is flipped */
-    .profile-story,
-    .profile-story.is-flipped {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 14px;
+    .world-entry.has-tile {
+        grid-template-columns: 52px minmax(0, 1fr);
+        gap: 12px;
     }
 
-    .profile-story.is-flipped .profile-story-text {
-        order: 0;
-    }
-
-    .profile-story-polaroids {
-        order: -1;
-        height: 190px;
-    }
-
-    /* small picture beside the title, text full width underneath */
-    .profile-entry {
-        grid-template-columns: 72px minmax(0, 1fr);
-        grid-template-areas: "media head" "body body";
-        align-items: center;
-        column-gap: 12px;
-    }
-
-    .profile-entry.is-bare {
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-areas: "head" "body";
-    }
-
-    .profile-entry-polaroid {
-        max-height: 90px;
-    }
-
-    .profile-entry-photo,
-    .profile-entry-polaroid,
-    .profile-entry-tile {
-        aspect-ratio: 1;
-    }
-
-    .profile-entry-tile,
-    .profile-entry-photo {
+    .world-entry-tile {
+        width: 52px;
         border-radius: 14px;
     }
 
-    .profile-photos img {
-        width: 120px;
+    .world-entry-tile svg {
+        width: 26px;
+        height: 26px;
     }
 
-    .profile-photos.are-polaroids img {
-        height: 140px;
+    .world-card-flag {
+        width: 48px;
+    }
+
+    .world-bubble.b5,
+    .world-bubble.b3 {
+        display: none;
+    }
+}
+
+/* Phones on their side: globe and card side by side again, passport tucked away */
+@media (max-height: 500px) and (orientation: landscape) {
+    .world-stage {
+        place-items: end center;
+    }
+
+    .world-globe-frame {
+        width: min(100cqw, 76cqh);
+    }
+
+    .world-layout {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+        grid-template-rows: minmax(0, 1fr);
+    }
+
+    .world-top {
+        padding-top: 6px;
+        padding-bottom: 2px;
+    }
+
+    .world-dock {
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+
+    .world-passport {
+        top: auto;
+        bottom: 0;
+        width: min(230px, 60%);
+    }
+}
+
+/* Small screens either way round: the collapsed passport is just a name tag, so it covers as
+   little of the globe as possible */
+@media (max-width: 820px), (max-height: 500px) and (orientation: landscape) {
+    .world-passport:not(.is-open) {
+        width: auto;
+        border-radius: 99px;
+    }
+
+    .world-passport:not(.is-open) .world-passport-head {
+        padding: 5px 14px 5px 5px;
+    }
+
+    .world-passport:not(.is-open) .world-passport-photo {
+        width: 40px;
+    }
+
+    .world-passport:not(.is-open) .world-passport-name strong {
+        font-size: 1rem;
+    }
+
+    .world-passport:not(.is-open) .world-passport-name span,
+    .world-hint {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .world-bubble,
+    .globe-pin.is-selected::before {
+        animation: none;
+    }
+
+    .world-globe-frame .globe,
+    .world-dock-btn,
+    .globe-pin-label,
+    .world-passport-toggle {
+        transition: none;
     }
 }

@@ -46,15 +46,25 @@ export const createFloaters = () => {
                 if (f.life <= 0) list.splice(i, 1)
             }
         },
-        draw(ctx, size) {
+        // style (optional): family, weight, stroke (outline colour, or null for none), and layers,
+        // offset copies drawn underneath ([{ dx, dy, color }] in multiples of the text size)
+        draw(ctx, size, style = {}) {
+            const { family = 'system-ui, -apple-system, "Segoe UI", sans-serif', weight = 800, stroke = "#fff", layers = [] } = style
             ctx.textAlign = "center"
             ctx.textBaseline = "middle"
-            ctx.font = `800 ${size}px system-ui, -apple-system, "Segoe UI", sans-serif`
+            ctx.font = `${weight} ${size}px ${family}`
+            ctx.lineJoin = "round"
             for (const f of list) {
                 ctx.globalAlpha = Math.min(1, f.life / 0.4)
-                ctx.lineWidth = size * 0.18
-                ctx.strokeStyle = "#fff"
-                ctx.strokeText(f.text, f.x, f.y)
+                for (const layer of layers) {
+                    ctx.fillStyle = layer.color
+                    ctx.fillText(f.text, f.x + layer.dx * size, f.y + layer.dy * size)
+                }
+                if (stroke) {
+                    ctx.lineWidth = size * 0.18
+                    ctx.strokeStyle = stroke
+                    ctx.strokeText(f.text, f.x, f.y)
+                }
                 ctx.fillStyle = f.color
                 ctx.fillText(f.text, f.x, f.y)
             }

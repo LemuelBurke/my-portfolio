@@ -1,0 +1,23 @@
+/**********************************
+  HYPERSPACE (the secret channel's way in, on the Wii menu)
+**********************************/
+/* The hyperspace jump overlay on the Wii menu */
+.hyperspace {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+}
+
+/* the secret channel's card, freshly unlocked, pulses for a while */
+.menu-card-wrapper.is-new .wii-card,
+.is-new > .wii-card-wrap .wii-card {
+    animation: archive-new 1.4s ease-in-out 4;
+}
+
+@keyframes archive-new {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(143, 227, 255, 0); }
+    50% { box-shadow: 0 0 0 6px rgba(143, 227, 255, 0.9), 0 0 30px rgba(143, 227, 255, 0.8); }
+}

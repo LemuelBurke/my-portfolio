@@ -119,7 +119,7 @@ export const TABS = [
                 label: "Tesco",
                 icon: "van",
                 title: "Customer Delivery Driver · Tesco",
-                meta: "May 2024 – Present",
+                meta: "2024 – 2026",
                 text: ["Part-time delivery role involving customer interaction and responsibility for vehicle operation and customer service."],
             },
             {

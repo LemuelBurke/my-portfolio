@@ -61,7 +61,7 @@ export const EXPERIENCE = [
         kind: "work",
         title: "Customer Delivery Driver",
         org: "Tesco DotCom",
-        when: "May 2024 – Present",
+        when: "2024 – 2026",
         short: "2024",
         points: [],
     },

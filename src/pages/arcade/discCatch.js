@@ -1,12 +1,62 @@
-import { clamp, createFloaters, createParticles, glossyBlock, rand } from "./draw"
+import { clamp, createFloaters, createParticles, rand, roundRect } from "./draw"
 
 const LIVES = 3
+
+// Styled after the channel art: a dark stage, shiny silver discs with cyan rims, a glowing
+// catcher bar and rounded lettering
+const FONT = '"Comfortaa", system-ui, sans-serif'
+const STAGE = "#1c1f23"
+const CYAN = "#34beed"
+const TEXT_STYLE = { family: FONT, weight: 700, stroke: STAGE }
+
+// A silver (or gold) disc: brushed metal with a rainbow sheen that turns as it spins, a cyan
+// rim, a clear hub ring and a hole in the middle
+const disc = (ctx, x, y, r, spin, gold) => {
+    ctx.save()
+    ctx.translate(x, y)
+    const metal = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r)
+    metal.addColorStop(0, gold ? "#fff4cc" : "#f4f8fa")
+    metal.addColorStop(0.6, gold ? "#f2c24a" : "#c9d6de")
+    metal.addColorStop(1, gold ? "#c98b12" : "#9fb0bb")
+    ctx.fillStyle = metal
+    ctx.beginPath()
+    ctx.arc(0, 0, r, 0, Math.PI * 2)
+    ctx.fill()
+
+    if (ctx.createConicGradient) {
+        const sheen = ctx.createConicGradient(spin, 0, 0)
+        sheen.addColorStop(0, "rgba(255, 255, 255, 0.55)")
+        sheen.addColorStop(0.12, "rgba(140, 220, 255, 0.35)")
+        sheen.addColorStop(0.25, "rgba(255, 255, 255, 0)")
+        sheen.addColorStop(0.5, "rgba(255, 255, 255, 0.5)")
+        sheen.addColorStop(0.62, "rgba(190, 160, 255, 0.3)")
+        sheen.addColorStop(0.75, "rgba(255, 255, 255, 0)")
+        sheen.addColorStop(1, "rgba(255, 255, 255, 0.55)")
+        ctx.fillStyle = sheen
+        ctx.fill()
+    }
+
+    ctx.lineWidth = Math.max(2, r * 0.11)
+    ctx.strokeStyle = gold ? "#ffd95a" : "#8fdcf7"
+    ctx.stroke()
+    // hub ring and hole
+    ctx.fillStyle = "rgba(255, 255, 255, 0.35)"
+    ctx.beginPath()
+    ctx.arc(0, 0, r * 0.34, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.fillStyle = STAGE
+    ctx.beginPath()
+    ctx.arc(0, 0, r * 0.14, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.restore()
+}
 
 // Slide the tray to catch the discs as they fall. Golden discs are worth 5.
 // Drop three and it's game over; the discs come faster the longer you last.
 const discCatch = {
     title: "Disc Catch",
-    color: "#7cc576",
+    color: "#2a2f35",
+    theme: "disc",
     howTo: "Move your finger or mouse (or use the arrow keys) to slide the tray and catch the falling discs. Miss three and it's game over!",
     create({ setScore, setInfo, end, sfx }) {
         let w = 0
@@ -75,8 +125,8 @@ const discCatch = {
                         const pts = d.gold ? 5 : 1
                         score += pts
                         setScore(score)
-                        floaters.add(d.x, tray.y - 30 * s, `+${pts}`, d.gold ? "#f0a500" : "#1e9fcf")
-                        particles.burst(d.x, tray.y - 6 * s, d.gold ? "#ffc93c" : "#34beed", 8, 180 * s)
+                        floaters.add(d.x, tray.y - 30 * s, `+${pts}`, d.gold ? "#ffd95a" : "#e6f7ff")
+                        particles.burst(d.x, tray.y - 6 * s, d.gold ? "#ffd95a" : CYAN, 8, 180 * s)
                         sfx(d.gold ? 900 : 600, 0.08)
                         continue
                     }
@@ -98,53 +148,45 @@ const discCatch = {
             },
 
             draw(ctx) {
-                // Wii-menu white with soft pinstripes
-                ctx.fillStyle = "#f4f7f8"
+                // Dark stage, a touch lighter at the top
+                const bg = ctx.createLinearGradient(0, 0, 0, h)
+                bg.addColorStop(0, "#23272c")
+                bg.addColorStop(1, STAGE)
+                ctx.fillStyle = bg
                 ctx.fillRect(0, 0, w, h)
-                ctx.fillStyle = "#e8eef1"
-                for (let y = 0; y < h; y += 8 * s) ctx.fillRect(0, y, w, 3 * s)
 
-                for (const d of discs) {
-                    ctx.save()
-                    ctx.translate(d.x, d.y)
-                    ctx.rotate(d.spin)
-                    const g = ctx.createLinearGradient(-d.r, -d.r, d.r, d.r)
-                    if (d.gold) {
-                        g.addColorStop(0, "#fff3c4")
-                        g.addColorStop(0.5, "#ffc93c")
-                        g.addColorStop(1, "#e09a1a")
-                    } else {
-                        g.addColorStop(0, "#ffffff")
-                        g.addColorStop(0.45, "#d7e3ea")
-                        g.addColorStop(0.55, "#bfe9fa")
-                        g.addColorStop(1, "#c9d3d9")
-                    }
-                    ctx.fillStyle = g
-                    ctx.beginPath()
-                    ctx.arc(0, 0, d.r, 0, Math.PI * 2)
-                    ctx.fill()
-                    ctx.strokeStyle = d.gold ? "#e09a1a" : "#34beed"
-                    ctx.lineWidth = 2.5 * s
-                    ctx.stroke()
-                    ctx.fillStyle = "#f4f7f8"
-                    ctx.beginPath()
-                    ctx.arc(0, 0, d.r * 0.22, 0, Math.PI * 2)
-                    ctx.fill()
-                    ctx.restore()
-                }
+                // a cyan floor glow that follows the catcher
+                const glow = ctx.createRadialGradient(tray.x, h + 20 * s, 0, tray.x, h + 20 * s, Math.max(w, h) * 0.55)
+                glow.addColorStop(0, "rgba(52, 190, 237, 0.32)")
+                glow.addColorStop(0.45, "rgba(52, 190, 237, 0.1)")
+                glow.addColorStop(1, "rgba(52, 190, 237, 0)")
+                ctx.fillStyle = glow
+                ctx.fillRect(0, 0, w, h)
 
-                // the tray: a white Wii-style pill with a cyan rim
+                for (const d of discs) disc(ctx, d.x, d.y, d.r, d.spin, d.gold)
+
+                // the catcher: a glowing white bar with a cyan rim
                 const tw = tray.w
-                glossyBlock(ctx, tray.x - tw / 2, tray.y, tw, 18 * s, 9 * s, "#ffffff")
-                ctx.strokeStyle = "#34beed"
+                const th = 16 * s
+                ctx.save()
+                ctx.shadowColor = "rgba(52, 190, 237, 0.85)"
+                ctx.shadowBlur = 22 * s
+                roundRect(ctx, tray.x - tw / 2, tray.y, tw, th, th / 2)
+                const bar = ctx.createLinearGradient(0, tray.y, 0, tray.y + th)
+                bar.addColorStop(0, "#ffffff")
+                bar.addColorStop(1, "#d6f3ff")
+                ctx.fillStyle = bar
+                ctx.fill()
+                ctx.restore()
                 ctx.lineWidth = 3 * s
+                ctx.strokeStyle = CYAN
                 ctx.stroke()
 
                 particles.draw(ctx)
-                floaters.draw(ctx, 24 * s)
+                floaters.draw(ctx, 24 * s, TEXT_STYLE)
 
                 if (flash > 0) {
-                    ctx.fillStyle = `rgba(255, 80, 80, ${flash * 0.5})`
+                    ctx.fillStyle = `rgba(255, 80, 80, ${flash * 0.45})`
                     ctx.fillRect(0, 0, w, h)
                 }
             },

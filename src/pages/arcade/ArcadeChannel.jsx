@@ -1,6 +1,10 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { useCallback, useEffect, useRef, useState } from "react"
 import "../../styles/arcade.css"
+// each game is lettered like its channel art
+import "@fontsource/fredoka/700.css"
+import "@fontsource/bungee/400.css"
+import "@fontsource/comfortaa/700.css"
 import arcadeMusic from "../../assets/audio/wiiSports.mp3"
 import clickCursor from "../../assets/imgs/cursor-normal2.png"
 
@@ -25,7 +29,7 @@ const writeStore = (key, value) => {
 
 /*
  * A Wii-style arcade channel that hosts one canvas game. A game is an object with a title,
- * colour, how-to text and create(callbacks), which returns { resize, update, draw } plus any of
+ * colour, theme (which styles the bar and menus to match its channel art), how-to text and create(callbacks), which returns { resize, update, draw } plus any of
  * pointerDown, pointerMove, keyDown and keyUp. The shell owns the canvas, loop, score and menus.
  */
 const ArcadeChannel = ({ game, onExit }) => {
@@ -195,7 +199,7 @@ const ArcadeChannel = ({ game, onExit }) => {
 
     return (
         <motion.div
-            className="arcade-page"
+            className={`arcade-page theme-${game.theme}`}
             style={{ "--game-color": game.color }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -226,7 +230,7 @@ const ArcadeChannel = ({ game, onExit }) => {
                     Best <strong>{best}</strong>
                 </span>
                 <button type="button" className="arcade-pill arcade-mute" onClick={toggleMute} aria-label={muted ? "Turn sound on" : "Turn sound off"}>
-                    {muted ? "🔇" : "🔊"}
+                    <SpeakerIcon muted={muted} />
                 </button>
             </div>
 
@@ -273,5 +277,16 @@ const ArcadeChannel = ({ game, onExit }) => {
         </motion.div>
     )
 }
+
+const SpeakerIcon = ({ muted }) => (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M4 9.5 H7.5 L12 5.5 V18.5 L7.5 14.5 H4 Z" fill="currentColor" strokeLinejoin="round" stroke="currentColor" strokeWidth="1.5" />
+        {muted ? (
+            <path d="M15.5 9.5 L20.5 14.5 M20.5 9.5 L15.5 14.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+        ) : (
+            <path d="M15.5 9 Q17.5 12 15.5 15 M18 6.5 Q22 12 18 17.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        )}
+    </svg>
+)
 
 export default ArcadeChannel

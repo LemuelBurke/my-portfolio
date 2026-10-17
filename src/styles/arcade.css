@@ -16,6 +16,12 @@
     -webkit-user-select: none;
 }
 
+.arcade-page *,
+.arcade-page *::before,
+.arcade-page *::after {
+    box-sizing: border-box;
+}
+
 .arcade-stage {
     position: absolute;
     inset: 0;
@@ -82,11 +88,15 @@
 }
 
 .arcade-mute {
-    cursor: pointer;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 40px;
     padding: 6px 10px;
+    cursor: pointer;
 }
 
 .arcade-exit {
+    min-height: 44px;
     padding: 6px 18px;
     font: inherit;
     font-weight: 700;
@@ -207,4 +217,269 @@
     width: 1.5em;
     height: 1.5em;
     margin: -0.25em 0;
+}
+
+/**********************************
+  THEMES
+  Each game's bar, menus and buttons are styled after its channel art.
+**********************************/
+
+/* Bubble Pop: under the sea. Clear glass, white rims, chunky yellow lettering outlined in navy */
+.theme-bubble {
+    --arcade-cyan: #ffffff;
+    --bubble-navy: #0d3b72;
+    --bubble-yellow: #ffd95a;
+    background: #0a92cd;
+}
+
+.theme-bubble .arcade-pill {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.85);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 4px 12px rgba(5, 40, 90, 0.25);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+.theme-bubble .arcade-title,
+.theme-bubble .arcade-card-title,
+.theme-bubble .arcade-card-score strong,
+.theme-bubble .arcade-btn {
+    font-family: "Fredoka", system-ui, sans-serif;
+    font-weight: 700;
+}
+
+.theme-bubble .arcade-title {
+    color: var(--bubble-yellow);
+    background: rgba(13, 59, 114, 0.6);
+    border-color: var(--bubble-yellow);
+}
+
+.theme-bubble .arcade-info {
+    color: var(--bubble-yellow);
+}
+
+.theme-bubble .arcade-overlay {
+    background: rgba(10, 79, 153, 0.3);
+}
+
+/* the card is a big soap bubble */
+.theme-bubble .arcade-card {
+    color: #fff;
+    background:
+        radial-gradient(ellipse 40% 22% at 26% 12%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 70%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.06) 40%, rgba(255, 255, 255, 0.22) 100%);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    border-radius: 40px;
+    box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.2), 0 20px 50px rgba(5, 40, 90, 0.35);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+.theme-bubble .arcade-card-title,
+.theme-bubble .arcade-card-score strong {
+    color: var(--bubble-yellow);
+    -webkit-text-stroke: 0.22em var(--bubble-navy);
+    paint-order: stroke fill;
+}
+
+.theme-bubble .arcade-card-title {
+    font-size: clamp(2.1rem, 8vw, 2.9rem);
+    line-height: 1.1;
+}
+
+.theme-bubble .arcade-card-text {
+    font-size: 1.05rem;
+    text-shadow: 0 1px 3px rgba(5, 40, 90, 0.45);
+}
+
+.theme-bubble .arcade-card-best {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.theme-bubble .arcade-btn {
+    color: var(--bubble-navy);
+    background: rgba(255, 255, 255, 0.92);
+    border-color: #fff;
+}
+
+.theme-bubble .arcade-btn:hover {
+    background: #fff;
+}
+
+.theme-bubble .arcade-btn-primary {
+    background: var(--bubble-yellow);
+    border-color: var(--bubble-navy);
+}
+
+.theme-bubble .arcade-btn-primary:hover {
+    background: #ffe27e;
+}
+
+/* Sky Stacker: a starry purple night. Rainbow blocks and blocky white lettering with
+   yellow and pink drop layers */
+.theme-sky {
+    --arcade-cyan: #ff5fa2;
+    background: #2a1d63;
+}
+
+.theme-sky .arcade-pill {
+    color: #fff;
+    background: rgba(29, 20, 80, 0.72);
+    border-color: rgba(176, 140, 255, 0.85);
+}
+
+.theme-sky .arcade-title,
+.theme-sky .arcade-card-title,
+.theme-sky .arcade-card-score strong,
+.theme-sky .arcade-btn {
+    font-family: "Bungee", system-ui, sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+}
+
+.theme-sky .arcade-title {
+    background: #ff5fa2;
+    border-color: #fff;
+}
+
+.theme-sky .arcade-info {
+    color: #ffc93c;
+}
+
+.theme-sky .arcade-overlay {
+    background: rgba(20, 12, 60, 0.45);
+}
+
+.theme-sky .arcade-card {
+    color: #fff;
+    background: linear-gradient(180deg, #3b2783 0%, #24185a 100%);
+    border: 3px solid #b08cff;
+    border-radius: 22px;
+    box-shadow: 0 18px 50px rgba(10, 5, 40, 0.5), inset 0 2px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* the drop layers are the channel art's lettering, taken as-is */
+.theme-sky .arcade-card-title {
+    font-size: clamp(1.8rem, 7vw, 2.5rem);
+    line-height: 1.15;
+    color: #fff;
+    text-shadow: 0.06em 0.06em 0 #ffc93c, 0.12em 0.12em 0 #ff5fa2;
+}
+
+.theme-sky .arcade-card-score strong {
+    color: #fff;
+    text-shadow: 0.05em 0.05em 0 #ffc93c, 0.1em 0.1em 0 #ff5fa2;
+}
+
+.theme-sky .arcade-card-text {
+    color: #ece6ff;
+}
+
+.theme-sky .arcade-card-best {
+    color: #cdbdff;
+}
+
+/* buttons are blocks off the tower */
+.theme-sky .arcade-btn {
+    color: #fff;
+    font-size: 0.95rem;
+    background: #4a3596;
+    border: none;
+    border-radius: 12px;
+    box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.2), inset 0 -4px 0 rgba(20, 5, 50, 0.25);
+}
+
+.theme-sky .arcade-btn:hover {
+    background: #5841ad;
+}
+
+.theme-sky .arcade-btn-primary {
+    background: #ff5fa2;
+}
+
+.theme-sky .arcade-btn-primary:hover {
+    background: #ff74b0;
+}
+
+/* Disc Catch: a dark stage. Silver discs, cyan glow and brushed-metal lettering */
+.theme-disc {
+    --arcade-cyan: #34beed;
+    background: #1c1f23;
+}
+
+.theme-disc .arcade-pill {
+    color: #e6f2f8;
+    background: rgba(40, 45, 51, 0.88);
+    border-color: rgba(52, 190, 237, 0.7);
+}
+
+.theme-disc .arcade-title,
+.theme-disc .arcade-card-title,
+.theme-disc .arcade-card-score strong,
+.theme-disc .arcade-btn {
+    font-family: "Comfortaa", system-ui, sans-serif;
+    font-weight: 700;
+}
+
+.theme-disc .arcade-title {
+    color: #1c1f23;
+    background: linear-gradient(180deg, #f4f7f9 0%, #a7b3bb 100%);
+    border-color: #34beed;
+}
+
+.theme-disc .arcade-info {
+    color: #ff9a9a;
+}
+
+.theme-disc .arcade-overlay {
+    background: rgba(14, 16, 19, 0.55);
+}
+
+.theme-disc .arcade-card {
+    color: #d9e3e9;
+    background: linear-gradient(180deg, #2b3036 0%, #1f2327 100%);
+    border: 2px solid rgba(52, 190, 237, 0.85);
+    box-shadow: 0 0 34px rgba(52, 190, 237, 0.22), 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* brushed silver, like the channel art's title */
+.theme-disc .arcade-card-title,
+.theme-disc .arcade-card-score strong {
+    color: transparent;
+    background: linear-gradient(180deg, #ffffff 0%, #ccd5da 44%, #7d8890 56%, #e6eaed 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+.theme-disc .arcade-card-title {
+    font-size: clamp(2.1rem, 7.5vw, 2.8rem);
+    line-height: 1.2;
+    /* a soft shadow under the metal gives the thin-stroked face the weight of the channel art */
+    filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.55)) drop-shadow(0 0 1px rgba(255, 255, 255, 0.4));
+}
+
+.theme-disc .arcade-card-best {
+    color: #8e9aa2;
+}
+
+.theme-disc .arcade-btn {
+    color: #d9e3e9;
+    background: #2b3036;
+    border-color: #4a535b;
+}
+
+.theme-disc .arcade-btn:hover {
+    background: #353b42;
+}
+
+.theme-disc .arcade-btn-primary {
+    color: #1c1f23;
+    background: #ffffff;
+    border-color: #34beed;
+    box-shadow: 0 0 18px rgba(52, 190, 237, 0.55);
+}
+
+.theme-disc .arcade-btn-primary:hover {
+    background: #eefaff;
 }

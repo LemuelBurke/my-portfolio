@@ -22,6 +22,15 @@ const FILL = 0.84
 const FOOT_MARGIN = 0.03
 // Near straight-on with no perspective, to match the flat, front-on shopfronts
 const CAMERA_TILT = THREE.MathUtils.degToRad(3)
+// Holding a flag (About Me): the left arm lifts out to the side, the forearm bends up, and the
+// view widens so the flag above his head fits in the frame
+const FLAG_ARM_RAISE = 1.15
+const FLAG_FOREARM_BEND = 0.95
+const FLAG_HEADROOM = 1.8
+const POLE_LENGTH = 1.0
+const POLE_GRIP = 0.12 // how far above the bottom of the pole the hand holds it
+const CLOTH_W = 0.46
+const CLOTH_H = 0.31
 
 const X_AXIS = new THREE.Vector3(1, 0, 0)
 const Z_AXIS = new THREE.Vector3(0, 0, 1)
@@ -49,9 +58,12 @@ const poseBone = (bone, rest, axis, angle) => {
  * plus an optional `waveNow` flag that starts a wave immediately (it's cleared once read).
  * While `busy` (e.g. going through a door) the Mii won't start waving.
  * heading 0 faces the camera; positive turns towards screen-right.
+ * `flag` (an image URL, optional) puts a flag on a pole in his left hand; null lowers it again.
+ * Pass `holdsFlag` to frame the Mii with room for the flag above his head.
  */
-const MiiModel = ({ stateRef, onReady }) => {
+const MiiModel = ({ stateRef, onReady, flag = null, holdsFlag = false }) => {
     const mountRef = useRef(null)
+    const setFlagRef = useRef(null)
 
     useEffect(() => {
         const mount = mountRef.current
@@ -92,19 +104,80 @@ const MiiModel = ({ stateRef, onReady }) => {
         const rest = {}
         let disposed = false
 
+        // The flag: a white pole with a gold knob, and a cloth hinged on the pole that ripples
+        const flagGroup = new THREE.Group()
+        flagGroup.visible = false
+        scene.add(flagGroup)
+        const pole = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.012, 0.012, POLE_LENGTH, 10),
+            new THREE.MeshLambertMaterial({ color: 0xf4f4f4 })
+        )
+        pole.position.y = POLE_LENGTH / 2 - POLE_GRIP
+        flagGroup.add(pole)
+        const knob = new THREE.Mesh(new THREE.SphereGeometry(0.028, 12, 10), new THREE.MeshLambertMaterial({ color: 0xf2c230 }))
+        knob.position.y = POLE_LENGTH - POLE_GRIP
+        flagGroup.add(knob)
+        const clothGeo = new THREE.PlaneGeometry(CLOTH_W, CLOTH_H, 20, 10)
+        clothGeo.translate(CLOTH_W / 2, 0, 0) // hinge the cloth on the pole
+        const clothRest = clothGeo.attributes.position.array.slice()
+        const clothMat = new THREE.MeshLambertMaterial({ side: THREE.DoubleSide })
+        const cloth = new THREE.Mesh(clothGeo, clothMat)
+        cloth.position.set(0.012, POLE_LENGTH - POLE_GRIP - 0.012 - CLOTH_H / 2, 0)
+        flagGroup.add(cloth)
+        let flagWanted = false
+        const flagTextures = {}
+        const loadFlag = async (url) => {
+            if (!flagTextures[url]) {
+                flagTextures[url] = (async () => {
+                    // the SVGs have no width/height, which some browsers need before drawing them to a canvas
+                    const svg = (await (await fetch(url)).text()).replace("<svg ", '<svg width="640" height="480" ')
+                    const blobUrl = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }))
+                    const img = new Image()
+                    img.src = blobUrl
+                    await img.decode()
+                    const canvas = document.createElement("canvas")
+                    canvas.width = 512
+                    canvas.height = 384
+                    canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height)
+                    URL.revokeObjectURL(blobUrl)
+                    const texture = new THREE.CanvasTexture(canvas)
+                    texture.colorSpace = THREE.SRGBColorSpace
+                    texture.anisotropy = 4
+                    return texture
+                })()
+            }
+            return flagTextures[url]
+        }
+        let flagRequest = 0
+        setFlagRef.current = (url) => {
+            const request = ++flagRequest
+            if (!url) {
+                flagWanted = false
+                return
+            }
+            loadFlag(url)
+                .then((texture) => {
+                    if (disposed || request !== flagRequest) return
+                    clothMat.map = texture
+                    clothMat.needsUpdate = true
+                    flagWanted = true
+                })
+                .catch(() => { }) // no flag if it can't load; the Mii just stands as usual
+        }
+
         new GLTFLoader().load(miiModelUrl, (gltf) => {
             if (disposed) return
             pivot.add(gltf.scene)
 
             const box = new THREE.Box3().setFromObject(gltf.scene)
-            visible = (box.max.y - box.min.y) / FILL
+            visible = ((box.max.y - box.min.y) / FILL) * (holdsFlag ? FLAG_HEADROOM : 1)
             const aimY = box.min.y - FOOT_MARGIN * visible + visible / 2
             const distance = 10
             camera.position.set(0, aimY + Math.sin(CAMERA_TILT) * distance, Math.cos(CAMERA_TILT) * distance)
             camera.lookAt(0, aimY, 0)
             updateFrustum()
             gltf.scene.traverse((obj) => {
-                if (obj.isBone || ["Arm_1_L", "Arm_1_R", "Arm_2_R", "Leg_1_L", "Leg_1_R", "Leg_2_L", "Leg_2_R", "Spine_1", "Head"].includes(obj.name)) {
+                if (obj.isBone || ["Arm_1_L", "Arm_1_R", "Arm_2_L", "Arm_2_R", "Wrist_L", "Leg_1_L", "Leg_1_R", "Leg_2_L", "Leg_2_R", "Spine_1", "Head"].includes(obj.name)) {
                     bones[obj.name] = obj
                     rest[obj.name] = obj.quaternion.clone()
                 }
@@ -131,6 +204,7 @@ const MiiModel = ({ stateRef, onReady }) => {
         let idleTime = 0
         let waveTime = -1 // seconds into the current wave, or -1 when not waving
         let waveBlend = 0
+        let flagBlend = 0
         let last = performance.now()
         let frame
         let skipNext = false
@@ -195,14 +269,16 @@ const MiiModel = ({ stateRef, onReady }) => {
                 poseBone(bones.Head, rest.Head, sideAxis, breathe * 0.5)
 
                 // The model's left arm sits on +X, so it tucks in with a negative rotation
-                poseBone(bones.Arm_1_L, rest.Arm_1_L, frontAxis, -(ARM_TUCK + breathe))
+                // (and lifts out to hold a flag with a positive one)
+                flagBlend += ((flagWanted ? 1 : 0) - flagBlend) * Math.min(1, dt * 6)
+                poseBone(bones.Arm_1_L, rest.Arm_1_L, frontAxis, THREE.MathUtils.lerp(-(ARM_TUCK + breathe), FLAG_ARM_RAISE, flagBlend))
                 poseBone(bones.Arm_1_R, rest.Arm_1_R, frontAxis,
                     THREE.MathUtils.lerp(ARM_TUCK + breathe, WAVE_ARM_RAISE, waveBlend))
                 bones.Arm_1_L.updateMatrixWorld(true)
                 bones.Arm_1_R.updateMatrixWorld(true)
                 // then swing them forward/back, opposite to the legs
                 // (positive rotation about the side axis swings a hanging limb backwards)
-                poseBone(bones.Arm_1_L, bones.Arm_1_L.quaternion.clone(), sideAxis, swing * ARM_SWING)
+                poseBone(bones.Arm_1_L, bones.Arm_1_L.quaternion.clone(), sideAxis, swing * ARM_SWING * (1 - flagBlend * 0.7))
                 poseBone(bones.Arm_1_R, bones.Arm_1_R.quaternion.clone(), sideAxis, -swing * ARM_SWING)
 
                 poseBone(bones.Leg_1_L, rest.Leg_1_L, sideAxis, -swing * LEG_SWING)
@@ -213,10 +289,32 @@ const MiiModel = ({ stateRef, onReady }) => {
                 bones.Arm_1_R.updateMatrixWorld(true)
                 const wag = reduceMotion ? 0 : Math.sin(now / 1000 * WAVE_SPEED) * 0.5
                 poseBone(bones.Arm_2_R, rest.Arm_2_R, frontAxis, wag * waveBlend)
+                bones.Arm_1_L.updateMatrixWorld(true)
+                poseBone(bones.Arm_2_L, rest.Arm_2_L, frontAxis, FLAG_FOREARM_BEND * flagBlend)
 
                 // bend the knee of whichever leg is trailing behind
                 poseBone(bones.Leg_2_L, rest.Leg_2_L, sideAxis, Math.max(0, -swing) * KNEE_BEND)
                 poseBone(bones.Leg_2_R, rest.Leg_2_R, sideAxis, Math.max(0, swing) * KNEE_BEND)
+            }
+
+            // Keep the flag in his left hand, upright, turning with him; the cloth ripples in the breeze
+            flagGroup.visible = flagBlend > 0.05 && Boolean(bones.Wrist_L)
+            if (flagGroup.visible) {
+                bones.Wrist_L.updateMatrixWorld(true)
+                bones.Wrist_L.getWorldPosition(flagGroup.position)
+                flagGroup.quaternion.copy(pivot.quaternion)
+                flagGroup.scale.setScalar(flagBlend)
+                const t = now / 1000
+                const pos = clothGeo.attributes.position
+                for (let i = 0; i < pos.count; i++) {
+                    const x = clothRest[i * 3]
+                    const along = x / CLOTH_W // pinned at the pole, freest at the far edge
+                    const ripple = reduceMotion ? 0 : Math.sin(x * 11 - t * 6) * 0.04 * along
+                    pos.setZ(i, ripple)
+                    pos.setY(i, clothRest[i * 3 + 1] - along * along * 0.03)
+                }
+                pos.needsUpdate = true
+                clothGeo.computeVertexNormals()
             }
 
             renderer.render(scene, camera)
@@ -226,6 +324,8 @@ const MiiModel = ({ stateRef, onReady }) => {
 
         return () => {
             disposed = true
+            setFlagRef.current = null
+            Object.values(flagTextures).forEach((p) => p.then((t) => t.dispose()).catch(() => { }))
             cancelAnimationFrame(frame)
             observer.disconnect()
             scene.traverse((obj) => {
@@ -239,7 +339,12 @@ const MiiModel = ({ stateRef, onReady }) => {
             renderer.dispose()
             renderer.domElement.remove()
         }
-    }, [stateRef, onReady])
+    }, [stateRef, onReady, holdsFlag])
+
+    // hand the flag to the scene (after the scene effect above has set it up)
+    useEffect(() => {
+        setFlagRef.current?.(flag)
+    }, [flag, holdsFlag])
 
     return <div className="plaza-mii-3d" ref={mountRef} />
 }

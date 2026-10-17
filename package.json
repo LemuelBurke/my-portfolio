@@ -22,9 +22,17 @@
     "vite": "^5.0.0"
   },
   "dependencies": {
+    "@fontsource/bungee": "^5.2.7",
+    "@fontsource/comfortaa": "^5.2.8",
+    "@fontsource/exo-2": "^5.2.6",
+    "@fontsource/fredoka": "^5.2.8",
+    "@fontsource/michroma": "^5.2.5",
+    "flag-icons": "^7.2.3",
     "framer-motion": "^12.23.25",
     "react": "^19.2.1",
     "react-router-dom": "^7.10.1",
-    "three": "^0.170.0"
+    "three": "^0.170.0",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
   }
 }

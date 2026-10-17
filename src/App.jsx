@@ -8,6 +8,7 @@ import wiimenu from './assets/audio/wiimenu.mp3'
 import IntermissionOverlay from './pages/components/intermissionOverlay'
 import PauseOverlay from './pages/components/pauseOverlay'
 import { ARCADE_TITLES } from './pages/arcade/arcadeTitles'
+import { ARCHIVE_TITLE } from './pages/secret/galaxyContent'
 
 export const SoundContext = createContext({
     playSound: () => { },
@@ -137,7 +138,7 @@ function App() {
     // Channel management functions
     const openChannel = (channelId) => {
         // Show intermission for specific "game" screens
-        if (channelId === 'About Me' || channelId === 'Resume and CV' || channelId === 'My Projects' || channelId === 'Message Me' || ARCADE_TITLES.includes(channelId)) {
+        if (channelId === 'About Me' || channelId === 'Resume and CV' || channelId === 'My Projects' || channelId === 'Message Me' || channelId === ARCHIVE_TITLE || ARCADE_TITLES.includes(channelId)) {
             setIsIntermission(true)
             pendingChannelRef.current = channelId
             intermissionTimerRef.current = setTimeout(() => {

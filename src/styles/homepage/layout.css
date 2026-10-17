@@ -79,7 +79,18 @@
     height: 100%;
     object-fit: contain;
     animation: disc-rotate 6s linear infinite;
-    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+    /* turn on its own compositor layer, so spinning never repaints it */
+    will-change: transform;
+}
+
+/* the disc's shadow sits on the still wrapper (a round disc's shadow looks the same at every angle),
+   so it isn't recomputed on every frame of the spin the way a filter on the spinning image is */
+.spinning-disc::before {
+    content: "";
+    position: absolute;
+    inset: 4%;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes disc-rotate {

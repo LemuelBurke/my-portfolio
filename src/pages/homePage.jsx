@@ -1,5 +1,5 @@
 ﻿import { motion, AnimatePresence } from "framer-motion"
-import { useState, useRef, useEffect, useMemo } from "react"
+import { useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback, lazy, Suspense } from "react"
 import "../styles/homepage/index.css"
 import MenuCard from "./components/menuCard"
 import AboutMeMii from "./aboutMeMii"
@@ -10,7 +10,7 @@ import ArcadeChannel from "./arcade/ArcadeChannel"
 import { ARCADE_GAMES } from "./arcade/arcadeGames"
 
 // Thumnail Imports
-import Img from "../assets/imgs/thumbnails/placeholderCardImg.png"
+import Img from "../assets/imgs/thumbnails/placeholder-card.webp"
 import miiMorgan from "../assets/imgs/thumbnails/about-me.webp"
 import miiMorganFull from "../assets/imgs/thumbnails/about-me-full.webp"
 import projectImg from "../assets/imgs/thumbnails/project-street.webp"
@@ -20,7 +20,7 @@ import linkedFULLimg from "../assets/imgs/thumbnails/linkedin-full.webp"
 import githubFULLimg from "../assets/imgs/thumbnails/github-full.webp"
 import projectFULLimg from "../assets/imgs/thumbnails/project-street-full.webp"
 import cvFULLimg from "../assets/imgs/thumbnails/cv-board-full.webp"
-import discImg from "../assets/imgs/disc.webp"
+import discImg from "../assets/imgs/disc-small.webp"
 
 import NextArrow from "./components/nextPage"
 import wiiArrowImg from "../assets/imgs/wiiArrow.svg"
@@ -33,9 +33,32 @@ import messageMeFullImg from "../assets/imgs/thumbnails/message-me-full.webp"
 import userCursor from "../assets/imgs/user-cursor-med.png"
 import footerImg from "../assets/imgs/footer_img.png"
 import cvImg from "../assets/imgs/thumbnails/cv-board.webp"
+import archiveImg from "../assets/imgs/thumbnails/galaxy-map.webp"
+import archiveFullImg from "../assets/imgs/thumbnails/galaxy-map-full.webp"
+import Hyperspace from "./secret/Hyperspace"
+import { ARCHIVE_TITLE } from "./secret/galaxyContent"
 
-const formatTime = (date) => date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-const formatDate = (date) => date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'numeric' })
+// The secret channel only loads once someone finds it
+const SecretChannel = lazy(() => import("./secret/SecretChannel"))
+
+// ↑ ↑ ↓ ↓ ← → ← → B A on the Wii menu jumps to hyperspace
+const KONAMI = ["arrowup", "arrowup", "arrowdown", "arrowdown", "arrowleft", "arrowright", "arrowleft", "arrowright", "b", "a"]
+// Finding the channel lasts for this visit only: it's kept in memory (so it survives going into
+// channels and back to the menu), never saved, so every new visit has to enter the code again.
+// An older version saved it in the browser; clear that so those visitors start locked too.
+let unlockedThisVisit = false
+try {
+    localStorage.removeItem("imperial-archives-unlocked")
+} catch {
+    // storage unavailable: nothing saved to clear
+}
+const readUnlocked = () => unlockedThisVisit
+
+// (the formatters are made once: building one is slow, and the clock asks every second)
+const timeFormat = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+const dateFormat = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'numeric' })
+const formatTime = (date) => timeFormat.format(date)
+const formatDate = (date) => dateFormat.format(date)
 
 // The footer clock ticks on its own, so the rest of the menu doesn't redraw every second
 const FooterClock = ({ className, format }) => {
@@ -58,6 +81,13 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
     const [swipeDirection, setSwipeDirection] = useState(0) // -1 prev, 1 next
     const menuGridRef = useRef(null)
     const totalPages = 2
+
+    // The hidden Star Wars channel (the galaxy map): unlocked by the Konami code (or five quick taps on the
+    // footer's Wii button, for phones), with a jump to hyperspace that reveals its card on page 2
+    const [archiveUnlocked, setArchiveUnlocked] = useState(readUnlocked)
+    const [jumping, setJumping] = useState(false)
+    const [archiveIsNew, setArchiveIsNew] = useState(false)
+    const wiiTapsRef = useRef([])
 
     // Key to force re-mounting menu pages to replay animations
     const [menuAnimKey, setMenuAnimKey] = useState(0)
@@ -108,16 +138,77 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                 fullImage: Img
             }))
         ];
+        // once found, the secret channel takes the first slot on page 2
+        if (archiveUnlocked) allGames[12] = { title: ARCHIVE_TITLE, thumbnail: archiveImg, fullImage: archiveFullImg }
         return allGames;
-    }, []);
+    }, [archiveUnlocked]);
 
-    // When closing selected game, force menu pages to re-mount to replay card animations
+    const jumpToHyperspace = useCallback(() => {
+        if (!jumping) setJumping(true)
+    }, [jumping])
+
+    // At the height of the flash: unlock the channel and bring its card into view
+    const arriveFromHyperspace = useCallback(() => {
+        unlockedThisVisit = true
+        setArchiveUnlocked(true)
+        setArchiveIsNew(true)
+        const grid = menuGridRef.current
+        if (window.innerWidth >= 1024) {
+            setCurrentPage(1)
+            grid?.scrollTo({ left: grid.clientWidth })
+        } else {
+            requestAnimationFrame(() => document.querySelector("#page-2 .wii-card")?.scrollIntoView({ block: "center" }))
+        }
+    }, [])
+
+    // Listen for the code while the menu itself is showing
     useEffect(() => {
-        if (selectedGameIndex === null) {
+        if (activeChannel || selectedGameIndex !== null) return
+        let progress = 0
+        const onKeyDown = (e) => {
+            const key = e.key.toLowerCase()
+            progress = key === KONAMI[progress] ? progress + 1 : key === KONAMI[0] ? 1 : 0
+            if (progress === KONAMI.length) {
+                progress = 0
+                jumpToHyperspace()
+            }
+        }
+        window.addEventListener("keydown", onKeyDown)
+        return () => window.removeEventListener("keydown", onKeyDown)
+    }, [activeChannel, selectedGameIndex, jumpToHyperspace])
+
+    // Five taps on the footer's Wii button within a couple of seconds does the same
+    const handleWiiButton = () => {
+        const now = Date.now()
+        wiiTapsRef.current = [...wiiTapsRef.current.filter((t) => now - t < 2500), now]
+        if (wiiTapsRef.current.length >= 5) {
+            wiiTapsRef.current = []
+            jumpToHyperspace()
+        }
+    }
+
+    // When closing selected game, force menu pages to re-mount to replay card animations (only on
+    // closing: on first load the cards are already animating in, and remounting them all again
+    // straight away doubled the work of showing the menu)
+    const hadSelection = useRef(false)
+    useEffect(() => {
+        if (selectedGameIndex === null && hadSelection.current) {
             // small tick to change key and re-trigger animations
             setMenuAnimKey(prev => prev + 1)
         }
+        hadSelection.current = selectedGameIndex !== null
     }, [selectedGameIndex])
+
+    // Opening a channel unmounts the menu, so when it comes back, scroll it straight to the page
+    // it was on; otherwise it shows page 1 while the arrows still think they're on page 2
+    useLayoutEffect(() => {
+        const grid = menuGridRef.current
+        if (activeChannel || !grid) return
+        if (window.innerWidth >= 1024) grid.scrollLeft = currentPage * grid.clientWidth
+        else if (currentPage !== 0) setCurrentPage(0)
+        // only when the menu mounts again, not on every page change (the arrows scroll it themselves)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeChannel])
 
     const handleNext = () => {
         if (currentPage < totalPages - 1 && window.innerWidth >= 1024) {
@@ -234,6 +325,14 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
         return <LetterChannel onExit={onChannelClose} />
     }
 
+    if (activeChannel === ARCHIVE_TITLE) {
+        return (
+            <Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#03060f" }} />}>
+                <SecretChannel onExit={onChannelClose} />
+            </Suspense>
+        )
+    }
+
     // Arcade games each run in their own channel
     const arcadeGame = ARCADE_GAMES.find((g) => g.title === activeChannel)
     if (arcadeGame) {
@@ -241,7 +340,7 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
     }
 
     // Known channels that render dedicated pages
-    const knownChannels = new Set(["About Me", "Resume and CV", "My Projects", "Message Me", ...ARCADE_GAMES.map((g) => g.title)])
+    const knownChannels = new Set(["About Me", "Resume and CV", "My Projects", "Message Me", ARCHIVE_TITLE, ...ARCADE_GAMES.map((g) => g.title)])
 
     return (
         <div>
@@ -312,10 +411,6 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                                     <motion.div
                                         key={`page1-${i}-${menuAnimKey}`}
                                         variants={cardVariants}
-                                        whileHover={{
-                                            scale: 1.05,
-                                            transition: { duration: 0.2 }
-                                        }}
                                         className="menu-card-wrapper"
                                     >
                                         {i === 0 && (
@@ -344,11 +439,8 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                                 {games.slice(12, 24).map((game, i) => (
                                     <motion.div
                                         key={`page2-${i}-${menuAnimKey}`}
+                                        className={i === 0 && archiveIsNew ? "is-new" : undefined}
                                         variants={cardVariants}
-                                        whileHover={{
-                                            scale: 1.05,
-                                            transition: { duration: 0.2 }
-                                        }}
                                     >
                                         <MenuCard
                                             title={game.title}
@@ -380,7 +472,7 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                             {/* Wii button on the left */}
                             <button 
                                 className="footer-wii-button"
-                                onClick={() => console.log('Wii button clicked')}
+                                onClick={handleWiiButton}
                             >
                                 Wii
                             </button>
@@ -454,6 +546,9 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                     />
                 )}
             </AnimatePresence>
+
+            {/* The jump to hyperspace that reveals the secret channel */}
+            {jumping && <Hyperspace onJump={arriveFromHyperspace} onDone={() => setJumping(false)} />}
 
             {/* Channel Overlay */}
             <AnimatePresence>

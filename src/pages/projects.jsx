@@ -79,7 +79,7 @@ const SHOPS = [
         id: "cardiff-autonomous-racing",
         title: "Autonomous Racing",
         subtitle: "Founder & Team Principal",
-        date: "Jul 2024",
+        date: "Sep 2024",
         thumb: carThumb,
         scene: "photo",
         color: "#c8102e",

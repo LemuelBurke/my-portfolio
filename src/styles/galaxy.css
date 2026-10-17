@@ -1,0 +1,2100 @@
+/**********************************
+  GALAXY MAP (the hidden channel's hub) and ILUM
+  Builds on imperialArchives.css, which holds the shared holo tokens, the crawl, frames, buttons
+  and the rail buttons.
+**********************************/
+.galaxy-channel {
+    --pin: var(--holo);
+}
+
+.galaxy-loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--display);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--holo-dim);
+    background: var(--space);
+}
+
+/* ---------- the map ---------- */
+.hub,
+.galaxy-map,
+.galaxy-view {
+    position: absolute;
+    inset: 0;
+}
+
+.galaxy-view canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    touch-action: none;
+    cursor: grab;
+}
+
+.galaxy-view canvas:active {
+    cursor: grabbing;
+}
+
+.galaxy-labels {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.hub-vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 80% 75% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+/* region names along their rings */
+.map-region {
+    position: absolute;
+    left: 0;
+    top: 0;
+    translate: -50% -50%;
+    font-family: var(--display);
+    font-size: 0.55rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: rgba(116, 216, 255, 0.5);
+    transition: opacity 0.3s ease;
+}
+
+.map-region.is-unknown {
+    color: rgba(255, 154, 122, 0.6);
+}
+
+.map-region.is-coruscant {
+    translate: -50% calc(-100% - 8px);
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* a pin's label: a real button, standing on top of its beam */
+.map-pin {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    translate: -50% calc(-100% - 10px);
+    padding: 6px 10px;
+    font: inherit;
+    white-space: nowrap;
+    color: var(--pin);
+    background: rgba(2, 6, 14, 0.55);
+    border: 1px solid color-mix(in srgb, var(--pin) 45%, transparent);
+    cursor: pointer;
+    pointer-events: auto;
+    transition: background 0.15s ease, border-color 0.15s ease, opacity 0.3s ease;
+}
+
+.map-pin b {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 0.74rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px color-mix(in srgb, var(--pin) 70%, transparent);
+}
+
+.map-pin span {
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    color: rgba(228, 248, 255, 0.7);
+}
+
+.map-pin:hover,
+.map-pin:focus-visible,
+.map-pin.is-selected {
+    background: color-mix(in srgb, var(--pin) 18%, rgba(2, 6, 14, 0.8));
+    border-color: var(--pin);
+    outline: none;
+}
+
+.map-pin.is-uncharted {
+    opacity: 0.7;
+    border-style: dashed;
+}
+
+/* title */
+.hub-head {
+    position: absolute;
+    top: var(--gutter);
+    left: var(--gutter);
+    max-width: min(460px, 50vw);
+    pointer-events: none;
+}
+
+.hub-head h1 {
+    margin: 10px 0 8px;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(1.4rem, 3vw, 2.3rem);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--holo-bright);
+    text-shadow: 0 0 22px rgba(116, 216, 255, 0.5);
+}
+
+.hub-sub {
+    margin: 0;
+    max-width: 38ch;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: rgba(228, 248, 255, 0.72);
+}
+
+/* the list of places */
+.hub-list {
+    position: absolute;
+    left: var(--gutter);
+    top: 50%;
+    translate: 0 -40%;
+    display: grid;
+    gap: 6px;
+    width: 230px;
+}
+
+.hub-place {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    min-height: 52px;
+    padding: 8px 14px;
+    font: inherit;
+    text-align: left;
+    color: var(--holo-bright);
+    background: rgba(3, 9, 16, 0.6);
+    border: 1px solid transparent;
+    border-left: 2px solid color-mix(in srgb, var(--pin) 50%, transparent);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.hub-place:hover,
+.hub-place:focus-visible {
+    background: rgba(3, 9, 16, 0.85);
+    border-color: color-mix(in srgb, var(--pin) 45%, transparent);
+    border-left-color: var(--pin);
+    outline: none;
+}
+
+.hub-place.is-selected {
+    background: color-mix(in srgb, var(--pin) 16%, rgba(3, 9, 16, 0.85));
+    border-color: var(--pin);
+}
+
+.hub-place-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--pin);
+    box-shadow: 0 0 10px var(--pin);
+}
+
+.hub-place.is-uncharted .hub-place-dot {
+    background: transparent;
+    border: 1.5px solid var(--pin);
+    box-shadow: none;
+}
+
+.hub-place-text {
+    display: grid;
+    gap: 1px;
+}
+
+.hub-place-text strong {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 0.74rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.hub-place-text span {
+    font-size: 0.78rem;
+    color: var(--pin);
+}
+
+.hub-place-text em {
+    font-style: normal;
+    color: rgba(228, 248, 255, 0.45);
+}
+
+/* the chosen place */
+.hub-card {
+    position: absolute;
+    right: var(--gutter);
+    bottom: calc(var(--gutter) + 70px);
+    width: min(400px, calc(100vw - 2 * var(--gutter)));
+    padding: 24px 26px;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pin) 45%, transparent);
+}
+
+.hub-card::before {
+    background: var(--pin);
+}
+
+.hub-card-side {
+    margin: 0;
+    font-family: var(--display);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--pin);
+}
+
+.hub-card h2 {
+    margin: 8px 0 4px;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(1.4rem, 2.6vw, 2rem);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--holo-bright);
+}
+
+.hub-card-where {
+    margin: 0 0 14px;
+    font-size: 0.85rem;
+    color: rgba(228, 248, 255, 0.6);
+}
+
+.hub-card-pitch {
+    margin: 0 0 20px;
+    font-size: 1rem;
+    line-height: 1.55;
+}
+
+.hub-uncharted {
+    margin: 0;
+    padding-top: 12px;
+    font-family: var(--display);
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    line-height: 1.7;
+    text-transform: uppercase;
+    color: rgba(228, 248, 255, 0.55);
+    border-top: 1px dashed color-mix(in srgb, var(--pin) 40%, transparent);
+}
+
+/* the big button: streaks of light rush across it on hover */
+.hub-jump {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    min-height: 52px;
+    padding: 14px 20px;
+    font-family: var(--display);
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #02060d;
+    background: var(--pin);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 26px color-mix(in srgb, var(--pin) 50%, transparent);
+}
+
+.hub-jump-lines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(90deg, transparent 0 18px, rgba(255, 255, 255, 0.55) 18px 20px, transparent 20px 46px);
+    opacity: 0;
+    transform: translateX(-30%) scaleX(0.6);
+    transition: opacity 0.2s ease;
+}
+
+.hub-jump:hover .hub-jump-lines,
+.hub-jump:focus-visible .hub-jump-lines {
+    opacity: 1;
+    animation: jump-lines 0.6s linear infinite;
+}
+
+@keyframes jump-lines {
+    to { transform: translateX(30%) scaleX(1.4); }
+}
+
+.hub-jump:focus-visible {
+    outline: 2px solid var(--holo-bright);
+    outline-offset: 3px;
+}
+
+.hub-rail {
+    position: absolute;
+    left: var(--gutter);
+    bottom: var(--gutter);
+    display: flex;
+    gap: 2px;
+    padding: 4px;
+    background: var(--glass);
+    box-shadow: inset 0 0 0 1px var(--holo-line);
+}
+
+.hub-hint {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--gutter) + 14px);
+    width: max-content;
+    margin: 0 auto;
+    font-family: var(--display);
+    font-size: 0.56rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(220, 235, 255, 0.5);
+    pointer-events: none;
+}
+
+.hub-panel {
+    left: var(--gutter);
+    right: auto;
+    top: var(--gutter);
+    bottom: calc(var(--gutter) + 70px);
+}
+
+@media (max-width: 1100px) {
+    .hub-hint {
+        display: none;
+    }
+}
+
+/* Phones: title up top, the chosen place's card above a row of places along the bottom */
+@media (max-width: 760px) {
+    .hub-head {
+        max-width: calc(100vw - 32px);
+    }
+
+    .hub-head h1 {
+        font-size: 1.3rem;
+        margin: 6px 0 4px;
+    }
+
+    .hub-sub {
+        font-size: 0.82rem;
+    }
+
+    .hub-list {
+        top: auto;
+        bottom: calc(var(--gutter) + 58px);
+        left: 0;
+        right: 0;
+        translate: none;
+        width: auto;
+        display: flex;
+        gap: 6px;
+        padding: 0 var(--gutter);
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .hub-place {
+        flex: none;
+        grid-template-columns: 10px auto;
+        min-height: 48px;
+        padding: 6px 12px;
+    }
+
+    .hub-place-text em {
+        display: none;
+    }
+
+    .hub-card {
+        left: var(--gutter);
+        right: var(--gutter);
+        bottom: calc(var(--gutter) + 120px);
+        width: auto;
+        padding: 18px;
+    }
+
+    .hub-card-pitch {
+        font-size: 0.9rem;
+        margin-bottom: 14px;
+    }
+
+    .hub-rail {
+        right: var(--gutter);
+    }
+
+    .hub-rail .cmd-rail-btn {
+        flex: 1;
+    }
+
+    .map-pin span {
+        display: none;
+    }
+
+    .hub-panel {
+        right: var(--gutter);
+        top: 30vh;
+    }
+}
+
+/**********************************
+  ILUM
+**********************************/
+.stop {
+    --kyber: #9fd0ff;
+}
+
+.ilum-view,
+.saber,
+.saber-view {
+    position: absolute;
+    inset: 0;
+}
+
+.ilum-view canvas,
+.saber-view canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    touch-action: none;
+}
+
+.saber.is-wielding {
+    cursor: none;
+    touch-action: none;
+}
+
+.stop-head {
+    position: absolute;
+    top: var(--gutter);
+    left: var(--gutter);
+    max-width: min(520px, calc(100vw - 200px));
+    pointer-events: none;
+}
+
+.stop-head h1 {
+    margin: 10px 0 8px;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: clamp(1.3rem, 3vw, 2.2rem);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #eef8ff;
+    text-shadow: 0 0 22px color-mix(in srgb, var(--kyber) 60%, transparent);
+}
+
+.stop-sub {
+    margin: 0;
+    max-width: 40ch;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: rgba(230, 244, 255, 0.8);
+}
+
+.stop-leave {
+    position: absolute;
+    top: var(--gutter);
+    right: var(--gutter);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 8px 14px;
+    font-family: var(--display);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--holo-bright);
+    background: rgba(3, 9, 16, 0.6);
+    border: 1px solid var(--holo-line);
+    cursor: pointer;
+}
+
+.stop-leave kbd {
+    padding: 2px 5px;
+    font: inherit;
+    font-size: 0.85em;
+    color: var(--holo-dim);
+    border: 1px solid var(--holo-line);
+}
+
+.stop-leave:hover,
+.stop-leave:focus-visible {
+    border-color: var(--holo);
+    outline: none;
+}
+
+/* a line of guidance along the bottom; tinted with the crystal you're near */
+.stop-whisper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--gutter) + 70px);
+    width: min(560px, calc(100vw - 2 * var(--gutter)));
+    margin: 0 auto;
+    font-size: 1rem;
+    line-height: 1.55;
+    text-align: center;
+    color: rgba(236, 246, 255, 0.9);
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.9);
+    pointer-events: none;
+}
+
+.ilum.is-cave .stop-whisper {
+    bottom: calc(var(--gutter) + 56px);
+}
+
+.stop-whisper strong {
+    margin-right: 6px;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 0.8rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--tint);
+    text-shadow: 0 0 12px var(--tint);
+}
+
+.stop-whisper.is-quiet {
+    font-size: 0.88rem;
+    color: rgba(236, 246, 255, 0.65);
+}
+
+.stop-whisper em {
+    font-style: normal;
+    color: rgba(236, 246, 255, 0.5);
+}
+
+.stop-card {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--gutter) + 10px);
+    width: min(460px, calc(100vw - 2 * var(--gutter)));
+    margin: 0 auto;
+    padding: 22px 24px;
+    text-align: center;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tint) 55%, transparent), 0 0 40px color-mix(in srgb, var(--tint) 20%, transparent);
+}
+
+.stop-card-kicker {
+    margin: 0;
+    font-family: var(--display);
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--tint);
+}
+
+.stop-card h2 {
+    margin: 8px 0;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 1.05rem;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.stop-card p {
+    margin: 0 0 16px;
+    line-height: 1.55;
+    color: rgba(236, 246, 255, 0.8);
+}
+
+.stop-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.stop-go {
+    border-color: var(--kyber);
+    box-shadow: 0 0 18px color-mix(in srgb, var(--kyber) 40%, transparent);
+}
+
+.stop .archive-action:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* the crystals as buttons, along the bottom of the cave */
+.ilum-crystal-keys {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: var(--gutter);
+    display: flex;
+    gap: 6px;
+    width: max-content;
+    max-width: calc(100vw - 2 * var(--gutter));
+    margin: 0 auto;
+}
+
+.ilum-crystal-keys button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 14px;
+    font-family: var(--display);
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(236, 246, 255, 0.75);
+    background: rgba(3, 9, 16, 0.55);
+    border: 1px solid rgba(236, 246, 255, 0.15);
+    cursor: pointer;
+}
+
+.ilum-crystal-keys button span {
+    width: 8px;
+    height: 14px;
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    background: var(--tint);
+    box-shadow: 0 0 10px var(--tint);
+}
+
+.ilum-crystal-keys button:hover,
+.ilum-crystal-keys button:focus-visible {
+    color: #fff;
+    border-color: var(--tint);
+    outline: none;
+}
+
+/* the build panel */
+.ilum-build {
+    position: absolute;
+    top: calc(var(--gutter) + 70px);
+    right: var(--gutter);
+    display: grid;
+    gap: 10px;
+    width: min(340px, calc(100vw - 2 * var(--gutter)));
+    max-height: calc(100% - 2 * var(--gutter) - 70px);
+    overflow-y: auto;
+    padding: 20px 22px;
+}
+
+.ilum-build .cmd-label {
+    margin-top: 6px;
+}
+
+.ilum-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.ilum-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 10px;
+    font: inherit;
+    font-size: 0.86rem;
+    text-align: left;
+    color: rgba(236, 246, 255, 0.8);
+    background: rgba(116, 216, 255, 0.05);
+    border: 1px solid var(--holo-line);
+    cursor: pointer;
+}
+
+.ilum-option:hover,
+.ilum-option:focus-visible {
+    color: #fff;
+    border-color: var(--holo);
+    outline: none;
+}
+
+.ilum-option.is-on {
+    color: #fff;
+    background: color-mix(in srgb, var(--kyber) 18%, transparent);
+    border-color: var(--kyber);
+}
+
+.ilum-option:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.ilum-option.is-swatch span {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff 0 8%, var(--swatch) 45%, #111 100%);
+}
+
+.ilum-option.is-swatch:last-child {
+    grid-column: span 2;
+}
+
+.ilum-note {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: rgba(236, 246, 255, 0.6);
+}
+
+.ilum-crystal {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 8px;
+    font-weight: 600;
+}
+
+.ilum-crystal > span {
+    width: 10px;
+    height: 18px;
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    background: var(--tint);
+    box-shadow: 0 0 12px var(--tint);
+}
+
+.ilum-link {
+    margin-left: auto;
+    padding: 4px 0;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--holo);
+    background: none;
+    border: none;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.ilum-link:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* along the bottom once it's built */
+.stop-rail {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: var(--gutter);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    width: max-content;
+    max-width: calc(100vw - 2 * var(--gutter));
+    margin: 0 auto;
+    padding: 4px;
+    background: var(--glass);
+    box-shadow: inset 0 0 0 1px var(--holo-line);
+}
+
+.ilum-ignite {
+    min-height: 52px;
+    padding: 12px 40px;
+    font-family: var(--display);
+    font-size: 0.85rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #fff;
+    background: color-mix(in srgb, var(--kyber) 30%, rgba(3, 9, 16, 0.9));
+    border: 1px solid var(--kyber);
+    box-shadow: 0 0 26px color-mix(in srgb, var(--kyber) 55%, transparent), inset 0 0 18px color-mix(in srgb, var(--kyber) 35%, transparent);
+    cursor: pointer;
+    animation: ignite-ready 2s ease-in-out infinite;
+}
+
+@keyframes ignite-ready {
+    50% { box-shadow: 0 0 40px color-mix(in srgb, var(--kyber) 75%, transparent), inset 0 0 24px color-mix(in srgb, var(--kyber) 50%, transparent); }
+}
+
+.ilum-ignite:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+}
+
+.stop-score {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--gutter) + 6px);
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px 26px;
+    width: max-content;
+    max-width: calc(100vw - 2 * var(--gutter));
+    margin: 0 auto;
+    font-family: var(--display);
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(236, 246, 255, 0.6);
+    pointer-events: none;
+}
+
+.stop-score strong {
+    margin-left: 6px;
+    font-weight: 400;
+    font-size: 1.1rem;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 10px var(--kyber);
+}
+
+.stop.is-train .stop-head h1 {
+    display: none;
+}
+
+/* the blast shield: near darkness, with the faint slit of the visor */
+.saber-shield {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg, transparent 47%, rgba(255, 255, 255, 0.03) 49%, rgba(255, 255, 255, 0.03) 51%, transparent 53%),
+        radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.97));
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.saber-shield.is-down {
+    opacity: 1;
+}
+
+/* what you sense through it */
+.saber-senses {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.saber-sense {
+    position: absolute;
+    left: -22px;
+    top: -22px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(190, 225, 255, 0.85);
+    box-shadow: 0 0 16px rgba(160, 210, 255, 0.6), inset 0 0 10px rgba(160, 210, 255, 0.4);
+}
+
+.saber-sting {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 80% 75% at 50% 50%, transparent 45%, rgba(255, 60, 40, 0.45) 100%);
+    opacity: 0;
+}
+
+.saber-sting.is-on {
+    animation: hurt 0.45s ease-out;
+}
+
+@media (max-width: 760px) {
+    .stop-head {
+        max-width: calc(100vw - 150px);
+    }
+
+    .stop-head h1 {
+        font-size: 1.1rem;
+    }
+
+    .stop-sub {
+        font-size: 0.88rem;
+    }
+
+    .ilum-build {
+        top: auto;
+        bottom: var(--gutter);
+        left: var(--gutter);
+        right: var(--gutter);
+        width: auto;
+        max-height: 52vh;
+        padding: 14px 16px;
+    }
+
+    .ilum.is-build .stop-whisper,
+    .ilum.is-assemble .stop-whisper {
+        display: none;
+    }
+
+    .stop-rail {
+        left: var(--gutter);
+        right: var(--gutter);
+        width: auto;
+        margin: 0;
+        overflow-x: auto;
+    }
+
+    .stop-rail > * {
+        flex: 1 0 auto;
+    }
+
+    .stop-score {
+        top: 88px;
+        gap: 6px 14px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hub-jump:hover .hub-jump-lines,
+    .ilum-ignite {
+        animation: none;
+    }
+}
+
+/* while training, the guidance sits up by the score, clear of the hilt */
+.stop.is-train .stop-whisper {
+    top: calc(var(--gutter) + 52px);
+    bottom: auto;
+}
+
+@media (max-width: 760px) {
+    .stop.is-train .stop-whisper {
+        top: 150px;
+        font-size: 0.8rem;
+    }
+}
+
+/* a plain text button */
+.stop-link {
+    padding: 4px 0;
+    font: inherit;
+    font-size: 0.82rem;
+    color: var(--holo);
+    background: none;
+    border: none;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+/**********************************
+  YAVIN 4: THE BRIEFING AND THE TRENCH RUN
+**********************************/
+/* the temple: old stone lit low and warm, with the hologram glowing at its centre */
+.yavin-temple {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 45% 50% at 50% 46%, rgba(70, 150, 200, 0.18), transparent 70%),
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.25) 0 2px, transparent 2px 46px),
+        repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.18) 0 2px, transparent 2px 92px),
+        linear-gradient(180deg, #1a1712 0%, #2a241b 55%, #12100c 100%);
+}
+
+.briefing-holo {
+    position: absolute;
+    inset: 0 0 0 0;
+}
+
+.briefing-holo canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.briefing-card {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: var(--gutter);
+    width: min(620px, calc(100vw - 2 * var(--gutter)));
+    margin: 0 auto;
+    padding: 20px 24px;
+}
+
+.briefing-step {
+    margin: 0 0 6px;
+    font-family: var(--display);
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    color: var(--holo-dim);
+}
+
+.briefing-text {
+    margin: 0 0 16px;
+    min-height: 3.2em;
+    font-size: 1.05rem;
+    line-height: 1.55;
+}
+
+.briefing-tally {
+    margin: 12px 0 0;
+    font-family: var(--display);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--amber);
+}
+
+.stop-actions {
+    flex-wrap: wrap;
+}
+
+.yavin .stop-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* the cockpit */
+.trench,
+.trench-view {
+    position: absolute;
+    inset: 0;
+}
+
+.trench {
+    cursor: crosshair;
+    touch-action: none;
+    user-select: none;
+}
+
+.trench-view canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.trench-canopy {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    fill: #0b0d10;
+}
+
+.trench-canopy .trench-dash {
+    fill: #121519;
+}
+
+.trench-dash-lights {
+    position: absolute;
+    left: 22%;
+    right: 22%;
+    bottom: 3%;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+}
+
+.trench-dash-lights i {
+    width: 10px;
+    height: 6px;
+    background: #ff5a3a;
+    box-shadow: 0 0 8px #ff5a3a;
+    animation: dash-blink 2s steps(1) infinite;
+}
+
+.trench-dash-lights i:nth-child(3n) {
+    background: #5aff8a;
+    box-shadow: 0 0 8px #5aff8a;
+}
+
+.trench-dash-lights i:nth-child(4n) {
+    background: #ffd25a;
+    box-shadow: 0 0 8px #ffd25a;
+}
+
+@keyframes dash-blink {
+    50% { opacity: 0.25; }
+}
+
+.trench-reticle {
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    width: 70px;
+    height: 70px;
+    translate: -50% -50%;
+    pointer-events: none;
+    border: 1.5px solid rgba(255, 210, 120, 0.55);
+    border-radius: 50%;
+    -webkit-mask: repeating-conic-gradient(from 22deg, #000 0 46deg, transparent 46deg 90deg);
+    mask: repeating-conic-gradient(from 22deg, #000 0 46deg, transparent 46deg 90deg);
+}
+
+.trench-hurt {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 80% 75% at 50% 50%, transparent 45%, rgba(255, 60, 30, 0.5) 100%);
+    opacity: 0;
+}
+
+.trench-hurt.is-on {
+    animation: hurt 0.45s ease-out;
+}
+
+.trench-shields {
+    position: absolute;
+    left: 50%;
+    bottom: 9%;
+    translate: -50% 0;
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    font-family: var(--display);
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 210, 140, 0.8);
+    pointer-events: none;
+}
+
+.trench-shields-bar {
+    width: 180px;
+    height: 6px;
+    background: rgba(255, 210, 140, 0.15);
+}
+
+.trench-shields-bar span {
+    display: block;
+    height: 100%;
+    background: #ffc46b;
+    box-shadow: 0 0 8px #ffc46b;
+    transform-origin: left center;
+    transition: transform 0.25s ease;
+}
+
+.trench-shields.is-low .trench-shields-bar span {
+    background: #ff5146;
+    box-shadow: 0 0 8px #ff5146;
+}
+
+/* the rear scope: blips for the fighters on your tail */
+.trench-rear {
+    position: absolute;
+    right: 24%;
+    bottom: 4%;
+    width: 80px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 120, 90, 0.4);
+    border-radius: 50%;
+    background: rgba(40, 6, 4, 0.6);
+    opacity: 0.25;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.trench-rear.is-on {
+    opacity: 1;
+}
+
+.trench-rear span {
+    position: absolute;
+    top: -16px;
+    font-family: var(--display);
+    font-size: 0.5rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 150, 120, 0.8);
+}
+
+.trench-rear i {
+    position: absolute;
+    left: calc(50% - 3px);
+    top: calc(50% - 3px);
+    width: 6px;
+    height: 6px;
+    background: #ff6a4a;
+    box-shadow: 0 0 6px #ff6a4a;
+    display: none;
+}
+
+.trench-rear.is-on i {
+    display: block;
+}
+
+.trench-rear i.is-lead {
+    width: 8px;
+    height: 8px;
+    background: #ffd0c0;
+}
+
+.trench-warn {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 22%;
+    width: max-content;
+    margin: 0 auto;
+    padding: 6px 14px;
+    font-family: var(--display);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #ff8a6a;
+    border: 1px solid #ff6a4a;
+    background: rgba(40, 6, 4, 0.7);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.trench-warn.is-on {
+    opacity: 1;
+    animation: dash-blink 0.25s steps(1) infinite;
+}
+
+/* the targeting computer, rising out of the dashboard */
+.trench-computer {
+    position: absolute;
+    left: 50%;
+    bottom: 13%;
+    width: min(280px, 60vw);
+    translate: -50% 0;
+    padding: 10px 12px 8px;
+    color: #ffb347;
+    background: rgba(20, 8, 0, 0.88);
+    border: 1px solid rgba(255, 170, 70, 0.6);
+    box-shadow: 0 0 22px rgba(255, 150, 40, 0.25);
+    transform: translateY(140%);
+    opacity: 0;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.trench-computer.is-on {
+    transform: none;
+    opacity: 1;
+}
+
+.trench-computer svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+}
+
+/* the cross-bars racing down the trench towards you */
+.trench-computer-step {
+    stroke: none;
+    fill: none;
+}
+
+.trench-computer svg path {
+    stroke-width: 1.2;
+}
+
+.trench-computer-port {
+    fill: #ff7a2a;
+    stroke: none;
+    opacity: 0;
+}
+
+.trench-computer.is-fire .trench-computer-port {
+    opacity: 1;
+    animation: dash-blink 0.2s steps(1) infinite;
+}
+
+.trench-computer svg {
+    background:
+        repeating-linear-gradient(180deg, transparent 0 14px, rgba(255, 170, 70, 0.55) 14px 16px) 0 0 / 100% 32px;
+    animation: computer-run 0.5s linear infinite;
+}
+
+@keyframes computer-run {
+    to { background-position: 0 32px; }
+}
+
+.trench-computer p {
+    margin: 4px 0 0;
+    font-family: var(--display);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.trench-computer strong {
+    margin-left: 8px;
+    font-weight: 400;
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.trench-computer-fire {
+    visibility: hidden;
+    color: #fff2d8;
+}
+
+.trench-computer.is-fire .trench-computer-fire {
+    visibility: visible;
+    animation: dash-blink 0.25s steps(1) infinite;
+}
+
+.trench-computer.is-fired .trench-computer-fire {
+    visibility: hidden;
+}
+
+.trench-controls {
+    position: absolute;
+    right: var(--gutter);
+    bottom: var(--gutter);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+}
+
+/* when the run's over, the cockpit's displays clear away for the result */
+.trench.is-over .trench-computer,
+.trench.is-over .trench-controls,
+.trench.is-over .trench-warn,
+.trench.is-over .trench-rear,
+.trench.is-over .trench-reticle,
+.trench.is-over .trench-shields {
+    display: none;
+}
+
+.trench-result {
+    z-index: 5;
+}
+
+.trench-controls .cmd-rail-btn {
+    background: rgba(3, 9, 16, 0.75);
+    box-shadow: inset 0 0 0 1px var(--holo-line);
+}
+
+.trench-controls kbd,
+.trench-fire kbd {
+    margin-left: 6px;
+    padding: 1px 5px;
+    font: inherit;
+    font-size: 0.85em;
+    border: 1px solid currentColor;
+    opacity: 0.6;
+}
+
+.trench-fire {
+    min-height: 48px;
+    padding: 10px 20px;
+    font-family: var(--display);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #1a0c00;
+    background: #ffb347;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 18px rgba(255, 170, 70, 0.5);
+}
+
+.trench-fire:disabled {
+    color: rgba(255, 210, 160, 0.4);
+    background: rgba(40, 20, 4, 0.7);
+    box-shadow: inset 0 0 0 1px rgba(255, 170, 70, 0.3);
+    cursor: default;
+}
+
+.trench-comm {
+    position: absolute;
+    left: var(--gutter);
+    top: calc(var(--gutter) + 56px);
+    max-width: min(420px, calc(100vw - 2 * var(--gutter)));
+    margin: 0;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    background: rgba(3, 9, 16, 0.7);
+    border-left: 2px solid #ff9a4a;
+    pointer-events: none;
+}
+
+.trench-comm strong {
+    display: block;
+    margin-bottom: 2px;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #ff9a4a;
+}
+
+.trench-result {
+    --tint: #ff9a4a;
+    bottom: auto;
+    top: 50%;
+    translate: 0 -50%;
+}
+
+.trench-result.is-hit {
+    --tint: #ffd27a;
+}
+
+.yavin.is-run .stop-leave,
+.yavin.is-result .stop-leave {
+    top: calc(var(--gutter) + 0px);
+}
+
+@media (max-width: 760px) {
+    .trench-rear {
+        right: 6%;
+        bottom: 22%;
+    }
+
+    .trench-shields {
+        bottom: 21%;
+    }
+
+    .trench-computer {
+        bottom: 27%;
+    }
+
+    .trench-controls {
+        left: var(--gutter);
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .trench-controls > * {
+        flex: 1 1 auto;
+    }
+
+    .trench-comm {
+        font-size: 0.78rem;
+    }
+}
+
+/**********************************
+  MUSTAFAR
+**********************************/
+.sith-whisper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 62%;
+    width: min(560px, calc(100vw - 2 * var(--gutter)));
+    margin: 0 auto;
+    font-family: var(--display);
+    font-size: 0.8rem;
+    letter-spacing: 0.16em;
+    line-height: 1.7;
+    text-align: center;
+    text-transform: uppercase;
+    color: rgba(255, 220, 210, 0.75);
+    text-shadow: 0 0 16px rgba(0, 0, 0, 0.9);
+    pointer-events: none;
+}
+
+.sith-whisper.is-loud {
+    font-size: 1rem;
+    color: #ff6a5a;
+    text-shadow: 0 0 18px rgba(255, 40, 20, 0.8);
+}
+
+.sith-meter {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(62% + 70px);
+    width: min(320px, 70vw);
+    height: 4px;
+    margin: 0 auto;
+    background: rgba(255, 60, 40, 0.15);
+    pointer-events: none;
+}
+
+.sith-meter span {
+    display: block;
+    height: 100%;
+    background: #ff2a1f;
+    box-shadow: 0 0 12px #ff2a1f;
+    transform-origin: left center;
+}
+
+.sith-hint {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: var(--gutter);
+    margin: 0;
+    font-family: var(--display);
+    font-size: 0.56rem;
+    letter-spacing: 0.18em;
+    text-align: center;
+    text-transform: uppercase;
+    color: rgba(255, 200, 180, 0.5);
+    pointer-events: none;
+}
+
+.mustafar.is-bleed {
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+.mustafar .cmd-kicker {
+    color: rgba(255, 150, 120, 0.75);
+}
+
+/**********************************
+  TATOOINE AND THE CANTINA
+**********************************/
+.tatooine-view {
+    position: absolute;
+    inset: 0;
+}
+
+.tatooine-view canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.tatooine .cmd-kicker {
+    color: rgba(255, 230, 200, 0.85);
+}
+
+.tatooine.is-outside .stop-head h1,
+.tatooine.is-outside .stop-sub {
+    text-shadow: 0 2px 14px rgba(60, 20, 10, 0.6);
+}
+
+.cantina {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    padding: var(--gutter);
+    background:
+        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(255, 170, 90, 0.18), transparent 70%),
+        radial-gradient(ellipse 80% 60% at 50% 110%, rgba(255, 120, 60, 0.12), transparent 70%),
+        #120c08;
+}
+
+/* the curved alcoves round the walls */
+.cantina-arches {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 120px 220px at 10% 100%, rgba(0, 0, 0, 0.5) 60%, transparent 61%),
+        radial-gradient(ellipse 120px 220px at 30% 100%, rgba(0, 0, 0, 0.45) 60%, transparent 61%),
+        radial-gradient(ellipse 120px 220px at 70% 100%, rgba(0, 0, 0, 0.45) 60%, transparent 61%),
+        radial-gradient(ellipse 120px 220px at 90% 100%, rgba(0, 0, 0, 0.5) 60%, transparent 61%);
+    opacity: 0.6;
+}
+
+.cantina-head {
+    position: relative;
+    top: auto;
+    left: auto;
+    max-width: 1180px;
+    margin: 0 auto 26px;
+}
+
+.cantina-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+    pointer-events: auto;
+}
+
+.cantina-controls .cmd-rail-btn {
+    background: rgba(40, 24, 12, 0.7);
+    box-shadow: inset 0 0 0 1px rgba(255, 180, 90, 0.3);
+    color: rgba(255, 228, 200, 0.85);
+}
+
+.cantina-floor {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+    gap: 28px;
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+/* sabacc */
+.sabacc {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+}
+
+.sabacc-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 24px;
+}
+
+.sabacc-dealer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sabacc-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 50% 38%, #d8a37a 0 26%, transparent 27%),
+        radial-gradient(ellipse at 50% 100%, #3b2a1e 0 55%, transparent 56%),
+        #5a3b28;
+    box-shadow: 0 0 0 2px rgba(255, 180, 90, 0.5);
+}
+
+.sabacc-dealer strong {
+    display: block;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #ffd29a;
+}
+
+.sabacc-dealer span {
+    font-size: 0.8rem;
+    color: rgba(255, 228, 200, 0.6);
+}
+
+.sabacc-line {
+    margin: 0;
+    font-size: 1rem;
+    font-style: italic;
+    color: #fff1df;
+}
+
+.sabacc-felt {
+    display: grid;
+    gap: 22px;
+    padding: 24px;
+    border-radius: 28px;
+    background: radial-gradient(ellipse at 50% 50%, #1d3a36 0%, #10221f 70%, #0b1715 100%);
+    box-shadow: inset 0 0 0 2px rgba(255, 190, 110, 0.35), inset 0 0 40px rgba(0, 0, 0, 0.6), 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.sabacc-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 92px;
+}
+
+.sabacc-row.is-yours {
+    min-height: 130px;
+}
+
+.sabacc-empty {
+    font-size: 0.85rem;
+    color: rgba(255, 228, 200, 0.4);
+}
+
+.sabacc-total {
+    margin-left: 8px;
+    font-family: var(--display);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ffd29a;
+}
+
+.sabacc-middle {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 18px 32px;
+}
+
+.sabacc-pile {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+}
+
+.sabacc-pile-label,
+.sabacc-pot span {
+    font-family: var(--display);
+    font-size: 0.5rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 228, 200, 0.55);
+}
+
+.sabacc-pot {
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+}
+
+.sabacc-pot strong {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 1.4rem;
+    color: #ffd29a;
+}
+
+/* the cards: tall glowing chips, green counting up and red counting down */
+.sabacc-card {
+    --edge: #d8c7a8;
+    position: relative;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 6px;
+    width: 76px;
+    height: 112px;
+    padding: 0;
+    font: inherit;
+    color: #fff;
+    background: linear-gradient(160deg, #2c2a30, #141317);
+    border: 1.5px solid var(--edge);
+    border-radius: 10px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5), inset 0 0 14px color-mix(in srgb, var(--edge) 25%, transparent);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+button.sabacc-card {
+    cursor: pointer;
+}
+
+button.sabacc-card:hover,
+button.sabacc-card:focus-visible {
+    transform: translateY(-4px);
+    outline: none;
+}
+
+.sabacc-card.is-selected {
+    transform: translateY(-12px);
+    box-shadow: 0 0 0 2px #ffd29a, 0 10px 22px rgba(0, 0, 0, 0.6), inset 0 0 18px color-mix(in srgb, var(--edge) 40%, transparent);
+}
+
+.sabacc-card.is-plus {
+    --edge: #4dff8a;
+}
+
+.sabacc-card.is-minus {
+    --edge: #ff5a4a;
+}
+
+.sabacc-card.is-sylop {
+    --edge: #f3e3b2;
+    background: linear-gradient(160deg, #3a3426, #18150e);
+}
+
+.sabacc-card.is-small {
+    width: 56px;
+    height: 82px;
+}
+
+.sabacc-card.is-ghost {
+    border-style: dashed;
+    opacity: 0.3;
+}
+
+.sabacc-value {
+    font-family: var(--display);
+    font-size: 1.15rem;
+    color: var(--edge);
+    text-shadow: 0 0 10px color-mix(in srgb, var(--edge) 60%, transparent);
+}
+
+.sabacc-card.is-small .sabacc-value {
+    font-size: 0.85rem;
+}
+
+.sabacc-suit {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--edge);
+}
+
+.sabacc-suit.is-circle {
+    border-radius: 50%;
+}
+
+.sabacc-suit.is-triangle {
+    border: none;
+    background: var(--edge);
+    clip-path: polygon(50% 4%, 96% 92%, 4% 92%);
+    opacity: 0.85;
+}
+
+.sabacc-suit.is-sylop {
+    border-radius: 50%;
+    border-style: dotted;
+}
+
+.sabacc-card.is-small .sabacc-suit {
+    width: 16px;
+    height: 16px;
+}
+
+.sabacc-card.is-hidden {
+    --edge: #b48a52;
+}
+
+.sabacc-back {
+    position: absolute;
+    inset: 6px;
+    border-radius: 6px;
+    background:
+        repeating-linear-gradient(45deg, rgba(255, 190, 110, 0.18) 0 4px, transparent 4px 10px),
+        repeating-linear-gradient(-45deg, rgba(255, 190, 110, 0.12) 0 4px, transparent 4px 10px),
+        #2a1a10;
+}
+
+.sabacc-dice {
+    display: flex;
+    gap: 8px;
+}
+
+.sabacc-die {
+    display: grid;
+    grid-template-columns: repeat(3, 6px);
+    grid-auto-rows: 6px;
+    align-content: center;
+    justify-content: center;
+    gap: 3px;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: #efe3c8;
+    box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+}
+
+.sabacc-die i {
+    border-radius: 50%;
+    background: #3a2414;
+}
+
+.sabacc-die.is-rolling {
+    animation: die-roll 0.12s linear infinite;
+}
+
+@keyframes die-roll {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(14deg) translateY(-3px); }
+    100% { transform: rotate(-6deg); }
+}
+
+.sabacc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.sabacc .archive-action {
+    color: #fff1df;
+    background: rgba(255, 180, 90, 0.08);
+    border-color: rgba(255, 190, 110, 0.7);
+    box-shadow: none;
+}
+
+.sabacc .archive-action:hover:not(:disabled) {
+    background: rgba(255, 180, 90, 0.2);
+}
+
+.sabacc .archive-action:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.sabacc-wait {
+    margin: 0;
+    font-style: italic;
+    color: rgba(255, 228, 200, 0.7);
+}
+
+.sabacc-credits {
+    margin-left: auto;
+    font-family: var(--display);
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 228, 200, 0.6);
+}
+
+.sabacc-credits strong {
+    margin-left: 6px;
+    font-weight: 400;
+    font-size: 1rem;
+    color: #ffd29a;
+}
+
+.sabacc-outcome {
+    margin: 0;
+    padding: 10px 14px;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid rgba(255, 210, 154, 0.5);
+    background: rgba(255, 180, 90, 0.08);
+}
+
+.sabacc-outcome.is-win {
+    border-color: #4dff8a;
+}
+
+.sabacc-outcome.is-lose {
+    border-color: #ff5a4a;
+}
+
+.sabacc-tip {
+    margin: 0;
+    font-size: 0.82rem;
+    color: rgba(255, 228, 200, 0.5);
+}
+
+.sabacc .stop-link {
+    justify-self: start;
+    color: #ffd29a;
+}
+
+.sabacc-rules {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding-left: 18px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: rgba(255, 238, 220, 0.8);
+}
+
+/* the bounty board: posters pinned slightly askew */
+.bounties .cmd-label {
+    color: #ffd29a;
+    margin-bottom: 12px;
+}
+
+.bounties ul {
+    display: grid;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.bounties li {
+    padding: 14px 16px;
+    color: #2a1a0e;
+    background: linear-gradient(170deg, #e8d6b2, #cdb68a);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+    transform: rotate(var(--tilt));
+}
+
+.bounties li.is-featured {
+    box-shadow: 0 0 0 2px #ffb45a, 0 6px 18px rgba(255, 150, 60, 0.35);
+}
+
+.bounty-wanted {
+    margin: 0;
+    font-family: var(--display);
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #8a2a14;
+}
+
+.bounties h3 {
+    margin: 4px 0 6px;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.bounties li p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.45;
+}
+
+.bounty-reward {
+    margin-top: 8px !important;
+    font-weight: 600;
+}
+
+.bounty-contact {
+    margin-top: 6px !important;
+    font-size: 0.78rem !important;
+    color: #6a3a14;
+}
+
+@media (max-width: 900px) {
+    .cantina-floor {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+}
+
+@media (max-width: 760px) {
+    .sabacc-felt {
+        padding: 16px 10px;
+        gap: 14px;
+        border-radius: 18px;
+    }
+
+    .sabacc-card {
+        width: 54px;
+        height: 82px;
+    }
+
+    .sabacc-card.is-small {
+        width: 44px;
+        height: 64px;
+    }
+
+    .sabacc-value {
+        font-size: 0.9rem;
+    }
+
+    .sabacc-actions .archive-action {
+        flex: 1 1 40%;
+        padding: 10px;
+    }
+
+    .sabacc-credits {
+        margin-left: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .trench-dash-lights i,
+    .trench-warn.is-on,
+    .trench-computer svg,
+    .sabacc-die.is-rolling {
+        animation: none;
+    }
+}
+
+@media (max-width: 760px) {
+    /* the cantina's title starts below the way back to the map */
+    .cantina {
+        padding-top: calc(var(--gutter) + 52px);
+    }
+}
+
+/* keyboard hints mean nothing on a touch screen */
+@media (hover: none) {
+    .stop-leave kbd,
+    .trench-controls kbd,
+    .trench-fire kbd,
+    .sith-hint {
+        display: none;
+    }
+}

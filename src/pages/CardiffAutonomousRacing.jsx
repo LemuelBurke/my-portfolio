@@ -14,7 +14,7 @@ const CardiffAutonomousRacing = () => (
       <img src="https://img.shields.io/badge/Delivery-Agile%20sprints-blue" alt="Delivery: Agile sprints" draggable={false} />
       <img src="https://img.shields.io/badge/Competition-Formula%20Student%20AI-red" alt="Competition: Formula Student AI" draggable={false} />
     </p>
-    <p><em>Jul 2024 - Present · Founder &amp; Team Principal</em></p>
+    <p><em>Sep 2024 – Jul 2026 · Founder &amp; Team Principal</em></p>
     <img src={silverstoneTeam} alt="The Cardiff Autonomous Racing team with the ADS-DV at Silverstone" draggable={false} />
     <hr />
     <h2>Overview</h2>
