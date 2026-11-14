@@ -27,7 +27,8 @@
     position: absolute;
     inset: 0;
     overflow: hidden;
-    touch-action: manipulation;
+    /* a finger held on the street steers the Mii, so the browser mustn't treat it as a scroll or zoom */
+    touch-action: none;
     /* sky down to the shop line, which sits 560 units into the 900-unit-tall world */
     /* soft blue sky warming towards the rooftops, like late afternoon */
     background: linear-gradient(
@@ -170,6 +171,18 @@
     font-weight: 600;
     letter-spacing: 0.08em;
     text-shadow: none;
+}
+
+.shop[data-era="sixties"] .shop-name {
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    letter-spacing: 0.04em;
+    text-shadow: none;
+}
+
+.shop[data-era="edwardian"] .shop-name {
+    font-family: Georgia, "Times New Roman", serif;
+    letter-spacing: 0.06em;
+    color: #fff4d0;
 }
 
 .shop[data-era="deco"] .shop-name {
@@ -756,21 +769,139 @@
     background: #dc2626;
 }
 
-.street-hint {
+/* Bottom controls: arrows to the shop either side, and a main button that goes in or opens the map */
+.street-hud {
     position: absolute;
-    bottom: clamp(10px, 2vh, 20px);
     left: 50%;
+    bottom: max(clamp(10px, 2.4vh, 22px), env(safe-area-inset-bottom));
     translate: -50% 0;
     z-index: 2000;
-    padding: 0.45rem 1.1rem;
-    font-size: clamp(0.75rem, 1.3vw, 0.95rem);
-    background: rgba(255, 255, 255, 0.94);
-    border: 2px solid var(--street-cyan);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: max-content;
+    max-width: calc(100vw - 24px);
+}
+
+.street-hud-row {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 2vw, 14px);
+}
+
+.street-hud-arrow,
+.street-hud-main {
+    font: inherit;
+    color: var(--street-ink);
+    background: linear-gradient(180deg, #ffffff 0%, #eef1f3 100%);
+    border: 3px solid var(--street-cyan);
+    box-shadow: 0 3px 0 rgba(30, 60, 75, 0.12), 0 6px 16px rgba(30, 60, 75, 0.16);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.street-hud-arrow {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    border-radius: 50%;
+}
+
+.street-hud-arrow img {
+    width: 26px;
+    height: 26px;
+    pointer-events: none;
+}
+
+.street-hud-arrow.is-prev img {
+    scale: -1 1;
+}
+
+.street-hud-arrow:disabled {
+    opacity: 0.35;
+    box-shadow: none;
+}
+
+.street-hud-main {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 0;
+    min-height: 56px;
+    max-width: min(420px, calc(100vw - 160px));
+    padding: 0 22px;
+    font-size: clamp(0.95rem, 2.4vw, 1.1rem);
+    font-weight: 700;
     border-radius: 99px;
-    white-space: nowrap;
-    max-width: calc(100vw - 32px);
+}
+
+.street-hud-label {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.15;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* which shop the button is for, small above the action */
+.street-hud-sub {
+    overflow: hidden;
+    font-size: 0.72em;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    opacity: 0.9;
+}
+
+.street-hud-main.is-action {
+    color: #fff;
+    background: linear-gradient(180deg, #4fcbf2 0%, var(--street-cyan-dark) 100%);
+    border-color: #fff;
+}
+
+.street-hud-main .street-click-icon {
+    flex: none;
+}
+
+.street-map-icon {
+    flex: none;
+    width: 1.4em;
+    height: 1.4em;
+    color: var(--street-cyan-dark);
+}
+
+.street-hud-arrow:not(:disabled):hover,
+.street-hud-main:hover {
+    transform: translateY(-2px);
+}
+
+.street-hud-arrow:not(:disabled):active,
+.street-hud-main:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 rgba(30, 60, 75, 0.12);
+}
+
+.street-hud-arrow:focus-visible,
+.street-hud-main:focus-visible {
+    outline: 3px solid var(--street-ink);
+    outline-offset: 3px;
+}
+
+/* Keyboard reminder, only where there's a keyboard and mouse */
+.street-hint {
+    margin: 0;
+    padding: 0.3rem 0.9rem;
+    font-size: 0.8rem;
+    color: #5b656b;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 99px;
+    white-space: nowrap;
     pointer-events: none;
 }
 
@@ -788,13 +919,169 @@
     border-radius: 4px;
 }
 
-.street-hint-touch {
-    display: none;
+@media (hover: none), (max-height: 500px) {
+    .street-hint {
+        display: none;
+    }
 }
 
-@media (hover: none) {
-    .street-hint-desktop { display: none; }
-    .street-hint-touch { display: inline; }
+/* Phones held sideways: smaller controls so they cover less of the street */
+@media (max-height: 500px) {
+    .street-hud-arrow {
+        width: 46px;
+        height: 46px;
+    }
+
+    .street-hud-main {
+        min-height: 46px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .street-hud-arrow,
+    .street-hud-main {
+        transition: none;
+    }
+}
+
+/**********************************
+  STREET MAP
+**********************************/
+.street-map-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 3500;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(22, 50, 61, 0.35);
+}
+
+.street-map {
+    display: flex;
+    flex-direction: column;
+    width: min(460px, 100%);
+    max-height: min(86dvh, 680px);
+    overflow: hidden;
+    color: var(--street-ink);
+    background: #fff;
+    border: 3px solid var(--street-cyan);
+    border-radius: 28px;
+    box-shadow: 0 24px 60px rgba(22, 50, 61, 0.25);
+}
+
+.street-map-head {
+    padding: 20px 22px 12px;
+    text-align: center;
+}
+
+.street-map-head h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: var(--street-cyan-dark);
+}
+
+.street-map-head p {
+    margin: 4px 0 0;
+    font-size: 0.9rem;
+    color: #6b747a;
+}
+
+.street-map-list {
+    flex: 1;
+    margin: 0;
+    padding: 4px 14px 14px;
+    overflow-y: auto;
+    list-style: none;
+    overscroll-behavior: contain;
+}
+
+.street-map-list li + li {
+    margin-top: 8px;
+}
+
+.street-map-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 56px;
+    padding: 8px 16px 8px 10px;
+    font: inherit;
+    text-align: left;
+    color: inherit;
+    background: #f6f8f9;
+    border: 2px solid transparent;
+    border-radius: 18px;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.street-map-item:hover,
+.street-map-item:focus-visible {
+    outline: none;
+    background: #fff;
+    border-color: var(--shop-color);
+}
+
+.street-map-item.is-here {
+    background: color-mix(in srgb, var(--shop-color) 10%, #fff);
+}
+
+/* a little awning in the shop's colour */
+.street-map-swatch {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: repeating-linear-gradient(90deg,
+            var(--shop-color) 0 6px,
+            color-mix(in srgb, var(--shop-color) 70%, #fff) 6px 12px);
+    box-shadow: inset 0 -10px 0 #fff, 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.street-map-text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.street-map-name {
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.street-map-sub {
+    overflow: hidden;
+    font-size: 0.85rem;
+    color: #6b747a;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.street-map-date {
+    flex: none;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--shop-color);
+}
+
+/* phones: the map rises from the bottom like a sheet */
+@media (max-width: 600px) {
+    .street-map-backdrop {
+        place-items: end center;
+        padding: 0;
+    }
+
+    .street-map {
+        width: 100%;
+        max-height: 82dvh;
+        border-width: 3px 0 0;
+        border-radius: 28px 28px 0 0;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
 }
 
 /**********************************

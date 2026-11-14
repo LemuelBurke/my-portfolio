@@ -598,3 +598,12 @@
         animation: none;
     }
 }
+
+/* Small phones: keep the title clear of the Exit button */
+@media (max-width: 400px) {
+    .board-title {
+        margin-left: 72px;
+        padding: 5px 12px;
+        font-size: 1rem;
+    }
+}

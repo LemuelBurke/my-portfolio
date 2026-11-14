@@ -7,6 +7,7 @@ import miiImg from "../assets/imgs/plaza/mii.webp"
 import clickCursor from "../assets/imgs/cursor-normal2.png"
 import ContactMe from "./components/contactMe"
 import { EDUCATION, EXPERIENCE, MEMOS, PROFILE, PROJECTS, SKILLS } from "./cv/cvData"
+import { startMusic, stopMusic } from "../settings"
 
 // The rows of envelopes on the board. Every letter gets an id so it can be marked as read.
 const ROWS = [
@@ -92,11 +93,8 @@ const ResumeAndCV = ({ onExit }) => {
     const [isContactOpen, setIsContactOpen] = useState(false)
 
     useEffect(() => {
-        const music = new Audio(wiiShopMusic)
-        music.loop = true
-        music.volume = 0.35
-        music.play().catch(() => { })
-        return () => music.pause()
+        const music = startMusic(wiiShopMusic, 0.35)
+        return () => stopMusic(music)
     }, [])
 
     const open = useCallback((letter) => {

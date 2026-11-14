@@ -1,6 +1,50 @@
 import { motion, AnimatePresence } from "framer-motion"
 import "../../styles/gameSelectScreen.css"
 import wiiArrowImg from "../../assets/imgs/wiiArrow.svg"
+import { useContext, useEffect } from "react"
+import { SoundContext } from "../../App"
+import { setMusicLevel, startMusic, stopMusic } from "../../settings"
+import { PREVIEWS, STARS_PREVIEW } from "./channelPreviews"
+
+const PREVIEW_VOLUME = 0.3
+
+// Fade a track to a level over a short time
+const fade = (audio, from, to, ms) => {
+    const start = performance.now()
+    let frame
+    const stepFade = (now) => {
+        // (the first frame's timestamp can be a touch earlier than `start`)
+        const t = Math.min(1, Math.max(0, (now - start) / ms))
+        setMusicLevel(audio, from + (to - from) * t)
+        if (t < 1) frame = requestAnimationFrame(stepFade)
+    }
+    frame = requestAnimationFrame(stepFade)
+    return () => cancelAnimationFrame(frame)
+}
+
+// While a channel is selected, its own music fades in over the (ducked) menu music
+const usePreviewMusic = (src) => {
+    const { duckMenu } = useContext(SoundContext)
+    useEffect(() => {
+        duckMenu(true)
+        return () => duckMenu(false)
+    }, [duckMenu])
+    useEffect(() => {
+        if (!src) return
+        let music = null
+        let cancelFade = () => { }
+        // a short pause first, so flicking through channels doesn't start every song
+        const timer = setTimeout(() => {
+            music = startMusic(src, 0)
+            cancelFade = fade(music, 0, PREVIEW_VOLUME, 900)
+        }, 350)
+        return () => {
+            clearTimeout(timer)
+            cancelFade()
+            stopMusic(music)
+        }
+    }, [src])
+}
 
 // Fade-only variants (no swipe)
 const imageVariants = {
@@ -18,6 +62,19 @@ const imageVariants = {
 }
 
 const GameSelectScreen = ({ gameTitle, gameImage, onClose, onStart, onNext, onPrev, hasNext, hasPrev, direction = 0 }) => {
+    const preview = PREVIEWS[gameTitle] ?? STARS_PREVIEW
+    usePreviewMusic(preview.music)
+
+    useEffect(() => {
+        const onKey = (e) => {
+            if (e.key === "Escape") onClose()
+            else if (e.key === "ArrowRight" && hasNext) onNext()
+            else if (e.key === "ArrowLeft" && hasPrev) onPrev()
+        }
+        window.addEventListener("keydown", onKey)
+        return () => window.removeEventListener("keydown", onKey)
+    }, [onClose, onNext, onPrev, hasNext, hasPrev])
+
     return (
         <motion.div
             className="game-fullscreen-overlay"
@@ -37,6 +94,8 @@ const GameSelectScreen = ({ gameTitle, gameImage, onClose, onStart, onNext, onPr
             >
                 {/* Full Screen Image with fade-only animation */}
                 <div className="game-fullscreen-image" style={{ overflow: "hidden", backgroundColor: "#111" }}>
+                    {/* phones in portrait show the whole banner over a blurred copy of itself, rather than cropping it */}
+                    {gameImage && <img className="game-fullscreen-backdrop" src={gameImage} alt="" aria-hidden="true" draggable={false} />}
                     <AnimatePresence mode="wait" initial={false}>
                         {gameImage && (
                             <motion.img

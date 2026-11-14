@@ -79,3 +79,39 @@ textarea {
     user-select: text;
 }
 
+
+/* The menu dims after a couple of idle minutes; any input brightens it again at once */
+.idle-dim {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.idle-dim.is-dimmed {
+    opacity: 0.55;
+    transition: opacity 2.5s ease;
+}
+
+/* "Reduce motion" in Settings: stop the decorative animations everywhere, whatever the device says */
+html[data-motion="reduce"] *,
+html[data-motion="reduce"] *::before,
+html[data-motion="reduce"] *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+}
+
+/* contact form honeypot: off-screen so people never see or tab to it, bots still fill it */
+.hp-field {
+    position: absolute !important;
+    left: -10000px !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+}

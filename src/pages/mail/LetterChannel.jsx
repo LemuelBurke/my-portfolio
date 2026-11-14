@@ -4,10 +4,9 @@ import "../../styles/letterChannel.css"
 import mailMusic from "../../assets/audio/mii-channel-music.mp3"
 import clickCursor from "../../assets/imgs/cursor-normal2.png"
 import miiImg from "../../assets/imgs/plaza/mii.webp"
+import { startMusic, stopMusic } from "../../settings"
+import { sendContactMessage, HONEYPOT_FIELD } from "../../emailClient"
 
-// Same EmailJS service and template as the contact form (EmailJS is loaded in index.html)
-const EMAILJS_SERVICE = "service_4345bru"
-const EMAILJS_TEMPLATE = "template_ipi80jz"
 const MORGAN_EMAIL = "morganlemburke@gmail.com"
 
 // Each topic is a postage stamp, coloured like the matching envelopes on the CV board
@@ -68,13 +67,11 @@ const LetterChannel = ({ onExit }) => {
     const [touched, setTouched] = useState(false)
     const [stage, setStage] = useState("writing")
     const [error, setError] = useState("")
+    const [honeypot, setHoneypot] = useState("")
 
     useEffect(() => {
-        const music = new Audio(mailMusic)
-        music.loop = true
-        music.volume = 0.25
-        music.play().catch(() => { })
-        return () => music.pause()
+        const music = startMusic(mailMusic, 0.25)
+        return () => stopMusic(music)
     }, [])
 
     useEffect(() => {
@@ -105,19 +102,23 @@ const LetterChannel = ({ onExit }) => {
         // the EmailJS template only has a message field, so the topic and company go at the top of it
         const header = [`Topic: ${topic}`, company.trim() && `Company: ${company.trim()}`].filter(Boolean).join("\n")
         try {
-            if (typeof window.emailjs === "undefined") throw new Error("EmailJS not loaded")
             await Promise.all([
-                window.emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+                sendContactMessage({
                     from_name: name.trim(),
                     from_email: email.trim(),
                     message: `${header}\n\n${message.trim()}`,
+                    honeypot,
                 }),
                 minimumAnimation,
             ])
             setStage("sent")
-        } catch {
+        } catch (err) {
             await minimumAnimation
-            setError("Your message couldn't be sent just now. Please try again in a moment, or email me directly at")
+            setError(
+                err?.message === "rate-limited"
+                    ? "You've just sent a message. Please wait a minute before sending another, or email me directly at"
+                    : "Your message couldn't be sent just now. Please try again in a moment, or email me directly at"
+            )
             setStage("writing")
         }
     }
@@ -250,6 +251,17 @@ const LetterChannel = ({ onExit }) => {
                                         {show("email") && <em className="letter-problem">{problems.email}</em>}
                                     </label>
                                 </div>
+                                {/* honeypot: hidden from people, bots fill it in */}
+                                <input
+                                    type="text"
+                                    name={HONEYPOT_FIELD}
+                                    className="hp-field"
+                                    tabIndex={-1}
+                                    autoComplete="off"
+                                    aria-hidden="true"
+                                    value={honeypot}
+                                    onChange={(e) => setHoneypot(e.target.value)}
+                                />
                             </div>
 
                             {error && (

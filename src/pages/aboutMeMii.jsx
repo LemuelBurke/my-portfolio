@@ -6,6 +6,7 @@ import miiSprite from "../assets/imgs/plaza/mii.webp"
 import Glyph from "./about/Glyph"
 import { PROFILE_FIELDS } from "./about/aboutContent"
 import { PLACES, ROUTES, SUITCASE, START_ID, HOME_ID } from "./about/aboutPlaces"
+import { startMusic, stopMusic } from "../settings"
 
 // three.js and the map data are large, so the globe and the 3D Mii load separately
 const Globe = lazy(() => import("./about/Globe").catch(() => ({ default: () => null })))
@@ -105,11 +106,8 @@ const AboutMeMii = ({ onExit }) => {
     const handleGlobeError = useCallback(() => setGlobeState("failed"), [])
 
     useEffect(() => {
-        const music = new Audio(miiChannelMusic)
-        music.loop = true
-        music.volume = 0.35
-        music.play().catch(() => { })
-        return () => music.pause()
+        const music = startMusic(miiChannelMusic, 0.35)
+        return () => stopMusic(music)
     }, [])
 
     useEffect(() => {

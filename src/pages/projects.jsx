@@ -4,6 +4,7 @@ import "../styles/street.css"
 import wiiPartyMusic from "../assets/audio/wiiParty.mp3"
 import miiSprite from "../assets/imgs/plaza/mii.webp"
 import clickCursor from "../assets/imgs/cursor-normal2.png"
+import wiiArrowImg from "../assets/imgs/wiiArrow.svg"
 import nfllogo from "../assets/imgs/screenshots-and-media/NFL-Logo.png"
 import wiiThumb from "../assets/imgs/plaza/wii-portfolio.webp"
 import NflApp from "./NflApp"
@@ -11,11 +12,14 @@ import WiiPortfolio from "./WiiPortfolio"
 import CardiffAutonomousRacing from "./CardiffAutonomousRacing"
 import Cainan from "./Cainan"
 import IbmTechXchange from "./IbmTechXchange"
+import TriAIge from "./TriAIge"
+import Cyfuno from "./Cyfuno"
 import ibmLogo from "../assets/imgs/projects/ibm/ibm-logo.svg"
 import carThumb from "../assets/imgs/aboutMePage/team1.png"
 import cainanLogo from "../assets/imgs/projects/cainan/cainan-logo.png"
 import ContactMe from "./components/contactMe"
 import ShopFront, { ConstructionSite, PostBox, PhoneBox, RaceCar, TrackCone, SHOP_WIDTH, SHOP_HEIGHT, SHOP_DOOR_X } from "./components/shopFront"
+import { startMusic, stopMusic } from "../settings"
 
 // three.js is large, so the 3D Mii loads separately; the sprite shows until it is ready
 // (if it fails to load, e.g. on a flaky connection, the sprite simply stays)
@@ -26,8 +30,10 @@ const MiiModel = lazy(() => import("./components/miiModel").catch(() => ({ defau
  * Add a project by adding an entry in date order:
  *  - `Content` renders inside the shop when you go in
  *  - `date` and `subtitle` show in the bubble when the Mii walks up
- *  - `era` is the building's architecture: "modern", "deco", "victorian", "georgian" or "tudor"
- *  - `scene` sets the window display around `thumb`: "laptop", "tv", "stage", "phone" or "photo";
+ *  - `era` is the building's architecture: "modern", "sixties", "deco", "edwardian", "victorian",
+ *    "georgian" or "tudor"
+ *  - `scene` sets the window display around `thumb`: "laptop", "tv", "stage", "phone", "photo",
+ *    "clinic" or "wearable";
  *    without one the window just shows `thumb` (`thumbFit: "contain"` suits logos)
  */
 const SHOPS = [
@@ -41,6 +47,16 @@ const SHOPS = [
         color: "#2A3550",
         era: "modern",
         Content: Cainan,
+    },
+    {
+        id: "tri-ai-ge",
+        title: "Tri-AI-ge",
+        subtitle: "AI triage · Dissertation",
+        date: "2026",
+        scene: "clinic",
+        color: "#16a39a",
+        era: "sixties",
+        Content: TriAIge,
     },
     {
         id: "wii-portfolio",
@@ -61,8 +77,17 @@ const SHOPS = [
         thumb: ibmLogo,
         scene: "stage",
         color: "#1f70c1",
-        era: "victorian",
+        era: "edwardian",
         Content: IbmTechXchange,
+    },
+    {
+        id: "cyfuno",
+        title: "CYFUNO",
+        subtitle: "Wearable travel tech",
+        scene: "wearable",
+        color: "#7a4fd0",
+        era: "victorian",
+        Content: Cyfuno,
     },
     {
         id: "nfl",
@@ -101,6 +126,10 @@ const PAVEMENT = { minX: 70, maxX: WORLD_W - 70, minY: 610, maxY: 770 }
 const SPAWN = { x: 170, y: 690 }
 
 const WALK_SPEED = 440 // world units per second
+// Long trips (the arrows, the street map, tapping a far shop) break into a run, so crossing the
+// whole street takes a couple of seconds rather than a dozen taps
+const RUN_SECONDS = 1.6
+const runSpeed = (from, to) => clamp(Math.hypot(to.x - from.x, to.y - from.y) / RUN_SECONDS, WALK_SPEED, WALK_SPEED * 3.5)
 const DOOR_RANGE = 85 // how close (horizontally) to a door counts as "outside the shop"
 const DOOR_FRONT_Y = 618
 
@@ -110,6 +139,19 @@ const doorX = (i) => shopLeft(i) + SHOP_DOOR_X
 const SITE = { x: STREET_START - 200, width: 200, height: 480 }
 // a post box on the kerb at the start of the street: walk up to it to send Morgan a message
 const POST_BOX = { x: STREET_START - 110, kerb: 806, width: 44, height: 96, range: 50 }
+// The places the arrows hop between, in street order: the post box, then every shop door
+const STOPS = [
+    { kind: "post", x: POST_BOX.x, spot: { x: POST_BOX.x, y: PAVEMENT.maxY } },
+    ...SHOPS.map((shop, i) => ({ kind: "shop", index: i, x: doorX(i), spot: { x: doorX(i), y: DOOR_FRONT_Y } })),
+]
+// the stops either side of a point (a stop you're standing at counts as neither)
+const stopsAround = (x) => {
+    const prev = STOPS.findLastIndex((s) => s.x < x - 30)
+    const next = STOPS.findIndex((s) => s.x > x + 30)
+    return `${prev},${next}`
+}
+const stopLabel = (stop) => (stop.kind === "post" ? "Post box" : SHOPS[stop.index].title)
+
 // a red phone box at the old end of the street
 const PHONE_BOX = { x: shopLeft(SHOPS.length) + 60, width: 70, height: 170 }
 // the team's race car parked on the road outside Autonomous Racing, with track cones either side
@@ -168,13 +210,21 @@ const KEY_DIRS = {
     ArrowRight: [1, 0], d: [1, 0], D: [1, 0],
 }
 
+// A folded paper map, for the street map button
+const MapIcon = () => (
+    <svg className="street-map-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 6.5 9 4l6 2.5L21 4v13.5L15 20l-6-2.5L3 20Z" fill="#fff" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M9 4v13.5M15 6.5V20" stroke="currentColor" strokeWidth="1.8" />
+    </svg>
+)
+
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 // Intro chat, shown once per visit while the camera zooms in on the Mii
 const INTRO_LINES = [
     "Hi, I'm Morgan! Welcome to Project Street.",
     "This is where I keep my past projects and experience. The newest are at this end, and the street gets older as you walk.",
-    "Click a shop to go inside, or walk up to it and press Enter. You can also send me a message at the post box.",
+    "Tap or click a shop to go inside. The arrows at the bottom hop between shops, and the street map takes you straight to one. You can also send me a message at the post box.",
     "Have a wander and enjoy!",
 ]
 const INTRO_SEEN_KEY = "project-street-intro-seen"
@@ -217,6 +267,12 @@ const Projects = ({ onExit }) => {
     const [nearPost, setNearPost] = useState(false)
     const [contactOpen, setContactOpen] = useState(false)
     const pendingPostRef = useRef(false)
+    const speedRef = useRef(WALK_SPEED)
+    const holdingRef = useRef(false)
+    // which stops lie either side of the Mii, as "prev,next" indexes into STOPS (-1 for none)
+    const [around, setAround] = useState(() => stopsAround(SPAWN.x))
+    const aroundRef = useRef(around)
+    const [mapOpen, setMapOpen] = useState(false)
     const [modelReady, setModelReady] = useState(false)
     const handleModelReady = useCallback(() => setModelReady(true), [])
 
@@ -237,13 +293,10 @@ const Projects = ({ onExit }) => {
 
     useEffect(() => {
         mountedRef.current = true
-        const music = new Audio(wiiPartyMusic)
-        music.loop = true
-        music.volume = 0.35
-        music.play().catch(() => { })
+        const music = startMusic(wiiPartyMusic, 0.35)
         return () => {
             mountedRef.current = false
-            music.pause()
+            stopMusic(music)
         }
     }, [])
 
@@ -410,7 +463,7 @@ const Projects = ({ onExit }) => {
                 } else if (targetRef.current) {
                     const t = targetRef.current
                     const dist = Math.hypot(t.x - pos.x, t.y - pos.y)
-                    const step = WALK_SPEED * dt
+                    const step = speedRef.current * dt
                     if (dist <= step) {
                         next = t
                         targetRef.current = null
@@ -458,6 +511,11 @@ const Projects = ({ onExit }) => {
                     nearPostRef.current = atPost
                     setNearPost(atPost)
                 }
+                const nowAround = stopsAround(posRef.current.x)
+                if (nowAround !== aroundRef.current) {
+                    aroundRef.current = nowAround
+                    setAround(nowAround)
+                }
 
                 // Arrived at the post box after clicking it
                 if (!targetRef.current && pendingPostRef.current) {
@@ -480,6 +538,36 @@ const Projects = ({ onExit }) => {
         return () => cancelAnimationFrame(frame)
     }, [enterShop, openContact])
 
+    // Head for a stop (running if it's far); with `enter`, go into the shop or post a letter on arrival
+    const goTo = useCallback((stop, enter = false) => {
+        if (modeRef.current !== "walk") return
+        targetRef.current = stop.spot
+        speedRef.current = runSpeed(posRef.current, stop.spot)
+        pendingShopRef.current = enter && stop.kind === "shop" ? stop.index : null
+        pendingPostRef.current = enter && stop.kind === "post"
+    }, [])
+
+    // The street map lists every shop; picking one runs the Mii there and in through the door
+    const openMap = useCallback(() => {
+        if (modeRef.current !== "walk") return
+        modeRef.current = "busy"
+        keysRef.current.clear()
+        targetRef.current = null
+        setMapOpen(true)
+    }, [])
+
+    const closeMap = useCallback(() => {
+        setMapOpen(false)
+        modeRef.current = "walk"
+    }, [])
+
+    const pickFromMap = (stop) => {
+        closeMap()
+        if (stop.kind === "shop" && nearIndexRef.current === stop.index) enterShop(stop.index)
+        else if (stop.kind === "post" && nearPostRef.current) openContact()
+        else goTo(stop, true)
+    }
+
     // Keyboard controls
     useEffect(() => {
         const onKeyDown = (e) => {
@@ -494,6 +582,10 @@ const Projects = ({ onExit }) => {
             }
             // typing in the contact form must not walk the Mii
             if (contactOpen) return
+            if (mapOpen) {
+                if (e.key === "Escape") closeMap()
+                return
+            }
             if (openShop) {
                 if (e.key === "Escape" || e.key === "Backspace") leaveShop()
                 return
@@ -521,7 +613,7 @@ const Projects = ({ onExit }) => {
             window.removeEventListener("keyup", onKeyUp)
             window.removeEventListener("blur", onBlur)
         }
-    }, [nearIndex, nearPost, openShop, contactOpen, introStep, enterShop, leaveShop, openContact, advanceIntro, endIntro])
+    }, [nearIndex, nearPost, openShop, contactOpen, mapOpen, introStep, enterShop, leaveShop, openContact, advanceIntro, endIntro, closeMap])
 
     const toWorld = (clientX, clientY) => {
         const rect = stageRef.current.getBoundingClientRect()
@@ -531,12 +623,29 @@ const Projects = ({ onExit }) => {
         }
     }
 
-    // Click/tap the pavement to walk there
-    const handleStageClick = (e) => {
-        if (modeRef.current !== "walk") return
+    // Click/tap the pavement to walk there; keep a finger (or the mouse button) down and drag to steer
+    const walkTowards = (e) => {
         targetRef.current = clampToPavement(toWorld(e.clientX, e.clientY))
+        speedRef.current = WALK_SPEED
         pendingShopRef.current = null
         pendingPostRef.current = false
+    }
+
+    const handleStagePointerDown = (e) => {
+        if (modeRef.current !== "walk" || e.button > 0) return
+        // shops and the post box handle their own taps
+        if (e.target.closest("button")) return
+        holdingRef.current = true
+        e.currentTarget.setPointerCapture?.(e.pointerId)
+        walkTowards(e)
+    }
+
+    const handleStagePointerMove = (e) => {
+        if (holdingRef.current && modeRef.current === "walk") walkTowards(e)
+    }
+
+    const stopHolding = () => {
+        holdingRef.current = false
     }
 
     // Click/tap a shop to walk to its door and go in
@@ -547,8 +656,7 @@ const Projects = ({ onExit }) => {
             enterShop(index)
             return
         }
-        targetRef.current = { x: doorX(index), y: DOOR_FRONT_Y }
-        pendingShopRef.current = index
+        goTo(STOPS[index + 1], true)
     }
 
     // Click/tap the post box to walk over and post a letter
@@ -559,12 +667,11 @@ const Projects = ({ onExit }) => {
             openContact()
             return
         }
-        targetRef.current = { x: POST_BOX.x, y: PAVEMENT.maxY }
-        pendingShopRef.current = null
-        pendingPostRef.current = true
+        goTo(STOPS[0], true)
     }
 
     const OpenContent = openShop?.Content
+    const [prevStop, nextStop] = around.split(",").map(Number)
 
     return (
         <motion.div
@@ -577,7 +684,10 @@ const Projects = ({ onExit }) => {
             <div
                 className="street-stage"
                 ref={stageRef}
-                onClick={handleStageClick}
+                onPointerDown={handleStagePointerDown}
+                onPointerMove={handleStagePointerMove}
+                onPointerUp={stopHolding}
+                onPointerCancel={stopHolding}
                 style={{
                     "--u": `${view.unit}px`,
                     "--world-top": `${view.worldTop}px`,
@@ -752,12 +862,125 @@ const Projects = ({ onExit }) => {
                 </button>
             )}
 
-            {introStep === null && !contactOpen && <div className="street-hint" aria-hidden="true">
-                <span className="street-hint-desktop">
-                    <kbd>←</kbd><kbd>→</kbd> or click to walk · <kbd>Enter</kbd> to go inside or post a letter
-                </span>
-                <span className="street-hint-touch">Tap to walk · tap a shop or the post box</span>
-            </div>}
+            {/* Controls along the bottom: hop to the shop either side, go in, or open the street map */}
+            {introStep === null && !contactOpen && !openShop && (
+                <nav className="street-hud" aria-label="Project Street">
+                    <p className="street-hint" aria-hidden="true">
+                        <kbd>←</kbd><kbd>→</kbd> or click to walk · <kbd>Enter</kbd> to go in
+                    </p>
+                    <div className="street-hud-row">
+                        <button
+                            type="button"
+                            className="street-hud-arrow is-prev"
+                            disabled={prevStop < 0}
+                            onClick={() => goTo(STOPS[prevStop])}
+                            aria-label={prevStop >= 0 ? `Walk to ${stopLabel(STOPS[prevStop])}` : "Start of the street"}
+                        >
+                            <img src={wiiArrowImg} alt="" draggable={false} />
+                        </button>
+                        {nearIndex >= 0 ? (
+                            <button type="button" className="street-hud-main is-action" onClick={() => enterShop(nearIndex)}>
+                                <img src={clickCursor} className="street-click-icon" alt="" draggable={false} />
+                                <span className="street-hud-label">
+                                    <span className="street-hud-sub">{SHOPS[nearIndex].title}</span>
+                                    Go inside
+                                </span>
+                            </button>
+                        ) : nearPost ? (
+                            <button type="button" className="street-hud-main is-action" onClick={openContact}>
+                                <img src={clickCursor} className="street-click-icon" alt="" draggable={false} />
+                                <span className="street-hud-label">
+                                    <span className="street-hud-sub">Post box</span>
+                                    Post a letter
+                                </span>
+                            </button>
+                        ) : (
+                            <button type="button" className="street-hud-main" onClick={openMap} aria-haspopup="dialog">
+                                <MapIcon />
+                                <span className="street-hud-label">Street map</span>
+                            </button>
+                        )}
+                        <button
+                            type="button"
+                            className="street-hud-arrow is-next"
+                            disabled={nextStop < 0}
+                            onClick={() => goTo(STOPS[nextStop])}
+                            aria-label={nextStop >= 0 ? `Walk to ${stopLabel(STOPS[nextStop])}` : "End of the street"}
+                        >
+                            <img src={wiiArrowImg} alt="" draggable={false} />
+                        </button>
+                    </div>
+                </nav>
+            )}
+
+            <AnimatePresence>
+                {mapOpen && (
+                    <motion.div
+                        className="street-map-backdrop"
+                        onClick={closeMap}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        <motion.div
+                            className="street-map"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="street-map-title"
+                            onClick={(e) => e.stopPropagation()}
+                            initial={{ y: 40, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 40, opacity: 0 }}
+                            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                        >
+                            <div className="street-map-head">
+                                <h2 id="street-map-title">Street map</h2>
+                                <p>Newest at the top. Pick a shop and I'll walk you in.</p>
+                            </div>
+                            <ol className="street-map-list">
+                                {SHOPS.map((shop, i) => (
+                                    <li key={shop.id}>
+                                        <button
+                                            type="button"
+                                            className={`street-map-item ${nearIndex === i ? "is-here" : ""}`}
+                                            style={{ "--shop-color": shop.color }}
+                                            onClick={() => pickFromMap(STOPS[i + 1])}
+                                            autoFocus={i === 0}
+                                        >
+                                            <span className="street-map-swatch" aria-hidden="true" />
+                                            <span className="street-map-text">
+                                                <span className="street-map-name">{shop.title}</span>
+                                                <span className="street-map-sub">{shop.subtitle}</span>
+                                            </span>
+                                            {shop.date && <span className="street-map-date">{shop.date}</span>}
+                                        </button>
+                                    </li>
+                                ))}
+                                <li>
+                                    <button
+                                        type="button"
+                                        className="street-map-item"
+                                        style={{ "--shop-color": "#d8262e" }}
+                                        onClick={() => pickFromMap(STOPS[0])}
+                                    >
+                                        <span className="street-map-swatch" aria-hidden="true" />
+                                        <span className="street-map-text">
+                                            <span className="street-map-name">Post box</span>
+                                            <span className="street-map-sub">Send Morgan a message</span>
+                                        </span>
+                                    </button>
+                                </li>
+                            </ol>
+                            <div className="shop-interior-footer">
+                                <button type="button" className="street-btn" onClick={closeMap}>
+                                    Close
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {openShop && (
                 <div className="shop-interior-backdrop" onClick={leaveShop}>

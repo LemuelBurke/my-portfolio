@@ -6,7 +6,7 @@
     "start": "vite",
     "build": "vite build",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
+    "deploy": "gh-pages -d dist --dotfiles",
     "dev": "vite",
     "preview": "vite preview",
     "lint": "eslint ."
@@ -22,6 +22,7 @@
     "vite": "^5.0.0"
   },
   "dependencies": {
+    "@emailjs/browser": "4.4.1",
     "@fontsource/bungee": "^5.2.7",
     "@fontsource/comfortaa": "^5.2.8",
     "@fontsource/exo-2": "^5.2.6",

@@ -162,7 +162,61 @@ const PhotoScene = ({ id, thumb }) => (
     </>
 )
 
-const SCENES = { laptop: LaptopScene, tv: TvScene, stage: StageScene, phone: PhoneScene, photo: PhotoScene }
+// Tri-AI-ge: a monitor where a typed symptom is sorted into a triage level, beside a first-aid box
+// and a stethoscope
+const ClinicScene = () => (
+    <>
+        <rect x="50" y="372" width="200" height="20" fill="#d8dee2" />
+        <rect x="66" y="300" width="110" height="68" rx="6" fill="#3a3f47" />
+        <rect x="71" y="305" width="100" height="58" rx="3" fill="#fff" />
+        {/* the patient's message */}
+        <rect x="76" y="311" width="56" height="20" rx="6" fill="#e6ecef" />
+        <path d="M81 318 H126 M81 324 H112" stroke="#9aa5ad" strokeWidth="2.5" strokeLinecap="round" />
+        {/* sorted into a level */}
+        <path d="M104 336 V344 L110 340" stroke="#16a39a" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        {[["#6fc36a", 120], ["#ffc93c", 136], ["#ef5350", 152]].map(([fill, cx]) => (
+            <circle key={cx} cx={cx} cy="350" r="5.5" fill={fill} opacity={cx === 136 ? 1 : 0.35} />
+        ))}
+        <circle cx="136" cy="350" r="9" fill="none" stroke="#ffc93c" strokeWidth="2" className="scene-glow" />
+        <rect x="114" y="368" width="14" height="6" rx="2" fill="#3a3f47" />
+        {/* first-aid box */}
+        <rect x="192" y="336" width="46" height="36" rx="6" fill="#fff" stroke="#d3dadf" strokeWidth="1.5" />
+        <rect x="206" y="330" width="18" height="8" rx="3" fill="none" stroke="#d3dadf" strokeWidth="3" />
+        <path d="M215 344 V364 M205 354 H225" stroke="#16a39a" strokeWidth="6" strokeLinecap="round" />
+        {/* stethoscope draped over the counter */}
+        <path d="M186 372 Q180 388 166 384 Q152 380 160 366" fill="none" stroke="#5d6670" strokeWidth="3" strokeLinecap="round" />
+        <circle cx="160" cy="364" r="5" fill="#9aa5ad" stroke="#5d6670" strokeWidth="2" />
+    </>
+)
+
+// CYFUNO: a wearable band on a plinth, with a suitcase and a plane heading off on a trip
+const WearableScene = () => (
+    <>
+        <rect x="50" y="374" width="200" height="18" fill="#d8dee2" />
+        {/* plane and its trail */}
+        <path d="M60 318 Q78 304 98 310" fill="none" stroke="#fff" strokeWidth="3" strokeDasharray="5 5" strokeLinecap="round" />
+        <g transform="translate(108 306) rotate(-12)">
+            <path d="M-12 0 H12 Q16 0 16 2 Q16 4 12 4 H-12 Z" fill="#fff" />
+            <path d="M-2 2 L-8 12 H-3 L6 2 Z M-2 2 L-6 -6 H-2 L4 2 Z" fill="#fff" />
+            <path d="M-12 1 L-15 -5 H-12 L-8 1 Z" fill="#fff" />
+        </g>
+        {/* plinth with the band on it */}
+        <rect x="84" y="348" width="72" height="26" rx="4" fill="#fff" />
+        <rect x="84" y="348" width="72" height="5" rx="2" fill="#efe9f8" />
+        <ellipse cx="120" cy="330" rx="24" ry="17" fill="none" stroke="#7a4fd0" strokeWidth="8" />
+        <ellipse cx="120" cy="330" rx="24" ry="17" fill="none" stroke="#fff" strokeOpacity="0.3" strokeWidth="2" />
+        <rect x="108" y="318" width="24" height="22" rx="6" fill="#2b2b2b" />
+        <rect x="112" y="322" width="16" height="14" rx="3" fill="#34beed" className="scene-glow" />
+        <path d="M116 330 L120 326 L124 330 M120 326 V334" stroke="#fff" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        {/* suitcase with a luggage tag */}
+        <rect x="178" y="330" width="54" height="44" rx="7" fill="#f0a63c" />
+        <path d="M190 330 V324 Q190 318 196 318 H214 Q220 318 220 324 V330" fill="none" stroke="#c9822a" strokeWidth="4" />
+        <path d="M194 334 V370 M216 334 V370" stroke="#c9822a" strokeWidth="3" />
+        <rect x="222" y="340" width="12" height="16" rx="2" fill="#fff" transform="rotate(10 228 348)" />
+    </>
+)
+
+const SCENES = { laptop: LaptopScene, tv: TvScene, stage: StageScene, phone: PhoneScene, photo: PhotoScene, clinic: ClinicScene, wearable: WearableScene }
 
 // What's on show in the window: a scene if the project has one, otherwise its picture
 const WindowDisplay = ({ id, scene, thumb, thumbFit }) => {
@@ -209,6 +263,34 @@ const Modern = ({ id, color }) => (
     </>
 )
 
+// 1960s post-war block: concrete panels, a flat roof with a TV aerial, ribbon windows and mosaic tiles
+const Sixties = ({ id, color }) => (
+    <>
+        <path d="M352 40 V4 M338 12 H366 M342 22 H362" stroke="#5d6670" strokeWidth="3" strokeLinecap="round" />
+        <rect x="0" y="44" width="440" height="192" fill="#ebe8e1" />
+        {[110, 220, 330].map((x) => (
+            <path key={x} d={`M${x} 50 V236`} stroke="#dcd8ce" strokeWidth="3" />
+        ))}
+        <rect x="-4" y="36" width="448" height="14" rx="4" fill="#9aa3a8" />
+        <rect x="-4" y="36" width="448" height="14" rx="4" fill={`url(#${id}-gloss)`} />
+        {[66, 146].map((y) => (
+            <g key={y}>
+                <rect x="20" y={y} width="400" height="54" rx="6" fill="#8f989e" />
+                <rect x="25" y={y + 5} width="390" height="44" rx="3" fill={`url(#${id}-sky)`} />
+                {Array.from({ length: 5 }, (_, i) => (
+                    <path key={i} d={`M${25 + (390 * (i + 1)) / 6} ${y + 5} V${y + 49}`} stroke="#8f989e" strokeWidth="4" />
+                ))}
+                <path d={`M40 ${y + 44} L72 ${y + 8}`} stroke="#fff" strokeOpacity="0.55" strokeWidth="5" strokeLinecap="round" />
+                {/* mosaic tiles under each band */}
+                {Array.from({ length: 20 }, (_, i) => (
+                    <rect key={i} x={20 + i * 20} y={y + 56} width="20" height="12" fill={color} fillOpacity={i % 3 === 0 ? 1 : i % 3 === 1 ? 0.7 : 0.45} />
+                ))}
+            </g>
+        ))}
+        <Bird x={300} y={36} delay={2.3} />
+    </>
+)
+
 // 1930s Art Deco: cream render, stepped parapet, speed lines and metal-framed windows
 const Deco = ({ id, color }) => (
     <>
@@ -223,6 +305,34 @@ const Deco = ({ id, color }) => (
         ))}
         <Window id={id} x={60} y={108} w={130} h={92} frame="#3b4652" bars={paneBars(66, 114, 118, 80, 3, 2)} sill="#efe4cc" />
         <Window id={id} x={250} y={108} w={130} h={92} frame="#3b4652" bars={paneBars(256, 114, 118, 80, 3, 2)} sill="#efe4cc" />
+    </>
+)
+
+// Edwardian: red brick with white stone bands, a shaped gable with a round window, and a bay window
+const Edwardian = ({ id, color }) => (
+    <>
+        <path d="M118 72 V44 Q118 34 130 34 Q148 34 148 18 Q148 4 164 4 H276 Q292 4 292 18 Q292 34 310 34 Q322 34 322 44 V72 Z" fill="#d9866b" />
+        <path d="M118 72 V44 Q118 34 130 34 Q148 34 148 18 Q148 4 164 4 H276 Q292 4 292 18 Q292 34 310 34 Q322 34 322 44 V72 Z" fill={`url(#${id}-brick)`} />
+        <path d="M118 44 Q118 34 130 34 Q148 34 148 18 Q148 4 164 4 H276 Q292 4 292 18 Q292 34 310 34 Q322 34 322 44" fill="none" stroke="#f4efe4" strokeWidth="7" strokeLinecap="round" />
+        <circle cx="220" cy="-6" r="7" fill="#f4efe4" />
+        <circle cx="220" cy="36" r="17" fill="#f4efe4" />
+        <circle cx="220" cy="36" r="12" fill={`url(#${id}-sky)`} />
+        <path d="M208 36 H232 M220 24 V48" stroke="#f4efe4" strokeWidth="3" />
+        <rect x="0" y="64" width="440" height="172" fill="#d9866b" />
+        <rect x="0" y="64" width="440" height="172" fill={`url(#${id}-brick)`} />
+        <rect x="-2" y="64" width="444" height="10" fill="#f4efe4" />
+        <rect x="0" y="206" width="440" height="8" fill="#f4efe4" />
+        {/* bay window in the middle, sash windows either side */}
+        <rect x="140" y="98" width="160" height="12" rx="4" fill="#f4efe4" />
+        <Window id={id} x={148} y={108} w={144} h={92} frame="#fff" bars={["M196 114 V194", "M244 114 V194", "M154 146 H286"]} />
+        <rect x="140" y="198" width="160" height="10" rx="3" fill={color} />
+        {[46, 330].map((x) => (
+            <g key={x}>
+                <rect x={x - 4} y="100" width="72" height="10" rx="3" fill="#f4efe4" />
+                <Window id={id} x={x} y={110} w={64} h={86} bars={["M" + (x + 6) + " 150 H" + (x + 58)]} />
+            </g>
+        ))}
+        <Bird x={98} y={64} flip delay={0.8} />
     </>
 )
 
@@ -316,12 +426,12 @@ const Bird = ({ x, y, flip = false, delay = 0 }) => (
     </g>
 )
 
-const UPPER = { modern: Modern, deco: Deco, victorian: Victorian, georgian: Georgian, tudor: Tudor }
+const UPPER = { modern: Modern, sixties: Sixties, deco: Deco, edwardian: Edwardian, victorian: Victorian, georgian: Georgian, tudor: Tudor }
 
-// The shopfront every building shares; the modern one is slim and frameless, the rest traditional
+// The shopfront every building shares; the modern and sixties ones are slim and frameless, the rest traditional
 const Shopfront = ({ id, color, era, scene, thumb, thumbFit }) => {
-    const modern = era === "modern"
-    const joinery = modern ? "#3a3f47" : color
+    const modern = era === "modern" || era === "sixties"
+    const joinery = era === "sixties" ? "#8f989e" : modern ? "#3a3f47" : color
     return (
         <>
             {/* cornice above the fascia */}

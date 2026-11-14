@@ -31,14 +31,24 @@ A nostalgic, interactive portfolio website inspired by the Nintendo Wii menu sys
 - **Mii Channel Music**: Authentic background audio
 
 #### My Projects (Project Street)
-- **Explorable Street**: Walk your 3D Mii down a side-scrolling street with the arrow keys/WASD, or click/tap to move
-- **Project Shops**: Each project has its own shopfront - stand outside and press Enter to go in
+- **Explorable Street**: Walk your 3D Mii down a side-scrolling street with the arrow keys/WASD, or click/tap (or hold and drag) to move
+- **Street Controls**: On-screen arrows hop to the shop either side, a big "Go inside" button appears at each door, and the Street Map lists every shop and walks you straight in
+- **Project Shops**: Each project has its own shopfront - stand outside and press Enter (or tap Go inside) to go in
 - **Idle Wave**: Your Mii waves at you if left standing still
 - **Shop Interiors**: Door and circle-wipe transition into each shop
 - **Featured Projects**: 
-  - NFL Superfan mobile app
+  - Cainan Studio
+  - Tri-AI-ge (AI triaging system, dissertation)
   - Wii Themed Portfolio Site (this project!)
+  - IBM TechXChange 2025
+  - CYFUNO (wearable travel tech, university team project)
+  - NFL Superfan mobile app
+  - Cardiff Autonomous Racing
 - **Background Music**: Wii Party soundtrack
+
+#### Forecast
+- **Live Weather**: Today and the next five days in Brisbane and Cardiff, from Open-Meteo (no API key needed)
+- **°C / °F**: Remembered between visits
 
 #### Resume and CV
 - **PDF Viewer**: View and download resume/CV
@@ -53,6 +63,10 @@ A nostalgic, interactive portfolio website inspired by the Nintendo Wii menu sys
 - **Welcome Screen**: Wii startup warning screen with animation
 - **Intermission Overlays**: Transition screens between channels (like loading screens)
 - **Pause Menu**: Right-click anywhere to open pause overlay (press Escape to close)
+- **Settings (Wii button)**: Music and sound-effect volume, rumble, reduce motion, dim when idle, bigger channels, clear arcade scores
+- **Channel Previews**: The select screen plays a snippet of each channel's music
+- **Idle Dimming**: The menu dims after two quiet minutes, like the Wii
+- **Hover Ticks and Rumble**: A soft tick when you point at a channel, and a short buzz on phones when you tap one
 - **Contact Form**: Email integration via EmailJS
 - **Smooth Animations**: Framer Motion powered transitions throughout
 - **Audio Feedback**: Click sounds and contextual music for each section
@@ -81,7 +95,7 @@ A nostalgic, interactive portfolio website inspired by the Nintendo Wii menu sys
 
 ### Channels
 - **About Me**: Click through different sections using the navigation buttons
-- **My Projects**: Walk to a shop and press Enter (or click/tap the shop) to go inside
+- **My Projects**: Walk to a shop and press Enter (or click/tap the shop) to go inside; on phones, use the arrows and Street Map along the bottom
 - **Resume and CV**: View and download the PDF
 - **LinkedIn/GitHub**: Opens in a new tab
 
@@ -137,7 +151,7 @@ A nostalgic, interactive portfolio website inspired by the Nintendo Wii menu sys
 - **Intermission Screens**: Loading-style transitions between major sections
 
 ### Responsive Design
-- **Desktop Optimized**: Best experience on desktop/tablet
+- **Phones Too**: Portrait and landscape layouts for the menu, channel select and every channel
 - **Touch Support**: Works with touch devices
 - **Adaptive Layout**: Adjusts to different screen sizes
 

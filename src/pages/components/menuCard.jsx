@@ -2,6 +2,8 @@ import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import "../../styles/menuCard.css"
 import { useIsMobile } from "../../hooks/useIsMobile"
+import { tick } from "../../sfx"
+import { rumble } from "../../settings"
 
 const MenuCard = ({ title, thumbnail, onClick }) => {
     const [showTooltip, setShowTooltip] = useState(false)
@@ -31,6 +33,8 @@ const MenuCard = ({ title, thumbnail, onClick }) => {
     }, [showTooltip])
 
     const handleMouseEnter = (e) => {
+        // the Wii's soft tick as the pointer passes over a channel
+        if (title && e.pointerType !== "touch") tick()
         if (!title || isMobile) return // Don't show tooltips on mobile
         e.currentTarget.setAttribute('data-card-hover', 'true')
         updateTooltipPosition(e.currentTarget)
@@ -43,15 +47,29 @@ const MenuCard = ({ title, thumbnail, onClick }) => {
         setShowTooltip(false)
     }
 
+    const handleClick = () => {
+        if (title) rumble()
+        onClick()
+    }
+
     return (
-        <div 
-            className="wii-card-wrap" 
-            onMouseEnter={handleMouseEnter}
+        <div
+            className="wii-card-wrap"
+            onPointerEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
-            <div 
-                className="wii-card" 
-                onClick={onClick}
+            <div
+                className="wii-card"
+                onClick={handleClick}
+                role={title ? "button" : undefined}
+                tabIndex={title ? 0 : undefined}
+                aria-label={title || undefined}
+                onKeyDown={(e) => {
+                    if (title && (e.key === "Enter" || e.key === " ")) {
+                        e.preventDefault()
+                        onClick()
+                    }
+                }}
             >
                 <div className="wii-card-inner">
                     {thumbnail && (

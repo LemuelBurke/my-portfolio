@@ -7,6 +7,7 @@ import "@fontsource/bungee/400.css"
 import "@fontsource/comfortaa/700.css"
 import arcadeMusic from "../../assets/audio/wiiSports.mp3"
 import clickCursor from "../../assets/imgs/cursor-normal2.png"
+import { startMusic, stopMusic } from "../../settings"
 
 const bestKey = (title) => `arcade-best-${title}`
 const MUTE_KEY = "arcade-muted"
@@ -144,11 +145,9 @@ const ArcadeChannel = ({ game, onExit }) => {
 
     // Background music, paused while muted
     useEffect(() => {
-        const music = new Audio(arcadeMusic)
-        music.loop = true
-        music.volume = 0.25
-        if (!muted) music.play().catch(() => { })
-        return () => music.pause()
+        if (muted) return
+        const music = startMusic(arcadeMusic, 0.25)
+        return () => stopMusic(music)
     }, [muted])
 
     const toggleMute = () => {

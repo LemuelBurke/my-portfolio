@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { sendContactMessage, HONEYPOT_FIELD } from "../../emailClient";
 
 const ContactMe = ({ isOpen, onClose }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -8,23 +9,23 @@ const ContactMe = ({ isOpen, onClose }) => {
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        // Check if emailjs is available
-        if (typeof emailjs === 'undefined') {
-            console.error('EmailJS is not loaded');
-            setSubmitStatus('error');
-            return;
-        }
+        const form = event.target;
+        const data = new FormData(form);
 
         setIsSubmitting(true);
         setSubmitStatus(null);
 
-        // Using the existing EmailJS configuration
-        emailjs.sendForm('service_4345bru', 'template_ipi80jz', event.target)
+        sendContactMessage({
+            from_name: String(data.get('from_name') || '').trim(),
+            from_email: String(data.get('from_email') || '').trim(),
+            message: String(data.get('message') || '').trim(),
+            honeypot: String(data.get(HONEYPOT_FIELD) || ''),
+        })
             .then(() => {
                 setSubmitStatus('success');
                 setIsSubmitting(false);
                 // Reset form
-                event.target.reset();
+                form.reset();
                 // Close modal after a short delay
                 setTimeout(() => {
                     onClose();
@@ -107,10 +108,22 @@ const ContactMe = ({ isOpen, onClose }) => {
                                     name="message"
                                     placeholder="Enter your message"
                                     rows="5"
+                                    maxLength={5000}
                                     required
                                     disabled={isSubmitting}
                                 />
                             </div>
+
+                            {/* honeypot: hidden from people, bots fill it in */}
+                            <input
+                                type="text"
+                                name={HONEYPOT_FIELD}
+                                className="hp-field"
+                                tabIndex={-1}
+                                autoComplete="off"
+                                aria-hidden="true"
+                                defaultValue=""
+                            />
 
                             <button
                                 type="submit"

@@ -225,3 +225,34 @@
         display: none;
     }
 }
+/* Phones and tablets scroll the menu, so the empty placeholder slots (there for the desktop's
+   two-page Wii grid) are just dead space to scroll past: leave them out */
+@media (max-width: 1024px) {
+    .menu-page > .is-empty {
+        display: none;
+    }
+
+    .menu-page:not(:has(> :not(.is-empty))) {
+        display: none;
+    }
+}
+
+/* Phones held sideways (touch screens only, not short desktop windows): four shorter cards a row
+   so they fit the little height there is (the footer stays as it is everywhere else) */
+@media (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
+    .menu-grid {
+        padding-left: max(20px, env(safe-area-inset-left));
+        padding-right: max(20px, env(safe-area-inset-right));
+    }
+
+    .menu-page {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        row-gap: 0.5rem;
+        padding-top: 0.5rem;
+    }
+
+    .spinning-disc {
+        width: 72px;
+        height: 72px;
+    }
+}

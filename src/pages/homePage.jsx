@@ -37,6 +37,10 @@ import archiveImg from "../assets/imgs/thumbnails/galaxy-map.webp"
 import archiveFullImg from "../assets/imgs/thumbnails/galaxy-map-full.webp"
 import Hyperspace from "./secret/Hyperspace"
 import { ARCHIVE_TITLE } from "./secret/galaxyContent"
+import SettingsPanel from "./components/SettingsPanel"
+import ForecastChannel from "./forecast/ForecastChannel"
+import forecastImg from "../assets/imgs/thumbnails/forecast.svg"
+import forecastFullImg from "../assets/imgs/thumbnails/forecast-full.svg"
 
 // The secret channel only loads once someone finds it
 const SecretChannel = lazy(() => import("./secret/SecretChannel"))
@@ -54,6 +58,26 @@ try {
 }
 const readUnlocked = () => unlockedThisVisit
 
+// Every channel on the menu (the hidden one is added once it's found)
+const CHANNELS = Object.fromEntries([
+    { title: "About Me", thumbnail: miiMorgan, fullImage: miiMorganFull },
+    { title: "My Projects", thumbnail: projectImg, fullImage: projectFULLimg },
+    { title: "Resume and CV", thumbnail: cvImg, fullImage: cvFULLimg },
+    { title: "Message Me", thumbnail: messageMeImg, fullImage: messageMeFullImg },
+    { title: "LinkedIn", thumbnail: linkedImg, fullImage: linkedFULLimg },
+    { title: "GitHub", thumbnail: githubImg, fullImage: githubFULLimg },
+    { title: "Forecast", thumbnail: forecastImg, fullImage: forecastFullImg },
+    ...ARCADE_GAMES.map(({ title, thumbnail, fullImage }) => ({ title, thumbnail, fullImage })),
+].map((c) => [c.title, c]))
+
+// Two pages of 4 x 3 slots: the channels in their default order, then empty slots
+const PAGES = 2
+const PER_PAGE = 12
+const SLOTS = PAGES * PER_PAGE
+const DEFAULT_ORDER = [...Object.keys(CHANNELS), ...Array(SLOTS).fill("")].slice(0, SLOTS)
+const SECRET_SLOT = 12
+
+
 // (the formatters are made once: building one is slow, and the clock asks every second)
 const timeFormat = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
 const dateFormat = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'numeric' })
@@ -61,13 +85,13 @@ const formatTime = (date) => timeFormat.format(date)
 const formatDate = (date) => dateFormat.format(date)
 
 // The footer clock ticks on its own, so the rest of the menu doesn't redraw every second
-const FooterClock = ({ className, format }) => {
+const FooterClock = ({ className, format, onClick }) => {
     const [now, setNow] = useState(() => new Date())
     useEffect(() => {
         const timer = setInterval(() => setNow(new Date()), 1000)
         return () => clearInterval(timer)
     }, [])
-    return <div className={className}>{format(now)}</div>
+    return <div className={className} onClick={onClick}>{format(now)}</div>
 }
 
 const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
@@ -80,112 +104,19 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
     const unreadUpdates = UPDATES.filter((u) => !seenUpdates.has(u.id)).length
     const [swipeDirection, setSwipeDirection] = useState(0) // -1 prev, 1 next
     const menuGridRef = useRef(null)
-    const totalPages = 2
+    const totalPages = PAGES
 
-    // The hidden Star Wars channel (the galaxy map): unlocked by the Konami code (or five quick taps on the
-    // footer's Wii button, for phones), with a jump to hyperspace that reveals its card on page 2
+    // The hidden Star Wars channel (the galaxy map): unlocked by the Konami code (or, for phones, five quick
+    // taps on the footer clock), with a jump to hyperspace that reveals its card on page 2
     const [archiveUnlocked, setArchiveUnlocked] = useState(readUnlocked)
     const [jumping, setJumping] = useState(false)
     const [archiveIsNew, setArchiveIsNew] = useState(false)
-    const wiiTapsRef = useRef([])
+
+
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
     // Key to force re-mounting menu pages to replay animations
     const [menuAnimKey, setMenuAnimKey] = useState(0)
-
-    // Create games array with all projects
-    const games = useMemo(() => {
-        const allGames = [
-            {
-                title: "About Me",
-                thumbnail: miiMorgan,
-                fullImage: miiMorganFull
-            },
-            {
-                title: "My Projects",
-                thumbnail: projectImg,
-                fullImage: projectFULLimg
-            },
-            {
-                title: "Resume and CV",
-                thumbnail: cvImg,
-                fullImage: cvFULLimg
-            },
-            {
-                title: "Message Me",
-                thumbnail: messageMeImg,
-                fullImage: messageMeFullImg
-            },
-            {
-                title: "LinkedIn",
-                thumbnail: linkedImg,
-                fullImage: linkedFULLimg
-            },
-            {
-                title: "GitHub",
-                thumbnail: githubImg,
-                fullImage: githubFULLimg
-            },
-            ...ARCADE_GAMES.map(({ title, thumbnail, fullImage }) => ({ title, thumbnail, fullImage })),
-            // empty slots fill the rest of the first page
-            ...Array.from({ length: 12 - 6 - ARCADE_GAMES.length }, (_, i) => ({
-                title: ``,
-                thumbnail: Img,
-                fullImage: Img
-            })),
-            ...Array.from({ length: 12 }, (_, i) => ({
-                title: ``,
-                thumbnail: Img,
-                fullImage: Img
-            }))
-        ];
-        // once found, the secret channel takes the first slot on page 2
-        if (archiveUnlocked) allGames[12] = { title: ARCHIVE_TITLE, thumbnail: archiveImg, fullImage: archiveFullImg }
-        return allGames;
-    }, [archiveUnlocked]);
-
-    const jumpToHyperspace = useCallback(() => {
-        if (!jumping) setJumping(true)
-    }, [jumping])
-
-    // At the height of the flash: unlock the channel and bring its card into view
-    const arriveFromHyperspace = useCallback(() => {
-        unlockedThisVisit = true
-        setArchiveUnlocked(true)
-        setArchiveIsNew(true)
-        const grid = menuGridRef.current
-        if (window.innerWidth >= 1024) {
-            setCurrentPage(1)
-            grid?.scrollTo({ left: grid.clientWidth })
-        } else {
-            requestAnimationFrame(() => document.querySelector("#page-2 .wii-card")?.scrollIntoView({ block: "center" }))
-        }
-    }, [])
-
-    // Listen for the code while the menu itself is showing
-    useEffect(() => {
-        if (activeChannel || selectedGameIndex !== null) return
-        let progress = 0
-        const onKeyDown = (e) => {
-            const key = e.key.toLowerCase()
-            progress = key === KONAMI[progress] ? progress + 1 : key === KONAMI[0] ? 1 : 0
-            if (progress === KONAMI.length) {
-                progress = 0
-                jumpToHyperspace()
-            }
-        }
-        window.addEventListener("keydown", onKeyDown)
-        return () => window.removeEventListener("keydown", onKeyDown)
-    }, [activeChannel, selectedGameIndex, jumpToHyperspace])
-
-    // Five taps on the footer's Wii button within a couple of seconds does the same
-    const handleWiiButton = () => {
-        const now = Date.now()
-        wiiTapsRef.current = [...wiiTapsRef.current.filter((t) => now - t < 2500), now]
-        if (wiiTapsRef.current.length >= 5) {
-            wiiTapsRef.current = []
-            jumpToHyperspace()
-        }
-    }
 
     // When closing selected game, force menu pages to re-mount to replay card animations (only on
     // closing: on first load the cards are already animating in, and remounting them all again
@@ -199,12 +130,91 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
         hadSelection.current = selectedGameIndex !== null
     }, [selectedGameIndex])
 
+    const games = useMemo(() => {
+        const slots = [...DEFAULT_ORDER]
+        // once found, the secret channel takes the first slot on page 2
+        if (archiveUnlocked) slots[SECRET_SLOT] = ARCHIVE_TITLE
+        return slots.map((title) =>
+            title === ARCHIVE_TITLE
+                ? { title, thumbnail: archiveImg, fullImage: archiveFullImg }
+                : CHANNELS[title] ?? { title: "", thumbnail: Img, fullImage: Img }
+        )
+    }, [archiveUnlocked]);
+
+    // Load the full-size channel banners once the menu has settled, so a channel's zoom never shows an empty box
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            Object.values(CHANNELS).forEach(({ fullImage }) => {
+                const img = new Image()
+                img.src = fullImage
+            })
+        }, 1500)
+        return () => clearTimeout(timer)
+    }, [])
+
+    // Where the menu has to scroll to show a page (pages are narrower than the window, so it isn't page x width)
+    const pageLeft = (page) => {
+        const grid = menuGridRef.current
+        const el = document.getElementById(`page-${page + 1}`)
+        if (!grid || !el) return 0
+        return el.offsetLeft - parseFloat(getComputedStyle(grid).paddingLeft)
+    }
+
+    const jumpToHyperspace = useCallback(() => {
+        if (!jumping) setJumping(true)
+    }, [jumping])
+
+    // At the height of the flash: unlock the channel and bring its card into view
+    const arriveFromHyperspace = useCallback(() => {
+        unlockedThisVisit = true
+        setArchiveUnlocked(true)
+        setArchiveIsNew(true)
+        const grid = menuGridRef.current
+        if (window.innerWidth >= 1024) {
+            setCurrentPage(1)
+            grid?.scrollTo({ left: pageLeft(1) })
+        } else {
+            requestAnimationFrame(() => document.querySelector("#page-2 .wii-card")?.scrollIntoView({ block: "center" }))
+        }
+    }, [])
+
+    // Listen for the code while the menu itself is showing
+    useEffect(() => {
+        if (activeChannel || selectedGameIndex !== null || isSettingsOpen) return
+        let progress = 0
+        const onKeyDown = (e) => {
+            const key = e.key.toLowerCase()
+            progress = key === KONAMI[progress] ? progress + 1 : key === KONAMI[0] ? 1 : 0
+            if (progress === KONAMI.length) {
+                progress = 0
+                jumpToHyperspace()
+            }
+        }
+        window.addEventListener("keydown", onKeyDown)
+        return () => window.removeEventListener("keydown", onKeyDown)
+    }, [activeChannel, selectedGameIndex, isSettingsOpen, jumpToHyperspace])
+
+    // The footer's Wii button opens Settings
+    const handleWiiButton = () => setIsSettingsOpen(true)
+
+    // Five quick taps on the clock also jump to hyperspace: the Konami code for phones
+    const clockTapsRef = useRef([])
+    const handleClockTap = () => {
+        const now = Date.now()
+        clockTapsRef.current = [...clockTapsRef.current.filter((t) => now - t < 2500), now]
+        if (clockTapsRef.current.length >= 5) {
+            clockTapsRef.current = []
+            jumpToHyperspace()
+        }
+    }
+
+
     // Opening a channel unmounts the menu, so when it comes back, scroll it straight to the page
     // it was on; otherwise it shows page 1 while the arrows still think they're on page 2
     useLayoutEffect(() => {
         const grid = menuGridRef.current
         if (activeChannel || !grid) return
-        if (window.innerWidth >= 1024) grid.scrollLeft = currentPage * grid.clientWidth
+        if (window.innerWidth >= 1024) grid.scrollLeft = pageLeft(currentPage)
         else if (currentPage !== 0) setCurrentPage(0)
         // only when the menu mounts again, not on every page change (the arrows scroll it themselves)
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -217,7 +227,7 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
 
             if (menuGridRef.current) {
                 menuGridRef.current.scrollTo({
-                    left: nextPage * menuGridRef.current.clientWidth,
+                    left: pageLeft(nextPage),
                     behavior: 'smooth'
                 })
             }
@@ -231,7 +241,7 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
 
             if (menuGridRef.current) {
                 menuGridRef.current.scrollTo({
-                    left: prevPage * menuGridRef.current.clientWidth,
+                    left: pageLeft(prevPage),
                     behavior: 'smooth'
                 })
             }
@@ -253,23 +263,40 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
 
     // Game navigation
     const handleGameSelect = (index) => {
+        // empty slots have nothing to open
+        if (!games[index].title) return
         setSelectedGameIndex(index)
         setSwipeDirection(0)
     }
 
-    const handleNextGame = () => {
-        if (selectedGameIndex < games.length - 1) {
-            setSwipeDirection(1)
-            setSelectedGameIndex(selectedGameIndex + 1)
+    // the select screen's arrows step through the real channels, skipping empty slots
+    const findChannel = (from, step) => {
+        for (let i = from + step; i >= 0 && i < games.length; i += step) if (games[i].title) return i
+        return -1
+    }
+    const nextGameIndex = selectedGameIndex === null ? -1 : findChannel(selectedGameIndex, 1)
+    const prevGameIndex = selectedGameIndex === null ? -1 : findChannel(selectedGameIndex, -1)
+
+    // Stepping to a channel on another page turns the menu behind to that page too
+    const showChannel = (index, direction) => {
+        setSwipeDirection(direction)
+        setSelectedGameIndex(index)
+        const page = Math.floor(index / PER_PAGE)
+        const grid = menuGridRef.current
+        if (page !== currentPage && grid && window.innerWidth >= 1024) {
+            setCurrentPage(page)
+            grid.scrollTo({ left: pageLeft(page), behavior: "instant" })
         }
     }
 
-    const handlePrevGame = () => {
-        if (selectedGameIndex > 0) {
-            setSwipeDirection(-1)
-            setSelectedGameIndex(selectedGameIndex - 1)
-        }
+    const handleNextGame = () => {
+        if (nextGameIndex >= 0) showChannel(nextGameIndex, 1)
     }
+
+    const handlePrevGame = () => {
+        if (prevGameIndex >= 0) showChannel(prevGameIndex, -1)
+    }
+
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -325,6 +352,10 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
         return <LetterChannel onExit={onChannelClose} />
     }
 
+    if (activeChannel === "Forecast") {
+        return <ForecastChannel onExit={onChannelClose} />
+    }
+
     if (activeChannel === ARCHIVE_TITLE) {
         return (
             <Suspense fallback={<div style={{ position: "fixed", inset: 0, background: "#03060f" }} />}>
@@ -340,7 +371,7 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
     }
 
     // Known channels that render dedicated pages
-    const knownChannels = new Set(["About Me", "Resume and CV", "My Projects", "Message Me", ARCHIVE_TITLE, ...ARCADE_GAMES.map((g) => g.title)])
+    const knownChannels = new Set(["About Me", "Resume and CV", "My Projects", "Message Me", "Forecast", ARCHIVE_TITLE, ...ARCADE_GAMES.map((g) => g.title)])
 
     return (
         <div>
@@ -398,58 +429,41 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
 
                     <div className="push-left">
                         <div className="menu-grid" ref={menuGridRef}>
-                            {/* PAGE 1 */}
-                            <motion.div
-                                className="menu-page"
-                                id="page-1"
-                                key={`page1-${menuAnimKey}`}
-                                variants={containerVariants}
-                                initial="hidden"
-                                animate="visible"
-                            >
-                                {games.slice(0, 12).map((game, i) => (
-                                    <motion.div
-                                        key={`page1-${i}-${menuAnimKey}`}
-                                        variants={cardVariants}
-                                        className="menu-card-wrapper"
-                                    >
-                                        {i === 0 && (
-                                            <div className="spinning-disc" aria-hidden="true">
-                                                <img src={discImg} alt="" draggable={false} />
-                                            </div>
-                                        )}
-                                        <MenuCard
-                                            title={game.title}
-                                            thumbnail={game.thumbnail}
-                                            onClick={() => handleGameSelect(i)}
-                                        />
-                                    </motion.div>
-                                ))}
-                            </motion.div>
-
-                            {/* PAGE 2 */}
-                            <motion.div
-                                className="menu-page"
-                                id="page-2"
-                                key={`page2-${menuAnimKey}`}
-                                variants={containerVariants}
-                                initial="hidden"
-                                animate="visible"
-                            >
-                                {games.slice(12, 24).map((game, i) => (
-                                    <motion.div
-                                        key={`page2-${i}-${menuAnimKey}`}
-                                        className={i === 0 && archiveIsNew ? "is-new" : undefined}
-                                        variants={cardVariants}
-                                    >
-                                        <MenuCard
-                                            title={game.title}
-                                            thumbnail={game.thumbnail}
-                                            onClick={() => handleGameSelect(i + 12)}
-                                        />
-                                    </motion.div>
-                                ))}
-                            </motion.div>
+                            {/* four pages of 4 x 3 channels, like the Wii */}
+                            {Array.from({ length: PAGES }, (_, page) => (
+                                <motion.div
+                                    className="menu-page"
+                                    id={`page-${page + 1}`}
+                                    key={`page${page}-${menuAnimKey}`}
+                                    variants={containerVariants}
+                                    initial="hidden"
+                                    animate="visible"
+                                >
+                                    {games.slice(page * PER_PAGE, (page + 1) * PER_PAGE).map((game, i) => {
+                                        const slot = page * PER_PAGE + i
+                                        const isSecret = game.title === ARCHIVE_TITLE
+                                        return (
+                                            <motion.div
+                                                key={`slot${slot}-${menuAnimKey}`}
+                                                variants={cardVariants}
+                                                data-slot={slot}
+                                                className={`menu-card-wrapper ${isSecret && archiveIsNew ? "is-new" : ""} ${game.title ? "" : "is-empty"}`}
+                                            >
+                                                {slot === 0 && (
+                                                    <div className="spinning-disc" aria-hidden="true">
+                                                        <img src={discImg} alt="" draggable={false} />
+                                                    </div>
+                                                )}
+                                                <MenuCard
+                                                    title={game.title}
+                                                    thumbnail={game.thumbnail}
+                                                    onClick={() => handleGameSelect(slot)}
+                                                />
+                                            </motion.div>
+                                        )
+                                    })}
+                                </motion.div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -464,15 +478,17 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                     >
                     <div>
                             {/* Time above footer in the dip */}
-                            <FooterClock className="footer-time-above" format={formatTime} />
+                            <FooterClock className="footer-time-above" format={formatTime} onClick={handleClockTap} />
                         
                             {/* Footer base image */}
                             <img src={footerImg} alt="" className="footer-base-img" draggable={false} />
                         
                             {/* Wii button on the left */}
-                            <button 
+                            <button
                                 className="footer-wii-button"
                                 onClick={handleWiiButton}
+                                aria-label="Settings"
+                                aria-haspopup="dialog"
                             >
                                 Wii
                             </button>
@@ -495,6 +511,14 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                     </motion.div>
                 )}
             </motion.div>
+
+            <AnimatePresence>
+                {isSettingsOpen && (
+                    <SettingsPanel
+                        onClose={() => setIsSettingsOpen(false)}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Notices from Morgan, opened by the mail button */}
             <UpdatesBoard
@@ -540,8 +564,8 @@ const HomePage = ({ onChannelOpen, activeChannel, onChannelClose }) => {
                         }}
                         onNext={handleNextGame}
                         onPrev={handlePrevGame}
-                        hasNext={selectedGameIndex < games.length - 1}
-                        hasPrev={selectedGameIndex > 0}
+                        hasNext={nextGameIndex >= 0}
+                        hasPrev={prevGameIndex >= 0}
                         direction={swipeDirection}
                     />
                 )}

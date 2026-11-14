@@ -1,4 +1,4 @@
-import { useCallback, useState, useContext } from "react"
+import { useCallback, useEffect, useState, useContext } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { SoundContext } from "../App"
 import "../styles/warningWelcome.css"
@@ -15,6 +15,20 @@ const WarningWelcome = ({ onDismiss }) => {
         startWelcomeAudio()
         setVisible(false)
     }, [startWelcomeAudio])
+
+    // Enter or Space continues too, like pressing A
+    useEffect(() => {
+        if (!visible) return
+        const onKey = (e) => {
+            if (e.key !== "Enter" && e.key !== " ") return
+            if (document.activeElement?.closest?.("a, button")) return
+            e.preventDefault()
+            startWelcomeAudio()
+            setVisible(false)
+        }
+        window.addEventListener("keydown", onKey)
+        return () => window.removeEventListener("keydown", onKey)
+    }, [visible, startWelcomeAudio])
 
     const handleExited = useCallback(() => {
         onDismiss?.()
@@ -61,7 +75,8 @@ const WarningWelcome = ({ onDismiss }) => {
                         </p>
 
                         <p className="landing-hint">
-                            Click <img src={normCursor} className="clickCursorImg" alt="cursor" /> to continue.
+                            <span className="hint-click">Click</span><span className="hint-tap">Tap</span>{" "}
+                            <img src={normCursor} className="clickCursorImg" alt="" /> to continue.
                         </p>
 
                         <p className="disclaimer">This site is <b>not</b> affiliated with, endorsed by, or in partnership with Nintendo. All trademarks and copyrights related to Nintendo and the Wii™ system belong to their respective owners.</p>

@@ -141,3 +141,15 @@
 @media (max-width: 768px) {
     .wii-card-wrap { max-width: 100%; }
 }
+
+/* no text selection or iOS callout on a long press */
+.wii-card {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.wii-card:focus-visible {
+    outline: 3px solid #34beed;
+    outline-offset: 3px;
+}

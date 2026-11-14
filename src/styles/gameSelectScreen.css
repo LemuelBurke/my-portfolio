@@ -478,3 +478,51 @@ button {
         padding: clamp(14px, 2vh, 18px) clamp(30px, 4vw, 45px);
     }
 }
+
+.game-fullscreen-image .game-fullscreen-backdrop {
+    display: none;
+}
+
+/* Phones in portrait: the banners are wide, so fit the whole thing rather than cropping its sides */
+@media (max-width: 768px) and (orientation: portrait) {
+    .game-fullscreen-image img {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        height: auto;
+        max-height: 100%;
+    }
+
+    .game-fullscreen-image .game-fullscreen-backdrop {
+        display: block;
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: blur(18px) brightness(0.85);
+        transform: scale(1.2);
+    }
+}
+
+/* Phones held sideways (touch screens only, not short desktop windows): the buttons sit side by side so the banner stays visible */
+@media (max-height: 500px) and (orientation: landscape) and (pointer: coarse) {
+    .game-fullscreen-image {
+        bottom: 84px;
+    }
+
+    .game-fullscreen-footer-content {
+        flex-direction: row;
+        justify-content: center;
+        gap: 16px;
+        padding: 12px max(16px, env(safe-area-inset-right)) 12px max(16px, env(safe-area-inset-left));
+    }
+
+    .game-fullscreen-btn {
+        min-width: 0;
+        width: min(240px, 40vw);
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+}

@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, createContext } from 'react'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, MotionConfig } from 'framer-motion'
 import WarningWelcome from './pages/warningWelcome'
 import HomePage from './pages/homePage'
 import clickSound from './assets/audio/click-sound.mp3'
@@ -9,10 +9,17 @@ import IntermissionOverlay from './pages/components/intermissionOverlay'
 import PauseOverlay from './pages/components/pauseOverlay'
 import { ARCADE_TITLES } from './pages/arcade/arcadeTitles'
 import { ARCHIVE_TITLE } from './pages/secret/galaxyContent'
+import { setMusicLevel, sfxVolume, useSettings } from './settings'
+
+// Channels that open with the Wii intermission screen
+const INTERMISSION_CHANNELS = ['About Me', 'Resume and CV', 'My Projects', 'Message Me', 'Forecast', ARCHIVE_TITLE, ...ARCADE_TITLES]
+// The menu dims after this long without any input, like the Wii's screen burn-in reduction
+const IDLE_DIM_MS = 2 * 60 * 1000
 
 export const SoundContext = createContext({
     playSound: () => { },
     startWelcomeAudio: () => { },
+    duckMenu: () => { },
 })
 
 function App() {
@@ -21,6 +28,8 @@ function App() {
     const [activeChannel, setActiveChannel] = useState(null) // NEW: Track active channel
     const [isIntermission, setIsIntermission] = useState(false)
     const [isPauseOpen, setIsPauseOpen] = useState(false)
+    const [dimmed, setDimmed] = useState(false)
+    const settings = useSettings()
 
     const audioSources = useRef({ click: clickSound, startup: startUpSound, menu: wiimenu })
     const audioCache = useRef({})
@@ -31,13 +40,13 @@ function App() {
 
         const startup = new Audio(audioSources.current.startup)
         startup.preload = 'auto'
-        startup.volume = 0.3
+        startup.volume = sfxVolume(0.3)
         audioCache.current.startup = startup
 
         const menu = new Audio(audioSources.current.menu)
         menu.preload = 'auto'
         menu.loop = true
-        menu.volume = 0.3
+        setMusicLevel(menu, 0.3)
         audioCache.current.menu = menu
 
         return () => {
@@ -52,19 +61,23 @@ function App() {
         if (!src) return
 
         if (allowOverlap) {
-            const a = new Audio(src); a.volume = volume; a.preload = 'auto'
+            const a = new Audio(src); a.volume = sfxVolume(volume); a.preload = 'auto'
             a.play().catch(() => { })
             return
         }
 
         let el = audioCache.current[name]
         if (!el) {
-            el = new Audio(src); el.volume = volume; el.preload = 'auto'
+            el = new Audio(src); el.preload = 'auto'
             audioCache.current[name] = el
         }
+        el.volume = sfxVolume(volume)
         try { el.currentTime = 0 } catch (_) { }
         el.play().catch(() => { })
     }
+
+    // The menu music fades right down while a channel preview plays its own music
+    const duckMenu = (on) => setMusicLevel(audioCache.current.menu, on ? 0.03 : 0.3)
 
     const startWelcomeAudio = () => {
         const startupAudio = audioCache.current.startup
@@ -138,7 +151,7 @@ function App() {
     // Channel management functions
     const openChannel = (channelId) => {
         // Show intermission for specific "game" screens
-        if (channelId === 'About Me' || channelId === 'Resume and CV' || channelId === 'My Projects' || channelId === 'Message Me' || channelId === ARCHIVE_TITLE || ARCADE_TITLES.includes(channelId)) {
+        if (INTERMISSION_CHANNELS.includes(channelId)) {
             setIsIntermission(true)
             pendingChannelRef.current = channelId
             intermissionTimerRef.current = setTimeout(() => {
@@ -172,8 +185,29 @@ function App() {
         }
     }, [activeChannel, showWelcome, isIntermission])
 
+    // Dim the menu after a while with no input; any movement, tap or key wakes it straight away
+    const onMenu = !showWelcome && !activeChannel && !isIntermission
+    useEffect(() => {
+        if (!onMenu || !settings.dimWhenIdle) return
+        let timer
+        const wake = () => {
+            setDimmed(false)
+            clearTimeout(timer)
+            timer = setTimeout(() => setDimmed(true), IDLE_DIM_MS)
+        }
+        const events = ['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart']
+        events.forEach((e) => window.addEventListener(e, wake, { passive: true }))
+        wake()
+        return () => {
+            clearTimeout(timer)
+            setDimmed(false)
+            events.forEach((e) => window.removeEventListener(e, wake))
+        }
+    }, [onMenu, settings.dimWhenIdle])
+
     return (
-        <SoundContext.Provider value={{ playSound, startWelcomeAudio }}>
+        <MotionConfig reducedMotion={settings.reduceMotion ? 'always' : 'user'}>
+        <SoundContext.Provider value={{ playSound, startWelcomeAudio, duckMenu }}>
             {/* Welcome Screen - Shows first, then disappears */}
             <AnimatePresence mode="wait" initial={false}>
                 {showWelcome && (
@@ -210,7 +244,9 @@ function App() {
                     onChannelClose={closeChannel}
                 />
             )}
+            <div className={`idle-dim ${dimmed ? 'is-dimmed' : ''}`} aria-hidden="true" />
         </SoundContext.Provider>
+        </MotionConfig>
     )
 }
 

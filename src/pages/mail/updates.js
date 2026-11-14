@@ -3,6 +3,13 @@
 // `action` adds a button that opens a channel.
 export const UPDATES = [
     {
+        id: "settings-forecast",
+        date: "8 Nov 2026",
+        title: "New: Forecast and Settings",
+        body: "Check the weather in Brisbane and Cardiff, and press the Wii button for Settings: music and sound levels, calmer motion and more.",
+        action: { label: "Open Forecast", channel: "Forecast" },
+    },
+    {
         id: "welcome",
         date: "15 Oct 2026",
         title: "Welcome to my site!",

@@ -146,3 +146,45 @@
         opacity: 0;
     }
 }
+
+/* Phones: the screen scrolls rather than cutting off the title, and the big gaps tighten up */
+.landing-overlay {
+    overflow-y: auto;
+}
+
+.landing-inner {
+    margin: auto 0;
+}
+
+@media (max-width: 600px), (max-height: 600px) {
+    .landing-inner {
+        padding: 1.25rem 0.5rem;
+    }
+
+    .warning-title {
+        font-size: clamp(1.3rem, 6vw, 1.6rem);
+        margin-bottom: clamp(1.5rem, 6vh, 3rem);
+    }
+
+    .warning-body p {
+        font-size: clamp(0.95rem, 4.2vw, 1.1rem);
+    }
+
+    .warning-small,
+    .landing-hint {
+        margin-top: clamp(1rem, 4vh, 2rem);
+    }
+
+    .disclaimer {
+        margin-top: clamp(1.25rem, 5vh, 2.5rem);
+    }
+}
+
+.hint-tap {
+    display: none;
+}
+
+@media (hover: none) {
+    .hint-click { display: none; }
+    .hint-tap { display: inline; }
+}

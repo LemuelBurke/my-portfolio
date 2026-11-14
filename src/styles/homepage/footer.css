@@ -280,3 +280,14 @@
         font-size: clamp(1rem, 2vw, 1.4rem);
     }
 }
+
+/* the clock takes taps (five quick ones are the phones' Konami code) */
+.footer-time-above {
+    pointer-events: auto;
+    width: auto;
+    padding-left: 0.4em;
+    padding-right: 0.4em;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}

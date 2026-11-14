@@ -1003,3 +1003,41 @@
         transition: none;
     }
 }
+
+/* Small globes (phones): the places are too close together for every label to fit, so only the
+   chosen place keeps its label and the rest become dots you can tap */
+.globe {
+    container-type: inline-size;
+}
+
+@container (max-width: 380px) {
+    .globe-pin:not(.is-selected) .globe-pin-label {
+        display: none;
+    }
+
+    .globe-pin:not(.is-selected)::after {
+        left: -7px;
+        bottom: -7px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 35%, #ffffff 0%, #d7f0fc 70%);
+        border: 2px solid #7b3fbf;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+
+    /* tapping a dot needs a finger-sized target, not just the dot itself */
+    .globe-pin:not(.is-selected)::before {
+        content: "";
+        position: absolute;
+        left: -18px;
+        top: -18px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+    }
+
+    .globe-pin.is-selected .globe-pin-label {
+        z-index: 1;
+    }
+}
